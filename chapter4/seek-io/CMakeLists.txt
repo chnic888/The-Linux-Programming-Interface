@@ -1,8 +1,8 @@
-project(4-1-tee C)
+project(4-seek-io C)
 
 include_directories(./include)
 
-add_library(${PROJECT_NAME}_static STATIC src/tee.c)
+add_library(${PROJECT_NAME}_static STATIC src/seek_io.c)
 
 add_executable(${PROJECT_NAME} main.c)
 
