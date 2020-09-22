@@ -1,5 +1,5 @@
-#include "include/reboot.h"
+#include "reboot.h"
 
-int main(int agrc, char *argv[]) {
+int main() {
     return rebootSys();
 }

@@ -1,4 +1,4 @@
-project(3-1 C)
+project(3-1-reboot C)
 
 include_directories(./include)
 

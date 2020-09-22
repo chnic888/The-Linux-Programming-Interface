@@ -30,7 +30,7 @@ int tee(int argc, char *argv[]) {
                         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     }
 
-    while ((numberRead = read(stdin->_fileno, buf, MAX_SIZE)) > 0) {
+    while ((numberRead = read(fileno(stdin), buf, MAX_SIZE)) > 0) {
         char tmpBuf[MAX_SIZE];
         strcpy(tmpBuf, buf);
 
@@ -38,7 +38,7 @@ int tee(int argc, char *argv[]) {
             fprintf(stderr, "%d, %d\n", errno, numberRead);
         }
 
-        if (write(stdout->_fileno, tmpBuf, numberRead) != numberRead) {
+        if (write(fileno(stdout), tmpBuf, numberRead) != numberRead) {
             fprintf(stderr, "%d, %d\n", errno, numberRead);
         }
     }
