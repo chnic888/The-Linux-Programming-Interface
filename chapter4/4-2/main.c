@@ -1,5 +1,5 @@
 #include "copy.h"
 
-int main(int argc, char *agrv[]) {
-    return copy(argc, agrv);
+int main(int argc, char *argv[]) {
+    return copy(argc, argv);
 }
