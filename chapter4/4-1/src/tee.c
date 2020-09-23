@@ -19,7 +19,7 @@ int tee(int argc, char *argv[]) {
 
     char *fileName = getTeeOpt(argc, argv, &isAppend);
     if (fileName == NULL) {
-        fprintf(stderr, "failed to get fail name\n");
+        fprintf(stderr, "failed to get file name\n");
         return (EXIT_FAILURE);
     }
 

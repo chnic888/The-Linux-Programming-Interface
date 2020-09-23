@@ -8,7 +8,7 @@ long getOffset(char *);
 int seekio(int argc, char *argv[]) {
     size_t len;
     long offset;
-    int fd, ap, j;
+    int fd, ap;
     char *buf = NULL;
     ssize_t numRead, numWritten;
 
@@ -20,7 +20,6 @@ int seekio(int argc, char *argv[]) {
     fd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     if (fd == -1) {
         fprintf(stderr, "failed to create file %s", argv[0]);
-
         return (EXIT_FAILURE);
     }
 
