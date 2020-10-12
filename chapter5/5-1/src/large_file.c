@@ -3,8 +3,6 @@
 #include <unistd.h>
 #include <string.h>
 
-#define _FILE_OFFSET_BITS 64
-
 int largeFile(int argc, char *argv[]) {
     int fd;
     off_t offset;
