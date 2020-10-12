@@ -1,3 +1,5 @@
+# FILE I/O: FURTHER DETAILS
+
 ## Atomicity and Race Conditions
 - 使用open()方法打开并创建文件时，可以通过同时传入O_CREATE和O_EXCL标志来保证open()操作原子性
 - 可以通过传入O_APPEND标志来保证数据写入操作和偏移量移动操作为同一原子操作
@@ -16,3 +18,5 @@
 - 不同进程可以通过fork()，实现不同进程内的file descriptor指向同一个open file description
 - 不同进程内各自对同一文件调用open()或者同一进程内多次调用open(), 实现进程内不同的file descriptor指向不同的open file description但是指向同一i-node表中的条目
 
+##  File I/O at a Specified Offset: pread() and pwrite()
+pread()和pwrite()不会移动open file中的文件偏移量，相当于lseek，read/write、lseek操作同事纳入了同一原子性的操作
