@@ -35,15 +35,22 @@ int atomicAppend(int argc, char *argv[]) {
     if (argc == 4) {
         if (lseek(fd, 0, SEEK_END) == -1) {
             fprintf(stderr, "failed to seek the end of file, %d\n", errno);
+            free(str);
+            str = NULL;
             return (EXIT_FAILURE);
         }
     }
 
     if (write(fd, str, length) == -1) {
         fprintf(stderr, "failed to write %ld bytes, %d\n", length, errno);
+        free(str);
+        str = NULL;
         return (EXIT_FAILURE);
     }
 
+    free(str);
+    str = NULL;
+    
     if (close(fd) == -1) {
         fprintf(stderr, "failed to close file %s, %d\n", argv[1], errno);
         return (EXIT_FAILURE);
