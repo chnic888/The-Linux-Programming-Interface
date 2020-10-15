@@ -3,21 +3,16 @@
 
 #endif //THE_LINUX_PROGRAMMING_INTERFACE_READV_H
 
-#define NAME_SIZE 20
-#define CLUB_NAME 20
+#define SIZE 20
+
+int rdv(int, char *[]);
 
 struct player {
-    char firstName[NAME_SIZE];
-    char lastName[NAME_SIZE];
+    char firstName[SIZE];
+    char lastName[SIZE];
     int age;
-};
-
-struct club {
-    char name[CLUB_NAME];
-    int league;
-    char delimiter1;
+    char league[SIZE];
+    char club[SIZE];
     int rating;
-    char delimiter2;
     int point;
 };
-
