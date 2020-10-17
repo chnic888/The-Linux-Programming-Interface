@@ -19,14 +19,14 @@ int appendSeekSet(int argc, char *argv[]) {
         return (EXIT_FAILURE);
     }
 
-    fprintf(stdout, "current seek offset is %lld\n", lseek(fd, 0, SEEK_CUR));
+    fprintf(stdout, "current seek offset is %ld\n", lseek(fd, 0, SEEK_CUR));
 
     off_t offset = lseek(fd, 100000, SEEK_CUR);
     if (offset == -1) {
         fprintf(stderr, "failed to seek the beginning of the file %s", argv[1]);
         return (EXIT_FAILURE);
     }
-    fprintf(stdout, "current seek offset is %lld\n", offset);
+    fprintf(stdout, "current seek offset is %ld\n", offset);
 
     char *str = "test";
     if (write(fd, str, strlen(str)) == -1) {

@@ -57,7 +57,7 @@ void printFdOffsetInfo(int fd, int dupFd) {
     off_t fdOffset = lseek(fd, 0, SEEK_CUR);
     off_t dupFdOffset = lseek(dupFd, 0, SEEK_CUR);
 
-    fprintf(stdout, "fd offset %lld, dupFd offset %lld\n", fdOffset, dupFdOffset);
+    fprintf(stdout, "fd offset %ld, dupFd offset %ld\n", fdOffset, dupFdOffset);
 }
 
 void printFdFlagInfo(int fd, int dupFd) {
