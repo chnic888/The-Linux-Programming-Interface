@@ -2,6 +2,8 @@
 #include <string.h>
 #include <errno.h>
 
+extern char **environ;
+
 static int setEnvironment(const char *, long);
 
 static int unsetEnvironment(const char *);
@@ -54,7 +56,51 @@ static int setEnvironment(const char *envVariable, long overwrite) {
     return (EXIT_SUCCESS);
 }
 
+static void showEnv() {
+    int i = 0;
+    char **ep = environ;
+
+    while (*ep != NULL) {
+        fprintf(stdout, "%d %s\n", ++i, *ep);
+        ep++;
+    }
+}
+
 static int unsetEnvironment(const char *envName) {
+    if (!getenv(envName)) {
+        fprintf(stdout, "not exist\n");
+        return (EXIT_SUCCESS);
+    }
+
+    showEnv();
+
+    char **ep = environ;
+    char *tmpEnvName = malloc(strlen(envName) + 1);
+    strcpy(tmpEnvName, envName);
+    tmpEnvName[strlen(envName)] = '=';
+
+    while (*ep != NULL) {
+        if (strncmp(*ep, tmpEnvName, strlen(envName) + 1) == 0) {
+            char **eep = ep;
+            while (*eep) {
+                ++eep;
+                *ep = *eep;
+                ++ep;
+            }
+
+            showEnv();
+
+            free(tmpEnvName);
+            tmpEnvName = NULL;
+
+            return (EXIT_SUCCESS);
+        }
+        ep++;
+    }
+
+    free(tmpEnvName);
+    tmpEnvName = NULL;
+
     return (EXIT_SUCCESS);
 }
 
