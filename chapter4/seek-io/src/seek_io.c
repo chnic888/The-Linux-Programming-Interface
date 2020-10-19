@@ -77,6 +77,6 @@ int seekio(int argc, char *argv[]) {
 }
 
 long getOffset(char *str) {
-    char *end = str + strlen(str) - 1;
+    char *end = NULL;
     return strtol(str + 1, &end, 0);
 }

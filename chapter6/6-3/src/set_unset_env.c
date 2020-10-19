@@ -15,7 +15,7 @@ int setUnsetEnv(int argc, char *argv[]) {
     }
 
     if (strcmp(argv[1], "set") == 0) {
-        char *end = argv[3] + strlen(argv[3]);
+        char *end = NULL;
         long overwrite = strtol(argv[3], &end, 0);
 
         return setEnvironment(argv[2], overwrite);

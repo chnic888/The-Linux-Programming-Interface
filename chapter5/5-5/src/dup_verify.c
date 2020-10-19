@@ -30,7 +30,7 @@ int dupVerify(int argc, char *argv[]) {
 
     printFdOffsetInfo(fd, dupFd);
 
-    char *end = argv[2] + strlen(argv[2]);
+    char *end = NULL;
     long size = strtol(argv[2], &end, 0);
 
     char buf[size];

@@ -18,7 +18,7 @@ int largeFile(int argc, char *argv[]) {
         return (EXIT_FAILURE);
     }
 
-    char *end = argv[2] + strlen(argv[2]);
+    char *end = NULL;
     offset = strtoll(argv[2], &end, 0);
 
     if (lseek(fd, offset, SEEK_SET) == -1) {

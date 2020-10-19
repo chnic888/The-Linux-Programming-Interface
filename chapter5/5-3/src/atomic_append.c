@@ -24,7 +24,7 @@ int atomicAppend(int argc, char *argv[]) {
         return (EXIT_FAILURE);
     }
 
-    char *end = argv[2] + strlen(argv[2]);
+    char *end = NULL;
     size_t length = strtoll(argv[2], &end, 0);
 
     char *str = malloc(length * sizeof(char));
