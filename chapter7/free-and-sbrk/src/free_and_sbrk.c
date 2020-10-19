@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #define MAX_ALLOCS 1000000
 
@@ -10,7 +11,7 @@ static int getInt(const char *, int);
 
 int freeSbrk(int argc, char *argv[]) {
     char *ptr[MAX_ALLOCS];
-    int freeStrep, freeMin, freeMax, blockSize, numAllocs, j;
+    int freeStep, freeMin, freeMax, blockSize, numAllocs, j;
 
     fprintf(stdout, "\n");
 
@@ -27,8 +28,34 @@ int freeSbrk(int argc, char *argv[]) {
 
     blockSize = getInt(argv[2], GN_GT_O | GN_ANY_BASE);
 
-    fprintf(stdout, "%d\n", numAllocs);
-    fprintf(stdout, "%d\n", blockSize);
+    freeStep = (argc > 3) ? getInt(argv[3], GN_GT_O) : 1;
+    freeMin = (argc > 4) ? getInt(argv[4], GN_GT_O) : 1;
+    freeMax = (argc > 5) ? getInt(argv[5], GN_GT_O) : numAllocs;
+
+    if (freeMax > numAllocs) {
+        fprintf(stderr, "free-max > num-allocs\n");
+        return (EXIT_FAILURE);
+    }
+
+    fprintf(stdout, "Initial program break:         %10p\n", sbrk(0));
+
+    fprintf(stdout, "Allocating %d*%d bytes\n", numAllocs, blockSize);
+    for (j = 0; j < numAllocs; j++) {
+        ptr[j] = malloc(blockSize);
+        if (ptr[j] == NULL) {
+            fprintf(stderr, "failed to malloc\n");
+            return (EXIT_FAILURE);
+        }
+    }
+
+    fprintf(stdout, "Program break is now:         %10p\n", sbrk(0));
+
+    fprintf(stdout, "freeing blocks from %d to %d in steps of %d\n", freeMin, freeMax, freeStep);
+    for (j = freeMin - 1; j < freeMax; j+= freeStep) {
+        free(ptr[j]);
+    }
+
+    fprintf(stdout, "After free(), program break is:   %10p\n", sbrk(0));
 
     return (EXIT_SUCCESS);
 }
