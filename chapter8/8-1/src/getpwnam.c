@@ -10,13 +10,12 @@ void printPWInfo(struct passwd *pwUser) {
     fprintf(stdout, "login shell: %s\n", pwUser->pw_shell);
 }
 
-
 int getpwnam_t(int argc, char *argv[]) {
     struct passwd *pwUser1 = getpwnam("avr");
     printPWInfo(pwUser1);
 
     struct passwd *pwUser2 = getpwnam("tsr");
     printPWInfo(pwUser2);
-    
+
     return (EXIT_SUCCESS);
 }

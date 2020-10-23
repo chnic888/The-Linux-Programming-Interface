@@ -25,6 +25,7 @@ jambit:x:106:claus,felli,frank,harti,markus,martin,mtk,paul
 - User list
 
 ## Retrieving User and Group Information
+/etc/passwd
 ```c
 #include <pwd.h>
 
@@ -40,4 +41,29 @@ struct passwd {
  char *pw_dir; /* Initial working (home) directory */
  char *pw_shell; /* Login shell */
 };
+```
+
+/etc/group
+```c
+#include <grp.h>
+
+struct group *getgrnam(const char *name);
+struct group *getgrgid(gid_t gid);
+
+struct group {
+ char *gr_name; /* Group name */
+ char *gr_passwd; /* Encrypted password (if not password shadowing) */
+ gid_t gr_gid; /* Group ID */
+ char **gr_mem; /* NULL-terminated array of pointers to names of members listed in /etc/group */
+};
+```
+
+顺序扫描/etc/passwd
+ ```c
+#include <pwd.h>
+
+struct passwd *getpwent(void);
+
+void setpwent(void);
+void endpwent(void);
 ```
