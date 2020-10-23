@@ -12,10 +12,14 @@ void printPWInfo(struct passwd *pwUser) {
 
 int getpwnam_t(int argc, char *argv[]) {
     struct passwd *pwUser1 = getpwnam("avr");
-    printPWInfo(pwUser1);
+    if (pwUser1 != NULL) {
+        printPWInfo(pwUser1);
+    }
 
     struct passwd *pwUser2 = getpwnam("tsr");
-    printPWInfo(pwUser2);
+    if (pwUser2 != NULL) {
+        printPWInfo(pwUser2);
+    }
 
     return (EXIT_SUCCESS);
 }
