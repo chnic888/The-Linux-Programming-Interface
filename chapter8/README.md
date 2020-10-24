@@ -64,6 +64,33 @@ struct group {
 
 struct passwd *getpwent(void);
 
-void setpwent(void);
+void setpwent(void); /* Restart from the beginning */
 void endpwent(void);
+```
+
+顺序扫描/etc/shadow
+```c
+#include <shadow.h>
+struct spwd *getspnam(const char *name);
+
+struct spwd *getspent(void);
+
+void setspent(void);
+void endspent(void);
+
+struct spwd {
+ char *sp_namp; /* Login name (username) */
+ char *sp_pwdp; /* Encrypted password */
+
+ /* Remaining fields support "password aging", an optional feature that forces users to regularly change their passwords, 
+    so that even if an attacker manages to obtain a password, it will eventually cease to be usable. */
+ 
+ long sp_lstchg; /* Time of last password change (days since 1 Jan 1970) */
+ long sp_min; /* Min. number of days between password changes */
+ long sp_max; /* Max. number of days before change required */
+ long sp_warn; /* Number of days beforehand that user is warned of upcoming password expiration */
+ long sp_inact; /* Number of days after expiration that account is considered inactive and locked */
+ long sp_expire; /* Date when account expires (days since 1 Jan 1970) */
+ unsigned long sp_flag; /* Reserved for future use */
+};
 ```

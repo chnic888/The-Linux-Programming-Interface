@@ -26,4 +26,5 @@ add_subdirectory(chapter7/free-and-sbrk)
 
 add_subdirectory(chapter8/8-1)
 add_subdirectory(chapter8/8-2)
+add_subdirectory(chapter8/shadow-functions)
 add_subdirectory(chapter8/ugid-functions)
