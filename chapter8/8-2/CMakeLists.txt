@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(8-getpwnam-went C)
+project(8-2-getpwnam-went C)
 
 include_directories(./include)
 add_library(${PROJECT_NAME}_static STATIC src/getpwnam_went.c)

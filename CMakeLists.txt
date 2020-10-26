@@ -26,6 +26,9 @@ add_subdirectory(chapter7/free-and-sbrk)
 
 add_subdirectory(chapter8/8-1)
 add_subdirectory(chapter8/8-2)
-add_subdirectory(chapter8/check-password)
-add_subdirectory(chapter8/shadow-functions)
+if (UNIX AND NOT APPLE)
+    add_subdirectory(chapter8/check-password)
+    add_subdirectory(chapter8/shadow-functions)
+endif ()
 add_subdirectory(chapter8/ugid-functions)
+

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(7-free-and-sbrk-verify C)
+project(7-1-free-and-sbrk-verify C)
 
 include_directories(./include)
 add_library(${PROJECT_NAME}_static STATIC src/free_and_sbrk_verify.c)
