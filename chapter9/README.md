@@ -41,14 +41,77 @@ Saved Set-Group-ID = Effective Group ID
 - CAP_SETUID允许进程任意修改其user IDs
 - CAP_SETGID允许进程任意修改其group IDs
 
-### setuid() and setgid()
+## Retrieving real and effective IDs
+```c
+#include <unistd.h>
+
+uid_t getuid(void);  /* Returns real user ID of calling process */
+uid_t geteuid(void); /* Returns effective user ID of calling process */
+gid_t getgid(void);  /* Returns real group ID of calling process */
+gid_t getegid(void); /* Returns effective group ID of calling process */
+```
+
+### Modifying effective IDs
+```c
+#include <unistd.h>
+
+int setuid(uid_t uid);
+int setgid(gid_t gid);
+```
 > 1. unprivileged process调用setuid()时只允许修改effective user ID，且修改的值只能是其real user ID or saved set-user-ID。相当于在执行set-use-ID program的时，setuid()才会起作用，因为在执行普通program时，进程的real user ID, effective user ID, and saved set-user-ID总是相等的
 > 2. privileged process调用setuid()且参数非0时，process的the real user ID, effective user ID, and saved set-user-ID都被设置成为了参数指定的值。privileged process调用setuid()是一个单向操作，调用后会丢失所有privileges
 
-### seteuid() and setegid()
+```c
+#include <unistd.h>
+
+int seteuid(uid_t euid);
+int setegid(gid_t egid);
+```
 > 1. unprivileged process调用seteuid()时只允许修改effective user ID，且修改的值只能是其real user ID or saved set-user-ID。在unprivileged process下调用seteuid()等效于setuid()
 > 2. privileged process调用seteuid()可以修改effective ID为任意值。privileged process调用seteuid()且参数为非0时，调用后会丢失所有privileges，但是可以通过rule 1来还原
+```c
+euid = geteuid(); /* Save initial effective user ID (which is same as saved set-user-ID) */
+if (seteuid(getuid()) == -1) /* Drop privileges */
+    errExit("seteuid");
+if (seteuid(euid) == -1) /* Regain privileges */
+    errExit("seteuid");
+```
 
+### Modifying real and effective IDs
+```c
+#include <unistd.h>
 
-![9-1.png](./img/9-1.png)
+int setreuid(uid_t ruid, uid_t euid);
+int setregid(gid_t rgid, gid_t egid);
+```
+> 1. unprivileged process调用setreuid(), 只允许修改real user ID为当前real user ID或者effective user ID；修改effective user ID为real user ID或者当前的effective user ID或者saved set-user-ID  
+> 2. privileged process调用setreuid()，允许任意设置其real user ID和effective user ID
+> 3. unprivileged/privileged process的saved set-user-ID的值会被设置成为(新的)effective user ID  
+>   a) ruid的值不为-1
+>   b) effective user ID被设置成为和real user ID不一样的值
+```c
+// ruid != euid
+setreuid(ruid, euid)
+saved_uid = euid
+
+//ruid == euid
+setreuid(ruid, euid)
+//saved_uid 不变，可再次通过setreuid还原
+setreuid(ruid, saved_uid)
+saved_uid = saved_uid
+```
+
+### Retrieving real, effective, and saved set IDs
+```c
+#define _GNU_SOURCE
+#include <unistd.h>
+
+int getresuid(uid_t *ruid, uid_t *euid, uid_t *suid);
+int getresgid(gid_t *rgid, gid_t *egid, gid_t *sgid);
+```
+
+### Summary of Calls for Modifying Process Credentials
+![9-1.png](img/9-1.png)
+
+![9-2.png](img/9-2.png)
 
