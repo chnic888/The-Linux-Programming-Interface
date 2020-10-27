@@ -41,7 +41,7 @@ Saved Set-Group-ID = Effective Group ID
 - CAP_SETUID允许进程任意修改其user IDs
 - CAP_SETGID允许进程任意修改其group IDs
 
-## Retrieving real and effective IDs
+### Retrieving real and effective IDs
 ```c
 #include <unistd.h>
 
@@ -109,6 +109,29 @@ saved_uid = saved_uid
 int getresuid(uid_t *ruid, uid_t *euid, uid_t *suid);
 int getresgid(gid_t *rgid, gid_t *egid, gid_t *sgid);
 ```
+
+### Modifying real, effective, and saved set IDs
+```c
+#define _GNU_SOURCE
+#include <unistd.h>
+
+int setresuid(uid_t ruid, uid_t euid, uid_t suid);
+int setresgid(gid_t rgid, gid_t egid, gid_t sgid);
+```
+> 1. unprivileged process可以将real user ID, effective user ID, and saved set-user-ID中的任意ID设置成为其三个中的任意值之一
+> 2. privileged process能够对real user ID, effective user ID, and saved set-user-ID做任意设置
+> 3. 不管system call是否其他ID做了任何改动，总是将file-system user ID设置为与effective user ID相同
+
+### Retrieving and Modifying File-System IDs
+```c
+#include <sys/fsuid.h>
+
+int setfsuid(uid_t fsuid);
+int setfsgid(gid_t fsgid);
+```
+> 1. unprivileged process可以将file-system user ID设置为real user ID, effective user ID, file-system user ID, or saved set-user-ID其中的之一的值
+> 2. privileged process可以将file-system user ID设置为任意值
+> 3. 在程序中避免使用这两个调用
 
 ### Summary of Calls for Modifying Process Credentials
 ![9-1.png](img/9-1.png)
