@@ -32,3 +32,6 @@ if (UNIX AND NOT APPLE)
 endif ()
 add_subdirectory(chapter8/ugid-functions)
 
+if (UNIX AND NOT APPLE)
+    add_subdirectory(chapter9/idshow)
+endif ()
