@@ -87,7 +87,7 @@ int setregid(gid_t rgid, gid_t egid);
 > 1. unprivileged process调用setreuid(), 只允许修改real user ID为当前real user ID或者effective user ID；修改effective user ID为real user ID或者当前的effective user ID或者saved set-user-ID  
 > 2. privileged process调用setreuid()，允许任意设置其real user ID和effective user ID
 > 3. unprivileged/privileged process的saved set-user-ID的值会被设置成为(新的)effective user ID  
->   a) ruid的值不为-1
+>   a) ruid的值不为-1  
 >   b) effective user ID被设置成为和real user ID不一样的值
 ```c
 // ruid != euid
