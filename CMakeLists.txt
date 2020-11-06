@@ -36,3 +36,5 @@ if (UNIX AND NOT APPLE)
     add_subdirectory(chapter09/9-1)
     add_subdirectory(chapter09/idshow)
 endif ()
+
+add_subdirectory(chapter10/calendar-time)
