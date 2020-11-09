@@ -43,6 +43,7 @@ int calendarTime(int argc, char *argv[]) {
     fprintf(stdout, "Broken down by localtime():\n");
     fprintf(stdout, "   year=%d mon=%d mday=%d hour=%d min=%d sec=%d ", loc.tm_year, loc.tm_mon, loc.tm_mday,
             loc.tm_hour, loc.tm_min, loc.tm_isdst);
+    fprintf(stdout, "wday=%d yday=%d isdst=%d\n\n", loc.tm_wday, loc.tm_yday, loc.tm_isdst);
 
     fprintf(stdout, "asctime() formats the gmtime() value as : %s", asctime(&gm));
     fprintf(stdout, "ctime() formats the time() values as:     %s", ctime(&t));
