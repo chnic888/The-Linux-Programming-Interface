@@ -38,3 +38,4 @@ if (UNIX AND NOT APPLE)
 endif ()
 
 add_subdirectory(chapter10/calendar-time)
+add_subdirectory(chapter10/curr-time)
