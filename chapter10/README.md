@@ -116,3 +116,10 @@ char *currTime(const char *format);
 char *strptime(const char *str, const char *format, struct tm *timeptr);
 ```
 - 要保证这个函数的可移植性，要么str和format总所含输入信息足以设置tm的所有字段，要么在调用strptime()之前已经完成了适当的初始化，比如使用memset()函数
+
+## Timezones
+- Time Zone文件 /usr/share/zoneinfo
+- LocalTime文件 /etc/localtime
+
+## Locales
+- Locales文件 /usr/share/locale 或 /usr/lib/locale

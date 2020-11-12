@@ -26,7 +26,7 @@ int strtime(int argc, char *argv[]) {
     memset(&tm, 0, sizeof(struct tm));
 
     if (strptime(argv[1], argv[2], &tm) == NULL) {
-        fprintf(stderr, "failed to call strptime(), %d", errno);
+        fprintf(stderr, "failed to call strptime(), %d\n", errno);
         return (EXIT_FAILURE);
     }
 
@@ -36,7 +36,7 @@ int strtime(int argc, char *argv[]) {
 
     ofmt = argc > 3 ? argv[3] : "%H:%M:%S %A, %d %B %Y %Z";
     if (strftime(sbuf, SBUF_SIZE, ofmt, &tm) == 0) {
-        fprintf(stderr, "failed to call strftime(), %d", errno);
+        fprintf(stderr, "failed to call strftime(), %d\n", errno);
         return (EXIT_FAILURE);
     }
 
