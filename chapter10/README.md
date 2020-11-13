@@ -123,3 +123,26 @@ char *strptime(const char *str, const char *format, struct tm *timeptr);
 
 ## Locales
 - Locales文件 /usr/share/locale 或 /usr/lib/locale
+```
+language[_territory[.codeset]][@modifier]
+```
+> language是双字母的ISO语言代码  
+> territory是双字母的ISO国家代码  
+> codeset表示字符编码集
+> modifier提供了用于区区分前三个数据都一样的情况
+
+```c
+#include <locale.h>
+
+char *setlocale(int category, const char *locale);
+```
+| Filename | Purpose |
+| --- | --- |
+| LC_CTYPE | A file containing character classifications (see isalpha(3)) and rules for case conversion |
+| LC_COLLATE | A file containing the collation rules for a character set |
+| LC_MONETARY | A file containing formatting rules for monetary values (see localeconv(3) and <locale.h>) |
+| LC_NUMERIC | A file containing formatting rules for numbers other than monetary values (see localeconv(3) and <locale.h>) |
+| LC_TIME | A file containing formatting rules for dates and times |
+| LC_MESSAGES | A directory containing files specifying formats and values used for affirmative and negative (yes/no) responses |
+
+- setlocale(LC_ALL, "")地区被指定为空字符串的时，意味着从环境变量取得locale的设置

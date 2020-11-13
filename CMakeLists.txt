@@ -39,4 +39,5 @@ endif ()
 
 add_subdirectory(chapter10/calendar-time)
 add_subdirectory(chapter10/curr-time)
+add_subdirectory(chapter10/show-time)
 add_subdirectory(chapter10/strtime)
