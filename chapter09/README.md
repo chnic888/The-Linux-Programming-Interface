@@ -1,8 +1,8 @@
 # PROCESS CREDENTIALS
 
 ## Real User ID and Real Group ID
+- login shell在登录过程中从/etc/passwd读取第三和第四字段的值来设置Real User ID and Real Group ID
 - Real User ID and Real Group ID确定了process所属的用户和组
-- login shell在登录过程中从/etc/passwd读取第三和第四字段来设置Real User ID and Real Group ID
 
 ## Effective User ID and Effective Group ID
 - 当process试图执行一些操作的时候, 会结合Effective User ID and Effective Group ID加supplementary group IDs来确定process被授予什么样的权限

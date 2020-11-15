@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/fsuid.h>
 #include <string.h>
+#include <errno.h>
 
 void showUIDs();
 
@@ -57,7 +58,7 @@ int setuids(int argc, char *argv[]) {
 int runE(long uid) {
     fprintf(stdout, "==setresuid(-1, %d, %d)==\n", (int) uid, (int) (uid + 1000));
     if (setresuid(-1, uid, uid + 1000) == -1) {
-        fprintf(stderr, "failed to setresuid\n");
+        fprintf(stderr, "failed to setresuid, %d\n", errno);
         return (EXIT_FAILURE);
     }
 
@@ -68,7 +69,7 @@ int runE(long uid) {
 int runD(long uid) {
     fprintf(stdout, "==setfsuid(%d)==\n", (int) uid);
     if (setfsuid(uid) == -1) {
-        fprintf(stderr, "failed to setfsuid\n");
+        fprintf(stderr, "failed to setfsuid, %d\n", errno);
         return (EXIT_FAILURE);
     }
 
@@ -79,7 +80,7 @@ int runD(long uid) {
 int runC(long uid) {
     fprintf(stdout, "==seteuid(%d)==\n", (int) uid);
     if (seteuid(uid) == -1) {
-        fprintf(stderr, "failed to seteuid\n");
+        fprintf(stderr, "failed to seteuid, %d\n", errno);
         return (EXIT_FAILURE);
     }
 
@@ -90,7 +91,7 @@ int runC(long uid) {
 int runB(long uid) {
     fprintf(stdout, "==setreuid(–1, %d)==\n", (int) uid);
     if (setreuid(-1, uid) == -1) {
-        fprintf(stderr, "failed to setreuid\n");
+        fprintf(stderr, "failed to setreuid, %d\n", errno);
         return (EXIT_FAILURE);
     }
 
@@ -101,7 +102,7 @@ int runB(long uid) {
 int runA(long uid) {
     fprintf(stdout, "== setuid(%d) ==\n", (int) uid);
     if (setuid(uid) == -1) {
-        fprintf(stderr, "failed to setuid\n");
+        fprintf(stderr, "failed to setuid, %d\n", errno);
         return (EXIT_FAILURE);
     }
 
@@ -113,7 +114,7 @@ void showUIDs() {
     uid_t ruid, euid, suid, fsuid;
 
     if (getresuid(&ruid, &euid, &suid) == -1) {
-        fprintf(stderr, "failed to getresuid");
+        fprintf(stderr, "failed to getresuid, %d\n", errno);
         return;
     }
 
