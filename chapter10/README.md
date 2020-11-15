@@ -139,10 +139,31 @@ char *setlocale(int category, const char *locale);
 | Filename | Purpose |
 | --- | --- |
 | LC_CTYPE | A file containing character classifications (see isalpha(3)) and rules for case conversion |
-| LC_COLLATE | A file containing the collation rules for a character set |
+| LC_COLLATE | A file containing the collation rules for a character set | 
 | LC_MONETARY | A file containing formatting rules for monetary values (see localeconv(3) and <locale.h>) |
 | LC_NUMERIC | A file containing formatting rules for numbers other than monetary values (see localeconv(3) and <locale.h>) |
 | LC_TIME | A file containing formatting rules for dates and times |
 | LC_MESSAGES | A directory containing files specifying formats and values used for affirmative and negative (yes/no) responses |
 
 - setlocale(LC_ALL, "")地区被指定为空字符串的时，意味着从环境变量取得locale的设置
+
+## Process Time
+进程时间是进程创建后使用CPU的时间总量，可以被分为两部分
+
+- User CPU time 是在user mode下所花费的时间数量，有时也被称为虚拟时间，它是程序访问CPU的时间
+- System CPU time 是在kernel model下花费时间的数量，它是内核用户执行system call或者代表程序执行其他任务的时间
+
+```c
+#include <sys/times.h>
+
+clock_t times(struct tms *buf);
+
+struct tms {
+    clock_t tms_utime; /* User CPU time used by caller */
+    clock_t tms_stime; /* System CPU time used by caller */
+    clock_t tms_cutime; /* User CPU time of all (waited for) children */
+    clock_t tms_cstime; /* System CPU time of all (waited for) children */
+};
+```
+- clock_t的时钟计时单元可以通过调用sysconf(_SC_CLK_TCK)来获得，然后用clock_t值来除以该数值来转换为秒
+- clock()返回值的计量单位是CLOCKS_PER_SEC，用返回值除以该数值来获取进程所使用CPU的秒数
