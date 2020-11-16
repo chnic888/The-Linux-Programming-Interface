@@ -17,7 +17,6 @@ int privilegeVerify(int argc, char *argv[]) {
         fprintf(stderr, "failed to setresuid, %d\n", errno);
         return (EXIT_FAILURE);
     }
-
     showUIDs();
 
     fprintf(stdout, "####setresuid(-1, 0, 0)####\n\n");
@@ -25,8 +24,15 @@ int privilegeVerify(int argc, char *argv[]) {
         fprintf(stderr, "failed to setresuid, %d\n", errno);
         return (EXIT_FAILURE);
     }
-
     showUIDs();
+
+    fprintf(stdout, "####setuid(2000)####\n\n");
+    if (setuid(2000) == -1)  {
+        fprintf(stderr, "failed to setuid, %d\n", errno);
+        return (EXIT_FAILURE);
+    }
+    showUIDs();
+
     return (EXIT_SUCCESS);
 }
 
