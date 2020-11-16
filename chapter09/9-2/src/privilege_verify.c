@@ -11,6 +11,22 @@ static void showUIDs();
 
 int privilegeVerify(int argc, char *argv[]) {
     showUIDs();
+
+    fprintf(stdout, "####setresuid(-1, 1000, 1000)####\n\n");
+    if (setresuid(-1, 1000, 1000) == -1)  {
+        fprintf(stderr, "failed to setresuid, %d\n", errno);
+        return (EXIT_FAILURE);
+    }
+
+    showUIDs();
+
+    fprintf(stdout, "####setresuid(-1, 0, 0)####\n\n");
+    if (setresuid(-1, 0, 0) == -1)  {
+        fprintf(stderr, "failed to setresuid, %d\n", errno);
+        return (EXIT_FAILURE);
+    }
+
+    showUIDs();
     return (EXIT_SUCCESS);
 }
 

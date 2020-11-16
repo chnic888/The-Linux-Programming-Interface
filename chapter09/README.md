@@ -120,7 +120,9 @@ int setresgid(gid_t rgid, gid_t egid, gid_t sgid);
 ```
 > 1. unprivileged process可以将real user ID, effective user ID, and saved set-user-ID中的任意ID设置成为其三个中的任意值之一
 > 2. privileged process能够对real user ID, effective user ID, and saved set-user-ID做任意设置
-> 3. 不管system call是否其他ID做了任何改动，总是将file-system user ID设置为与effective user ID相同
+> 3. 不管调用是否对其他ID做出任何改动，file-system user ID总是被设置为与effective user ID相同
+> 4. 对于不想修改的uid，可以设置为-1，比如setresuid(-1, x, -1)，等同于seteuid(x)
+> 5. setresgid的调用是原子性的，设置的UIDs总是同时成功或者同时失败
 
 ### Retrieving and Modifying File-System IDs
 ```c
