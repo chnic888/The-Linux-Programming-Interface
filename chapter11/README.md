@@ -17,3 +17,4 @@ long sysconf(int name);
 long pathconf(const char *pathname, int name);
 long fpathconf(int fd, int name);
 ```
+- pathconf和fpathconf的参数name定义在<unistd.h>中，格式为 `_PC_*`

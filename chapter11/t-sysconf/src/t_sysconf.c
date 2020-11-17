@@ -22,7 +22,7 @@ static void sysconfPrint(const char *msg, int name) {
     lim = sysconf(name);
 
     if (lim != -1) {
-        fprintf(stderr, "%s %ld\n", msg, lim);
+        fprintf(stdout, "%s %ld\n", msg, lim);
         return;
     }
 
@@ -31,5 +31,5 @@ static void sysconfPrint(const char *msg, int name) {
         return;
     }
 
-    fprintf(stderr, "sysconf %s", msg);
+    fprintf(stderr, "sysconf %s\n", msg);
 }

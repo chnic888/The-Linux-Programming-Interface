@@ -44,4 +44,5 @@ add_subdirectory(chapter10/process-time)
 add_subdirectory(chapter10/show-time)
 add_subdirectory(chapter10/strtime)
 
+add_subdirectory(chapter11/t-fpathconf)
 add_subdirectory(chapter11/t-sysconf)
