@@ -18,3 +18,9 @@ long pathconf(const char *pathname, int name);
 long fpathconf(int fd, int name);
 ```
 - pathconf和fpathconf的参数name定义在<unistd.h>中，格式为 `_PC_*`
+
+## System Options
+- 相应常量定义在<unistd.h>中，常量通常会被加一些前缀来标明他源于什么样的标准，比如`_POSIX_ or _XOPEN_`
+- 值为-1，表示不支持该选项
+- 值为0，表示可能支持这个选项，程序必须在运行时检查该选项是否被支持，可以调用sysconf()和pathconf()来检查
+- 值大于0，表示支持这个选项
