@@ -47,4 +47,7 @@ add_subdirectory(chapter10/strtime)
 add_subdirectory(chapter11/t-fpathconf)
 add_subdirectory(chapter11/t-sysconf)
 
+if (UNIX AND NOT APPLE)
+    add_subdirectory(chapter12/procfs-pidmax)
+endif ()
 add_subdirectory(chapter12/t-uname)
