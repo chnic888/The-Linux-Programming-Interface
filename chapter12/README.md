@@ -29,3 +29,25 @@
 
 ### Accessing /proc Files
 ![12-1.png](img/12-1.png)
+
+## System Identification: uname()
+```c
+#include <sys/utsname.h>
+
+int uname(struct utsname *utsbuf);
+```
+```c
+#define _UTSNAME_LENGTH 65
+
+struct utsname {
+    char sysname[_UTSNAME_LENGTH]; /* Implementation name */
+    char nodename[_UTSNAME_LENGTH]; /* Node name on network */
+    char release[_UTSNAME_LENGTH]; /* Implementation release level */
+    char version[_UTSNAME_LENGTH]; /* Release version level */
+    char machine[_UTSNAME_LENGTH]; /* Hardware on which system is running */
+
+    #ifdef _GNU_SOURCE /* Following is Linux-specific */ \
+        char domainname[_UTSNAME_LENGTH]; /* NIS domain name of host */
+    #endif
+};
+```
