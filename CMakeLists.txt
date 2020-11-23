@@ -51,3 +51,5 @@ if (UNIX AND NOT APPLE)
     add_subdirectory(chapter12/procfs-pidmax)
 endif ()
 add_subdirectory(chapter12/t-uname)
+
+add_subdirectory(chapter13/direct-read)

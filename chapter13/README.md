@@ -49,24 +49,45 @@ int fflush(FILE *stream);
 - synchronized I/O completion: 一个I/O操作，要么数据已经成功的被传输到磁盘，要么被诊断为不成功的操作
 > synchronized I/O completion to mean “an I/O operation that has either been successfully transferred [to the disk] or diagnosed as unsuccessful.”
 
+synchronized I/O data integrity completion
+- 对于读操作，意味着所有requested file data已经被（从磁盘）转移到了process当中。假如有任何的pending的写操作会影响requested data，那么写操作到磁盘会在读操作之前发生
+- 对于写操作，意味着写请求所指定的数据已经被转移（到磁盘）并且将来检索这些数据的元数据也已经被转移
+
+synchronized I/O file integrity completion
+- 这个模式和data integrity completion的区别在于，该模式会把被更新文件的所有元数据都传输到磁盘，即便有些元数据对于后续的读操作来说不是必要的
+
 ### System calls for controlling kernel buffering of file I/O
 ```c
 #include <unistd.h>
 
 int fsync(int fd);
 ```
+- 调用fsync()会强制使文件处于synchronized I/O file integrity completion状态
+- fsync()为同步调用，也就是说所有数据都传输完成之后才会返回
 
 ```c
 #include <unistd.h>
 
 int fdatasync(int fd);
 ```
+- 调用fdatasync()会强制使文件处于synchronized I/O data integrity completion状态
 
 ```c
 #include <unistd.h>
 
 void sync(void);
 ```
+- sync()会使得包含更新文件信息的kernel buffer刷新到磁盘上
+
+### Making all writes synchronous: O_SYNC
+```c
+fd = open(pathname, O_WRONLY | O_SYNC);
+```
+- 在open()时加入O_SYNC标志位，后续的每个write()调用会自动将文件数据和元数据刷新至磁盘
+- 采用O_SYNC对性能的影响极大
 
 ## Summary of I/O Buffering
 ![13-1.png](img/13-1.png)
+
+## Bypassing the Buffer Cache: Direct I/O
+- 可以对于单个文件或者块设备执行直接I/O，需要在open()打开文件时候添加O_DIRECT标志位
