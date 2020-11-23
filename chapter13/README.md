@@ -91,3 +91,12 @@ fd = open(pathname, O_WRONLY | O_SYNC);
 
 ## Bypassing the Buffer Cache: Direct I/O
 - 可以对于单个文件或者块设备执行直接I/O，需要在open()打开文件时候添加O_DIRECT标志位
+
+## Mixing Library Functions and System Calls for File I/O
+```c
+#include <stdio.h>
+
+int fileno(FILE *stream);
+
+FILE *fdopen(int fd, const char *mode);
+```

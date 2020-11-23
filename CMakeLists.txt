@@ -52,4 +52,6 @@ if (UNIX AND NOT APPLE)
 endif ()
 add_subdirectory(chapter12/t-uname)
 
-add_subdirectory(chapter13/direct-read)
+if (UNIX AND NOT APPLE)
+    add_subdirectory(chapter13/direct-read)
+endif ()
