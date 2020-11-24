@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 #include <errno.h>
+#include <unistd.h>
 
 int directRead(int argc, char *argv[]) {
     int fd;
@@ -34,6 +36,24 @@ int directRead(int argc, char *argv[]) {
         return (EXIT_FAILURE);
     }
 
+    buf = (char *) memalign(alignment * 2, length + alignment);
+    if (buf == NULL) {
+        fprintf(stderr, "failed to call memalign(), %d\n", errno);
+        return (EXIT_FAILURE);
+    }
+
+    if (lseek(fd, offset, SEEK_SET) == -1) {
+        fprintf(stderr, "failed to call lseek(), %d\n", errno);
+        return (EXIT_FAILURE);
+    }
+
+    numRead = read(fd, buf, length);
+    if (numRead == -1) {
+        fprintf(stderr, "failed to call read(), %d\n", errno);
+        return (EXIT_FAILURE);
+    }
+    fprintf(stdout, "%s\n", (char *)buf);
+    fprintf(stdout, "Read %ld bytes\n", (long) numRead);
 
     return (EXIT_SUCCESS);
 }
