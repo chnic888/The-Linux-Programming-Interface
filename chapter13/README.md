@@ -90,6 +90,7 @@ fd = open(pathname, O_WRONLY | O_SYNC);
 ![13-1.png](img/13-1.png)
 
 ## Bypassing the Buffer Cache: Direct I/O
+- Linux允许程序在执行磁盘I/O的时候跳过缓存，直接把数据从用户空间转移到文件或者磁盘设备上，这种方式称为direct I/O或者raw I/O
 - 可以对于单个文件或者块设备执行直接I/O，需要在open()打开文件时候添加O_DIRECT标志位
 
 ## Mixing Library Functions and System Calls for File I/O
@@ -100,3 +101,5 @@ int fileno(FILE *stream);
 
 FILE *fdopen(int fd, const char *mode);
 ```
+- I/O system calls会直接将数据转移到kernel buffer cache中
+- stdio库中的函数会首先吧user-space内的缓冲区填满，之后才会调用write()把user-space内的缓冲区内的数据传输到kernel buffer cache中
