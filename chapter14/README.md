@@ -74,3 +74,26 @@ int umount(const char *target);
 
 int umount2(const char *target, int flags);
 ```
+
+## Obtaining Information About a File System: statvfs()
+```c
+#include <sys/statvfs.h>
+
+int statvfs(const char *pathname, struct statvfs *statvfsbuf);
+int fstatvfs(int fd, struct statvfs *statvfsbuf);
+```
+```c
+struct statvfs {
+    unsigned long f_bsize; /* File-system block size (in bytes) */
+    unsigned long f_frsize; /* Fundamental file-system block size (in bytes) */
+    fsblkcnt_t f_blocks; /* Total number of blocks in file system (in units of 'f_frsize') */
+    fsblkcnt_t f_bfree; /* Total number of free blocks */
+    fsblkcnt_t f_bavail; /* Number of free blocks available to unprivileged process */
+    fsfilcnt_t f_files; /* Total number of i-nodes */
+    fsfilcnt_t f_ffree; /* Total number of free i-nodes */
+    fsfilcnt_t f_favail; /* Number of i-nodes available to unprivileged process (set to 'f_ffree' on Linux) */
+    unsigned long f_fsid; /* File-system ID */
+    unsigned long f_flag; /* Mount flags */
+    unsigned long f_namemax; /* Maximum length of filenames on this file system */
+};
+```
