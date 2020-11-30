@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(13-t-mount C)
+project(14-t-mount C)
 
 include_directories(./include)
 add_library(${PROJECT_NAME}_static STATIC src/t-mount.c)
