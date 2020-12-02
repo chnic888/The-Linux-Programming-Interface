@@ -1,6 +1,7 @@
 #include "t_stat.h"
+#include "file_perms.h"
 #include <sys/stat.h>
-#include <sys/types.h>
+#include <sys/sysmacros.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,7 +75,7 @@ static void displayStatInfo(const struct stat *sb) {
             (long) minor(sb->st_dev));
     fprintf(stdout, "I-node number: %ld\n", (long) sb->st_ino);
 
-//    fprintf(stdout, "Mode: %lo (%s)\n", (unsigned long) sb->st_mode, filePermStr(sb->st_mode, 0));
+    fprintf(stdout, "Mode: %lo (%s)\n", (unsigned long) sb->st_mode, filePermStr(sb->st_mode, 0));
 
     if (sb->st_mode & (S_ISUID | S_ISGID | S_ISVTX)) {
         fprintf(stdout, " special bits set: %s%s%s\n", (sb->st_mode & S_ISUID) ? "set-UID " : "",

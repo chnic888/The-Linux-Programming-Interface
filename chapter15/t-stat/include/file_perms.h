@@ -1,0 +1,10 @@
+#ifndef THE_LINUX_PROGRAMMING_INTERFACE_FILE_PERMS_H
+#define THE_LINUX_PROGRAMMING_INTERFACE_FILE_PERMS_H
+
+#include <sys/types.h>
+
+#define FP_SPECIAL 1
+
+char *filePermStr(mode_t, int);
+
+#endif //THE_LINUX_PROGRAMMING_INTERFACE_FILE_PERMS_H
