@@ -26,3 +26,22 @@ struct stat {
     time_t st_ctime; /* Time of last status change */
 };
 ```
+
+## File Timestamps
+### Changing File Timestamps with utime() and utimes()
+```c
+#include <utime.h>
+
+int utime(const char *pathname, const struct utimbuf *buf);
+```
+```c
+#include <sys/time.h>
+
+int utimes(const char *pathname, const struct timeval tv[2]);
+```
+```c
+#include <sys/time.h>
+
+int futimes(int fd, const struct timeval tv[2]);
+int lutimes(const char *pathname, const struct timeval tv[2]);
+```

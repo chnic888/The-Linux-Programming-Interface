@@ -92,7 +92,13 @@ static void displayStatInfo(const struct stat *sb) {
     fprintf(stdout, "File size: %lld bytes\n", (long long) sb->st_size);
     fprintf(stdout, "Optimal I/O block size: %ld bytes\n", (long) sb->st_blksize);
     fprintf(stdout, "512B blocks allocated: %lld\n", (long long) sb->st_blocks);
-    fprintf(stdout, "Last file access: %s", ctime(&sb->st_atime));
-    fprintf(stdout, "Last file modification: %s", ctime(&sb->st_mtime));
-    fprintf(stdout, "Last status change: %s", ctime(&sb->st_ctime));
+
+    const long *at = &sb->st_atime;
+    fprintf(stdout, "Last file access: %ld, %s", *at, ctime(at));
+
+    const long *mt = &sb->st_mtime;
+    fprintf(stdout, "Last file modification: %ld, %s", *mt, ctime(mt));
+
+    const long *ct = &sb->st_ctime;
+    fprintf(stdout, "Last status change: %ld, %s", *ct, ctime(ct));
 }
