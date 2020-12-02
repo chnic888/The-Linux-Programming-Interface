@@ -61,3 +61,5 @@ if (UNIX AND NOT APPLE)
     add_subdirectory(chapter14/t-statvfs)
     add_subdirectory(chapter14/t-umount)
 endif ()
+
+add_subdirectory(chapter15/t-stat)
