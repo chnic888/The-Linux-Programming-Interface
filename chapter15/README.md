@@ -28,6 +28,10 @@ struct stat {
 ```
 
 ## File Timestamps
+- `st_atime`  文件的上次访问时间 
+- `st_mtime`  文件的上次修改时间
+- `st_ctime`  文件状态上一次的变更时间、及对文件的i-node信息上一次的修改的时间
+
 ### Changing File Timestamps with utime() and utimes()
 ```c
 #include <utime.h>

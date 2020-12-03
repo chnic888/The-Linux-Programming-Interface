@@ -1,7 +1,6 @@
 #include "t_stat.h"
 #include "file_perms.h"
 #include <sys/stat.h>
-#include <sys/sysmacros.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
