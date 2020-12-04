@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 
-#define STR_SIZE 10
+#define STR_SIZE sizeof("rwxrwxrwx")
 
 /* Return ls(1)-style string for file permissions mask */
 char *filePermStr(mode_t perm, int flags) {
