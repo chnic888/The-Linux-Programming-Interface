@@ -62,6 +62,7 @@ if (UNIX AND NOT APPLE)
     add_subdirectory(chapter14/t-umount)
 endif ()
 
+add_subdirectory(chapter15/t-chown)
 add_subdirectory(chapter15/t-stat)
 add_subdirectory(chapter15/t-utime)
 add_subdirectory(chapter15/t-utimensat)
