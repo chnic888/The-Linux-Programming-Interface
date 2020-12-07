@@ -1,5 +1,6 @@
 #include "t_utimensat.h"
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,11 @@ int tUtimensat(int argc, char *argv[]) {
 
     if (argv[optind] == NULL) {
         fprintf(stderr, "file path is missing\n");
+        return (EXIT_FAILURE);
+    }
+
+    if (utimensat(AT_FDCWD, argv[optind], times, 0) == -1) {
+        fprintf(stderr, "failed to call utimensat(), %d\n", errno);
         return (EXIT_FAILURE);
     }
 
