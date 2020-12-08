@@ -101,6 +101,7 @@ int access(const char *pathname, int mode);
 | X_OK | Can the file be executed? |
 
 ### The Process File Mode Creation Mask: umask()
+- open(2), mkdir(2)会使用umask来修改指定的权限
 ```c
 #include <sys/stat.h>
 
