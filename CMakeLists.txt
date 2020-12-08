@@ -69,5 +69,5 @@ add_subdirectory(chapter15/t-utime)
 add_subdirectory(chapter15/t-utimensat)
 
 if (UNIX AND NOT APPLE)
-add_subdirectory(chapter16/xattr-view)
+    add_subdirectory(chapter16/xattr-view)
 endif()
