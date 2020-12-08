@@ -86,3 +86,33 @@ int fchown(int fd, uid_t owner, gid_t group);
 - 如果进程的effective user ID和文件的owner user ID相同，文件owner所拥有的权限将会赋予进程
 - 如果进程的effective group ID或者任何的supplementary group IDs与文件的group ID一致，文件的group所拥有的权限将会赋予进程
 - 如果三种都不满足，文件的other所拥有的的权限将会被赋予进程
+
+### Checking File Accessibility: access()
+```c
+#include <unistd.h>
+
+int access(const char *pathname, int mode);
+```
+| Constant | Description |
+| --- | --- |
+| F_OK | Does the file exist? |
+| R_OK | Can the file be read? |
+| W_OK | Can the file be written? |
+| X_OK | Can the file be executed? |
+
+### The Process File Mode Creation Mask: umask()
+```c
+#include <sys/stat.h>
+
+mode_t umask(mode_t mask);
+```
+
+### Changing File Permissions: chmod() and fchmod()
+```c
+#include <sys/stat.h>
+int chmod(const char *pathname, mode_t mode);
+
+#define _XOPEN_SOURCE 500 /* Or: #define _BSD_SOURCE */
+#include <sys/stat.h>
+int fchmod(int fd, mode_t mode);
+```
