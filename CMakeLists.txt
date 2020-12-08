@@ -67,3 +67,7 @@ add_subdirectory(chapter15/t-stat)
 add_subdirectory(chapter15/t-umask)
 add_subdirectory(chapter15/t-utime)
 add_subdirectory(chapter15/t-utimensat)
+
+if (UNIX AND NOT APPLE)
+add_subdirectory(chapter16/xattr-view)
+endif()
