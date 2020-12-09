@@ -71,3 +71,7 @@ add_subdirectory(chapter15/t-utimensat)
 if (UNIX AND NOT APPLE)
     add_subdirectory(chapter16/xattr-view)
 endif()
+
+if (UNIX AND NOT APPLE)
+    add_subdirectory(chapter17/acl-view)
+endif ()
