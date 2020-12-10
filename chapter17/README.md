@@ -25,6 +25,11 @@
 | m, mask | N | ACL_MASK | Mask for group class |
 | o, other | N | ACL_OTHER | Other users |
 
+## Default ACLs and File Creation
+- `access ACL` 进程访问文件时，使用access ACL来判断进程对文件的访问权限
+- `default ACL` 不参与判断权限授权，default ACL只能被赋予目录且决定了目录下所创建文件或者子目录ACL和权限
+- 一旦目录拥有`default ACL`，那么对于该目录下的文件来说，进程的umask不参与判定access ACL的ACE
+
 ## The ACL API
 
 ### Overview
