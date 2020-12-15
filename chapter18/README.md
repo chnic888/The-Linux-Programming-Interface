@@ -12,6 +12,9 @@
 ![18-2.png](img/18-2.png)
 
 ## Creating and Removing (Hard) Links: link() and unlink()
+- kernel不仅要为每个i-node维护link计数，还需要为每个文件维护open file descriptions的计数
+- 当指向文件的最后一个link被移除时，如果仍有process持有这个文件的fd，在所有fd关闭之后，文件才会被真正的删除
+
 ```c
 #include <unistd.h>
 
