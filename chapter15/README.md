@@ -53,6 +53,7 @@ int lutimes(const char *pathname, const struct timeval tv[2]);
 ```
 
 ## File Ownership
+
 ### Ownership of New Files
 - 当文件被创建时，文件的user id来自进程的effective user ID。新文件的group id来自进程的effective group ID(System V默认行为)，或者父目录的group ID((the BSD
   behavior)
@@ -75,6 +76,25 @@ int fchown(int fd, uid_t owner, gid_t group);
 ```
 
 ## File Permissions
+
+### Permissions on Regular Files
+`mode_t`
+
+| Constant | Octal value | Permission bit |
+| --- | --- | --- |
+| S_ISUID | 04000 | Set-user-ID |
+| S_ISGID | 02000 | Set-group-ID |
+| S_ISVTX | 01000 |  Sticky |
+| S_IRUSR | 0400 | User-read |
+| S_IWUSR | 0200 | User-write |
+| S_IXUSR | 0100 | User-execute |
+| S_IRGRP | 040 | Group-read |
+| S_IWGRP | 020 | Group-write |
+| S_IXGRP | 010 | Group-execute |
+| S_IROTH | 04 | Other-read |
+| S_IWOTH | 02 | Other-write |
+| S_IXOTH | 01 | Other-execute |
+
 ### Permissions on Directories
 - `Read` 目录的内容可以被列出，比如ls命令
 - `Write` 文件可以在目录内被创建、删除
@@ -97,7 +117,7 @@ int access(const char *pathname, int mode);
 | --- | --- |
 | F_OK | Does the file exist? |
 | R_OK | Can the file be read? |
-| W_OK | Can the file be written? |
+| W_OK | Can the file be written? | 
 | X_OK | Can the file be executed? |
 
 ### The Process File Mode Creation Mask: umask()
