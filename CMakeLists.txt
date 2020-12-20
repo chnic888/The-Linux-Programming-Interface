@@ -77,5 +77,6 @@ if (UNIX AND NOT APPLE)
 endif ()
 
 add_subdirectory(chapter18/list-files)
+add_subdirectory(chapter18/t-dirbasename)
 add_subdirectory(chapter18/t-mkdir)
 add_subdirectory(chapter18/t-unlink)
