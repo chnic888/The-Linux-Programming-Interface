@@ -76,5 +76,6 @@ if (UNIX AND NOT APPLE)
     add_subdirectory(chapter17/acl-view)
 endif ()
 
-add_subdirectory(chapter18/t-unlink)
+add_subdirectory(chapter18/list-files)
 add_subdirectory(chapter18/t-mkdir)
+add_subdirectory(chapter18/t-unlink)
