@@ -29,7 +29,27 @@ int inotify_rm_watch(int fd, uint32_t wd);
 ```
 
 ## inotify Events
-
+| Bit value | In |  Out | Description |
+| --- | --- | --- | --- |
+| IN_ACCESS | ● | ● | File was accessed (read()) |
+| IN_ATTRIB | ● | ● | File metadata changed |
+| IN_CLOSE_WRITE | ● | ● | File opened for writing was closed |
+| IN_CLOSE_NOWRITE | ● | ● | File opened read-only was closed |
+| IN_CREATE | ● | ● | File/directory created inside watched directory |
+| IN_DELETE | ● | ● | File/directory deleted from within watched directory |
+| IN_DELETE_SELF | ● | ● | Watched file/directory was itself deleted |
+| IN_MODIFY | ● | ● | File was modified |
+| IN_MOVE_SELF | ● | ● | Watched file/directory was itself moved |
+| IN_MOVED_FROM | ● | ● | File moved out of watched directory |
+| IN_MOVED_TO | ● | ● | File moved into watched directory |
+| IN_OPEN | ● | ● | File was opened |
+| IN_ALL_EVENTS | ● | | Shorthand for all of the above input events |
+| IN_MOVE | ● | | Shorthand for IN_MOVED_FROM \| IN_MOVED_TO |
+| IN_CLOSE | ● | | Shorthand for IN_CLOSE_WRITE \| IN_CLOSE_NOWRITE |
+| IN_DONT_FOLLOW | ● | | Don’t dereference symbolic link (since Linux 2.6.15) |
+| IN_MASK_ADD | ● | | Add events to current watch mask for pathname |
+| IN_ONESHOT | ● | | Monitor pathname for just one event |
+| IN_ONLYDIR | ● | | Fail if pathname is not a directory (since Linux 2.6.15) |
 
 ## Reading inotify Events
 ```c
