@@ -81,3 +81,5 @@ add_subdirectory(chapter18/t-dirbasename)
 add_subdirectory(chapter18/t-mkdir)
 add_subdirectory(chapter18/t-unlink)
 add_subdirectory(chapter18/view-symlink)
+
+add_subdirectory(chapter19/demo-inotify)
