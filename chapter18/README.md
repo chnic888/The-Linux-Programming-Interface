@@ -143,6 +143,8 @@ int chroot(const char *pathname);
 ```
 
 ## Resolving a Pathname: realpath()
+- 解引所有符号链接，包括`/.`和`/..`
+- 生成一个绝对路径的字符串且以空字符串结尾
 ```c
 #include <stdlib.h>
 
