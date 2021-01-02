@@ -51,6 +51,8 @@ int demoInotify(int argc, char *argv[]) {
             return (EXIT_FAILURE);
         }
 
+        fprintf(stdout, "Read %ld bytes from inotify fd\n", numRead);
+
         for (p = buf; p < buf + numRead;) {
             event = (struct inotify_event *) p;
             displayInotifyEvent(event);
