@@ -7,6 +7,8 @@
     - `inotify_add_watch()`会返回一个watch descriptor，供后续操作使用
 - application调用`inotify`实例的`read()`方法来获取通知，每次`read()`会返回一个或多个`inotify_event`结构，结构中记录了被监控的pathname上发生的一个event
 - application结束监控时会关闭`inotify`的file descriptor，并会自动移除`inotify`实例所有的watch items
+- inotify机制可用于监控文件或目录。当监控目录时，目录自身以及目录下文件的event会被通知给application
+- inotify机制为非递归。如果需要监控目录下所有的子目录以及文件的event，则需要对目录树中的所有目录发起`inotify_add_watch()`调用 
 
 ## The inotify API
 ```c
