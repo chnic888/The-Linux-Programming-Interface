@@ -9,3 +9,18 @@
     - 用户键入了能够产生信号的终端特殊字符(Control-C or Control-D)
     - 发生了软件事件
 - 信号通过某些事件来产生。一旦信号被产生，会稍后被传递给进程，
+
+## Changing Signal Dispositions: signal()
+- `signal()`在不同的Unix间存在实现上的差异，所以如果考虑程序的可移植性则绝不能使用此函数，应当使用`sigaction()`
+```c
+#include <signal.h>
+
+void ( *signal(int sig, void (*handler)(int)) ) (int);
+```
+```c
+typedef void (*sighandler_t)(int);
+
+sighandler_t signal(int sig, sighandler_t handler);
+```
+
+## Introduction to Signal Handlers
