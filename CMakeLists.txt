@@ -82,6 +82,8 @@ add_subdirectory(chapter18/t-mkdir)
 add_subdirectory(chapter18/t-unlink)
 add_subdirectory(chapter18/view-symlink)
 
-add_subdirectory(chapter19/demo-inotify)
+if (UNIX AND NOT APPLE)
+    add_subdirectory(chapter19/demo-inotify)
+endif ()
 
 add_subdirectory(chapter20/ouch)
