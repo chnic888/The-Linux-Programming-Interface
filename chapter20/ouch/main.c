@@ -3,19 +3,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <errno.h>
+#include <unistd.h>
 
-int foo (char i) {return i*2;}
-
-int (*return_foo(int a, int b)) (char c){
-    fprintf(stdout, "%d\n", a);
-    fprintf(stdout, "%d\n", b);
-
-    return foo;
+static void sigHandler(int sig) {
+    fprintf(stdout, "Ouch!\n");
 }
 
 int main(int argc, char *argv[]) {
-    int (*a)(char) = (return_foo)(1, 2);
-    fprintf(stdout, "%d\n", a(10));
+    int j;
 
-    return (EXIT_SUCCESS);
+    if (signal(SIGINT, sigHandler) == SIG_ERR) {
+        fprintf(stderr, "signal failed, %d", errno);
+        return (EXIT_FAILURE);
+    }
+
+    for (j = 0;; j++) {
+        fprintf(stdout, "%d\n", j);
+        sleep(3);
+    }
 }
