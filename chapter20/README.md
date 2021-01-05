@@ -24,3 +24,26 @@ sighandler_t signal(int sig, sighandler_t handler);
 ```
 
 ## Introduction to Signal Handlers
+- 调用信号处理程序，可能会随时打断主程序流程。内核会代表process来调用handler，当handler返回时，主程序会在handler打断的位置恢复执行
+- 当kernel在调用信号handler时，他会把信号的整数编号作为参数传递给handler方法。如果handler只捕获一种类型的信号，那这个参数几乎就无用；如果需要处理多种信号，那么可以通过这个参数来判断信号类型
+
+![20-1.png](img/20-1.png)
+
+## Sending Signals: kill()
+```c
+#include <signal.h>
+ 
+int kill(pid_t pid, int sig);
+```
+
+## Other Ways of Sending Signals: raise() and killpg()
+```c
+#include <signal.h>
+
+int raise(int sig);
+```
+```c
+#include <signal.h>
+
+int killpg(pid_t pgrp, int sig);
+```
