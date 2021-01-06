@@ -104,11 +104,20 @@ int readdir_r(DIR *dirp, struct dirent *entry, struct dirent **result);
 ```
 
 ## File Tree Walking: nftw()
+- 默认情况下，`nftw()`会针对给定的树执行未排序的前序遍历，即优先处理各目录，然后再处理目录中的文件和子目录
+- 每次`func`调用都会返回一个整数值，如果返回0则`nftw`会继续遍历，直至遍历完成并返回0给调用者。如果调用`func`返回非0，`nftw`会立刻停止对树的遍历，并且返回相同的非0值
+
 ```c
 #define _XOPEN_SOURCE 500
 #include <ftw.h>
 
-int nftw(const char *dirpath, int (*func) (const char *pathname, const struct stat *statbuf, int typeflag, struct FTW *ftwbuf), int nopenfd, int flags);
+int nftw(const char *dirpath, 
+         int (*func) (const char *pathname, 
+                      const struct stat *statbuf, 
+                      int typeflag, 
+                      struct FTW *ftwbuf), 
+         int nopenfd, 
+         int flags);
 ```
 
 ## The Current Working Directory of a Process
