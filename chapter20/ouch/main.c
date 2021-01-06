@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 static void sigHandler(int sig) {
-    fprintf(stdout, "Ouch!\n");
+    fprintf(stdout, "%d, Ouch!\n", sig);
 }
 
 int main(int argc, char *argv[]) {
