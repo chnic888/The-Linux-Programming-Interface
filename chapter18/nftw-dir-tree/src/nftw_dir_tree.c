@@ -81,9 +81,9 @@ static int dirTree(const char *pathname, const struct stat *sbuf, int type, stru
     if (type != FTW_NS)
         fprintf(stdout, "%7ld", (long) sbuf->st_ino);
     else
-        fprintf(stdout, "    ");
+        fprintf(stdout, "      ");
 
-    fprintf(stdout, " %*s", 4 * ftwb->level, "");
+    fprintf(stdout, " %*s", 4 * ftwb->level, " ");
     fprintf(stdout, "%s\n", &pathname[ftwb->base]);
 
     return (EXIT_SUCCESS);
