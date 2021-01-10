@@ -10,18 +10,54 @@
 ---
 - 信号通过某些事件来产生。一旦信号被产生，会稍后被传递给进程，而进程也会做出一些动作来相应信号。在产生和到达期间，信号处于pending状态
 - 信号到达之后，进程根据信号执行如下默认操作之一
-  - 忽略信号
-  - 终止（杀死）进程
-  - 产生一个core dump文件
-  - 停止进程：暂停进程的执行
-  - 恢复一个之前被暂停进程的执行
+  - `ignored` 忽略信号
+  - `terminated` 终止（杀死）进程
+  - `core dump file` 产生一个core dump文件
+  - `stopped` 停止进程：暂停进程的执行
+  - `resumed` 恢复一个之前被暂停进程的执行
 - `disposition` 改变针对于特定信号的默认相应行为，程序可以为信号设置如下的`disposition`
-  - 继续采取默认行为
-  - 忽略信号
-  - 执行信号处理器signal handler
+  - `default action` 继续采取默认行为
+  - `ignored` 忽略信号
+  - `signal handler` 执行信号处理器signal handler
 ---  
-- 通知kernel去调用一个signal handler的行为可以被称之为`installing`或者`establishing`一个signal handler
-- signal handler被调用之后，我们可以成为知信号已经被`handled`或`caught`
+- 通知kernel去调用一个`signal handler`的行为可以被称之为`installing`或者`establishing`一个signal handler
+- `signal handler`被调用之后，我们可以成为知信号已经被`handled`或`caught`
+
+## Signal Types and Default Actions
+| Name | Signal number | Description | SUSv3 | Default |
+| --- | --- | --- | --- | --- |
+| SIGABRT | 6 | Abort process | ● | core |
+| SIGALRM | 14 | Real-time timer expired | ● | term |
+| SIGBUS | 7 (SAMP=10) | Memory access error | ● | core |
+| SIGCHLD | 17 (SA=20, MP=18) | Child terminated or stopped | ● | ignore |
+| SIGCONT | 18 (SA=19, M=25, P=26) | Continue if stopped | ● | cont |
+| SIGEMT | undef (SAMP=7) | Hardware fault | | term |
+| SIGFPE | 8 | Arithmetic exception | ● | core |
+| SIGHUP | 1 | Hangup | ● | term |
+| SIGILL | 4 | Illegal instruction | ● | core |
+| SIGINT | 2 | Terminal interrupt | ● | term |
+| SIGIO / SIGPOLL | 29 (SA=23, MP=22) | I/O possible | ● | term |
+| SIGKILL | 9 | Sure kill | ● | term |
+| SIGPIPE | 13 | Broken pipe | ● | term |
+| SIGPROF | 27 (M=29, P=21) | Profiling timer expired | ● | term |
+| SIGPWR | 30 (SA=29, MP=19) | Power about to fail | | term |
+| SIGQUIT | 3 | Terminal quit | ● | core
+| SIGSEGV | 11 | Invalid memory reference | ● | core
+| SIGSTKFLT | 16 (SAM=undef, P=36) | Stack fault on coprocessor | | term |
+| SIGSTOP | 19 (SA=17, M=23, P=24) | Sure stop | ● | stop |
+| SIGSYS | 31 (SAMP=12) | Invalid system call | ● | core |
+| SIGTERM | 15 | Terminate process | ● | term |
+| SIGTRAP | 5 | Trace/breakpoint trap | ● | core |
+| SIGTSTP | 20 (SA=18, M=24, P=25) | Terminal stop | ● | stop |
+| SIGTTIN | 21 (M=26, P=27) | Terminal read from BG | ● | stop |
+| SIGTTOU | 22 (M=27, P=28) | Terminal write from BG | ● | stop |
+| SIGURG | 23 (SA=16, M=21, P=29) | Urgent data on socket | ● | ignore |
+| SIGUSR1 | 10 (SA=30, MP=16) | User-defined signal 1 | ● | term |
+| SIGUSR2 | 12 (SA=31, MP=17) | User-defined signal 2 | ● | term |
+| SIGVTALRM | 26 (M=28, P=20) | Virtual timer expired | ● | term |
+| SIGWINCH | 28 (M=20, P=23) | Terminal window size change | | ignore |
+| SIGXCPU | 24 (M=30, P=33) | CPU time limit exceeded | ● | core |
+| SIGXFSZ | 25 (M=31, P=34) | File size limit exceeded | ● | core |
 
 ## Changing Signal Dispositions: signal()
 - `signal()`在不同的Unix间存在实现上的差异，所以如果考虑程序的可移植性则绝不能使用此函数，应当使用`sigaction()`
