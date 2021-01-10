@@ -61,6 +61,8 @@
 
 ## Changing Signal Dispositions: signal()
 - `signal()`在不同的Unix间存在实现上的差异，所以如果考虑程序的可移植性则绝不能使用此函数，应当使用`sigaction()`
+- `singal()`的返回值是上一个signal的`disposition`，返回的是一个函数指针
+
 ```c
 #include <signal.h>
 

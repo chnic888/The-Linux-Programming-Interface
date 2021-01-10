@@ -87,4 +87,5 @@ if (UNIX AND NOT APPLE)
     add_subdirectory(chapter19/demo-inotify)
 endif ()
 
+add_subdirectory(chapter20/intquit)
 add_subdirectory(chapter20/ouch)
