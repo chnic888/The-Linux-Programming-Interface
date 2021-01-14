@@ -86,6 +86,18 @@ sighandler_t signal(int sig, sighandler_t handler);
  
 int kill(pid_t pid, int sig);
 ```
+- `pid > 0` 信号会被发给pid指定的进程，接收信号的进程取决于参数pid。
+- `pid = 0` 信号会被发送给进程组(process group ID == process group id of calling process)内的所有进程，也包括调用进程本身，接收信号的进程取决于调用进程的process group id。
+- `pid < -1` 信号会被发送给进程组(process group ID == ABS(pid))内的所有进程，也就是向一个指定的进程组内的所有进程发信号。
+- `pid = -1` 信号会被发送给所有调用进程有权给其发送信号的进程，除去调用进程本身和init(pid=1)，如果`privileged process`是调用进程，除了调用进程和init(pid=1)的进程之外的所有进程将会收到信号，这种调用方式也被称之为广播信号
+- `pid无法找到指定匹配的进程` kill()调用失败，并将errno置为ESRCH
+
+> 一个进程需要适当的权限才能向另一个进程发送信号。
+- `privileged (CAP_KILL) process` 可以向任何进程发送信号
+- `和root用户和root组一起运行的init(pid=1) process` 只能接收他内置的single handler可以处理的信号，以防止init进程被意外杀死
+- `unprivileged process`
+  ![20-2.png](img/20-2.png)
+- `SIGCONT signal` unprivileged process可以给同session下的所有进程发送这个信号
 
 ## Other Ways of Sending Signals: raise() and killpg()
 ```c
