@@ -95,18 +95,106 @@ int kill(pid_t pid, int sig);
 > 一个进程需要适当的权限才能向另一个进程发送信号。
 - `privileged (CAP_KILL) process` 可以向任何进程发送信号
 - `和root用户和root组一起运行的init(pid=1) process` 只能接收他内置的single handler可以处理的信号，以防止init进程被意外杀死
-- `unprivileged process`
+- `unprivileged process`  
   ![20-2.png](img/20-2.png)
 - `SIGCONT signal` unprivileged process可以给同session下的所有进程发送这个信号
 
+## Checking for the Existence of a Process
+`int kill(pid, 0)` sig为0表示空信号，无信号会被发送。这时只会执行错误检查，看看是否可以向目标进程发送信号。通过这种方式可以验证指定的进程ID是否存在
+
 ## Other Ways of Sending Signals: raise() and killpg()
+进程需要向自身发送信号
+
 ```c
 #include <signal.h>
 
 int raise(int sig);
 ```
+- 单线程程序，`raise(sig)`等同于`kill(getpid(), sig);`
+- 多线程程序，`raise(sig)`等同于`kill((pthread_self(), sig);`
+- 进程使用`raise()`或者`kill()`给自己发信号，信号会被立刻传递，比如在raise()返回给调用者之前
+
+进程向某一个进程组的所有成员发送信号
 ```c
 #include <signal.h>
 
 int killpg(pid_t pgrp, int sig);
+```
+- `killpg(pgrp, sig)` 等等同于 `kill(-pgrp, sig)`
+
+## Displaying Signal Descriptions
+```c
+#define _BSD_SOURCE
+#include <signal.h>
+extern const char *const sys_siglist[];
+
+#define _GNU_SOURCE
+#include <string.h>
+char *strsignal(int sig);
+```
+
+```c
+#include <signal.h>
+void psignal(int sig, const char *msg);
+```
+
+## Signal Sets
+```c
+#include <signal.h>
+
+int sigemptyset(sigset_t *set);
+int sigfillset(sigset_t *set);
+```
+
+```c
+#include <signal.h>
+
+int sigaddset(sigset_t *set, int sig);
+int sigdelset(sigset_t *set, int sig);
+```
+
+```c
+#include <signal.h>
+
+int sigismember(const sigset_t *set, int sig);
+```
+
+```c
+#define _GNU_SOURCE
+#include <signal.h>
+
+int sigandset(sigset_t *set, sigset_t *left, sigset_t *right);
+int sigorset(sigset_t *dest, sigset_t *left, sigset_t *right);
+
+int sigisemptyset(const sigset_t *set);
+```
+
+## The Signal Mask (Blocking Signal Delivery)
+```c
+#include <signal.h>
+
+int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
+```
+
+## Pending Signals
+```c
+#include <signal.h>
+
+int sigpending(sigset_t *set);
+```
+
+## Signals Are Not Queued
+
+## Changing Signal Dispositions: sigaction()
+```c
+#include <signal.h>
+
+int sigaction(int sig, const struct sigaction *act, struct sigaction *oldact);
+```
+
+## Waiting for a Signal: pause()
+```c
+#include <unistd.h>
+
+int pause(void);
 ```

@@ -89,3 +89,4 @@ endif ()
 
 add_subdirectory(chapter20/intquit)
 add_subdirectory(chapter20/ouch)
+add_subdirectory(chapter20/t-kill)
