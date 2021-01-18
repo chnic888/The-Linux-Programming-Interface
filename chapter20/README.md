@@ -132,6 +132,7 @@ extern const char *const sys_siglist[];
 #include <string.h>
 char *strsignal(int sig);
 ```
+- 相比直接使用sys_siglist[]数组，更倾向于使用strsignal()函数
 
 ```c
 #include <signal.h>
@@ -175,6 +176,10 @@ int sigisemptyset(const sigset_t *set);
 
 int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
 ```
+- kernel会对每一个process维护一个`singal mask`，即一组被阻塞传递给该process的信号
+- 一个在`singal mask`内的signal将会被延迟传递给process，直到把signal从`signal mask`中移除来取消阻止
+- `signal mask`实际上是属于线程级别属性， 每个线程都可以使用`pthread_sigmask()`来独立的操作当前线程的sigmask
+- `SIGKILL`和`SIGSTOP`两种signal无法被`signal mask`处理，kernel将会忽略对这两种signal的试图阻塞请求
 
 ## Pending Signals
 ```c
@@ -184,6 +189,9 @@ int sigpending(sigset_t *set);
 ```
 
 ## Signals Are Not Queued
+- `pending signals set`只是一个mask，只能表明一个被mask的signal是否发生过，而不能记录发生次数。
+- 同一信号在被阻塞的状态下产生多次，会被记录在`pending signals set`中，并在解除阻塞之后只传递一次
+- `pending signals set`不是一个queue，不会对signal排队处理
 
 ## Changing Signal Dispositions: sigaction()
 ```c
@@ -191,6 +199,15 @@ int sigpending(sigset_t *set);
 
 int sigaction(int sig, const struct sigaction *act, struct sigaction *oldact);
 ```
+```c
+struct sigaction {
+    void (*sa_handler)(int); /* Address of handler */
+    sigset_t sa_mask; /* Signals blocked during handler invocation */
+    int sa_flags; /* Flags controlling handler invocation */
+    void (*sa_restorer)(void); /* Not for application use */
+};
+```
+- act是一个指向新的deposition
 
 ## Waiting for a Signal: pause()
 ```c
