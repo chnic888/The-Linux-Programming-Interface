@@ -181,6 +181,24 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
 - `signal mask`实际上是属于线程级别属性， 每个线程都可以使用`pthread_sigmask()`来独立的操作当前线程的sigmask
 - `SIGKILL`和`SIGSTOP`两种signal无法被`signal mask`处理，kernel将会忽略对这两种signal的试图阻塞请求
 
+```c
+sigset_t blockSet, prevMask;
+/* Initialize a signal set to contain SIGINT */
+
+sigemptyset(&blockSet);
+sigaddset(&blockSet, SIGINT);
+
+/* Block SiGINT, save previous signal mask */
+if (sigprocmask(SIG_BLOCK, &blockSet, &prevMask) == -1)
+    errExit("sigprocmask");
+
+/* ... Code that should not be interrupted by SIGINT ... */
+
+/* Restore previous signal mask, unblocking SIGINT */
+if (sigprocmask(SIG_SETMASK, &preMask, NULL) == -1)
+    errExit("sigprocmask");
+```
+
 ## Pending Signals
 ```c
 #include <signal.h>
@@ -207,7 +225,10 @@ struct sigaction {
     void (*sa_restorer)(void); /* Not for application use */
 };
 ```
-- act是一个指向新的deposition
+- act是一个指向新的disposition结构的指针，oldact为指向之前的disposition结构的指针。`act=NULL`用来获取当前的disposition，`oldact=NULL`表示只设置新的disposition而不关心之前的disposition
+- `sa_handler`不为`SIG_IGN`或者`SIG_DFL`时`sa_mask`和`sa_flags`才会生效
+- `sa_mask`定义了一个signal set，所有在signal set但是不在signal mask的信号会在`sa_handler`被调用之前自动加入process的`signal mask`，直到`sa_handler`返回之后之前自动添加的signal会再被自动移除
+- 唤醒`sa_handler`的signal会被自动的加入到process的`signal mask`中
 
 ## Waiting for a Signal: pause()
 ```c
@@ -215,3 +236,4 @@ struct sigaction {
 
 int pause(void);
 ```
+- `pause()`会暂时暂停执行进程的运行，并等待signal handler调用并返回之后再恢复执行进程的运行
