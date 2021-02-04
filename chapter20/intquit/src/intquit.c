@@ -18,8 +18,11 @@ int intquit(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    for (;;)
+    for (;;) {
+        fprintf(stdout, "Aha, ready to pause\n");
         pause();
+    }
+
 }
 
 static void sigHandler(int sig) {
