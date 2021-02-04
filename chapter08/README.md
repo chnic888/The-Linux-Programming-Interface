@@ -94,3 +94,20 @@ struct spwd {
  unsigned long sp_flag; /* Reserved for future use */
 };
 ```
+
+## Password Encryption and User Authentication
+```c
+#define _XOPEN_SOURCE
+#include <unistd.h>
+
+char *crypt(const char *key, const char *salt);
+```
+- `crypt()` key最多支持8个字符的秘钥，salt为两个为两个字符的盐值，返回值为一个13字符串指针，字符串为静态分配而成，内容是经过处理的密码
+- `crypt()` 返回的字符串，头两个字符串是salt值的一个拷贝，也就是说可以从已经加密过后的密码获取salt(/etc/shadow)
+
+```c
+#define _BSD_SOURCE
+#include <unistd.h>
+
+char *getpass(const char *prompt);
+```
