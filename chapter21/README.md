@@ -25,3 +25,30 @@ void handler(int sig) {
  errno = savedErrno;
 }
 ```
+
+### Global Variables and the sig_atomic_t Data Type
+所有主程序与signal handler之间共享全局变量都应该是如下的声明
+```c
+volatile sig_atomic_t flag;
+```
+- 当signal handler访问全局变量时，总是应该在声明变量时加上volatile关键字，从来防止编译器将其优化到寄存器当中
+- `sig_atomic_t`类型的++和--在C语言当中并不能保证是atomic操作，因此使用`sig_atomic_t`时唯一能做的就是在signal handler里设置，在主程序里检查
+
+## Other Methods of Terminating a Signal Handler
+- 使用_exit()终止进程，在调用之前可以做一些cleanup的操作
+- 使用kill()或者raise()来发送一个signal直接杀死进程
+- 从signal handler中执行一个nonlocal goto
+- 使用abort()来终止进程并且同时产生一个core dump
+
+### Performing a Nonlocal Goto from a Signal Handler
+```c
+#include <setjmp.h>
+int sigsetjmp(sigjmp_buf env, int savesigs);
+
+void siglongjmp(sigjmp_buf env, int val);
+```
+- 一个signal handler被装载并被调用时，在调用之前kernel会把唤醒这个signal handler的signal以及act.sa_mask的signals放入process signal mask当中，并在signal handler正常返回的时把他们从signal mask中移除，因此普通的`longjmp()`在这里就存在问题
+- 在调用`sigsetjmp()`时，如果savesigs为非0，process signal mask就会被存入env，然后使用带有相同env参数的siglongjmp()来恢复signal mask
+- 如果savesigs为0，则不会保存和恢复process signal mask
+
+### Terminating a Process Abnormally: abort()
