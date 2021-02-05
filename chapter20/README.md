@@ -205,6 +205,8 @@ if (sigprocmask(SIG_SETMASK, &preMask, NULL) == -1)
 
 int sigpending(sigset_t *set);
 ```
+- 假如process收到一个当前被blocked的signal，这个signal会被添加至当前process的pending signal set
+- `sigpending()`调用获取当前process的pending signal set
 
 ## Signals Are Not Queued
 - `pending signals set`只是一个mask，只能表明一个被mask的signal是否发生过，而不能记录发生次数。

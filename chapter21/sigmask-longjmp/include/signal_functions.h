@@ -1,4 +1,10 @@
 #ifndef THE_LINUX_PROGRAMMING_INTERFACE_SIGNAL_FUNCTIONS_H
 #define THE_LINUX_PROGRAMMING_INTERFACE_SIGNAL_FUNCTIONS_H
 
+#include <stdio.h>
+
+int printPendingSigs(FILE *, const char *);
+
+int printSigMask(FILE *, const char *);
+
 #endif //THE_LINUX_PROGRAMMING_INTERFACE_SIGNAL_FUNCTIONS_H
