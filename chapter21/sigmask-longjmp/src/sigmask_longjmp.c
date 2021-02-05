@@ -28,8 +28,10 @@ static void handler(int sig) {
     }
 
 #ifdef USE_SIGSETJMP
+    fprintf(stdout, "Calling siglongjmp()\n");
     siglongjmp(senv, 1);
 #else
+    fprintf(stdout, "Calling longjmp()\n");
     longjmp(env, 1);
 #endif
 }
