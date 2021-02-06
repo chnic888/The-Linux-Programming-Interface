@@ -93,3 +93,4 @@ add_subdirectory(chapter20/t-kill)
 
 add_subdirectory(chapter21/nonreentrant)
 add_subdirectory(chapter21/sigmask-longjmp)
+add_subdirectory(chapter21/t-sigaltstack)
