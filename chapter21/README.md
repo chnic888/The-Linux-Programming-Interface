@@ -75,7 +75,8 @@ typedef struct {
     size_t ss_size; /* Size of alternate stack */
 } stack_t;
 ```
-- `sigstack`和`old_sigstack`两者之一均可为NULL， `sigstack`为NULL则返回当前`alternate signal stack`，`old_sigstack`为NULL则会试图创建新的`alternate signal stack`
+- `sigstack`和`old_sigstack`两者之一均可为NULL，`sigstack`为NULL则返回当前`alternate signal stack`，`old_sigstack`为NULL则会试图创建新的`alternate signal stack`
+- `SIGSTKSZ` ss_size的典型值，`MINSIGSTKSZ` ss_size的最小值  
 - `SS_ONSTACK` 如果这个ss_flags被设置在old_sigstack时，则说明process当前正执行在`alternate signal stack`上。如果process已经执行在`alternate signal stack`上时，如果试图用`sigaltstack()`创建一个新的`alternate signal stack`则会收到EPERM错误
 - `SS_DISABLE` 如果这个ss_flags由old_sigstack返回, 则说明当前没有`alternate signal stack`，如果为sigstack指定这个ss_flags,则会禁用一个当前已经被创建的`alternate signal stack`
 
