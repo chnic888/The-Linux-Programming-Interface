@@ -81,6 +81,60 @@ typedef struct {
 - `SS_DISABLE` 如果这个ss_flags由old_sigstack返回, 则说明当前没有`alternate signal stack`，如果为sigstack指定这个ss_flags,则会禁用一个当前已经被创建的`alternate signal stack`
 
 ## The SA_SIGINFO Flag
+- 使用sigaction()时候设置了`SA_SIGINFO`，在收到signal时signal handler可以获取一些额外的信息，此时signal handler的函数签名就应当为
+```c
+void handler(int sig, siginfo_t *siginfo, void *ucontext);
+```
+- struct sigaction的函数指针sa_handler无法指向带有ucontext的signal handler，因此引入了另外的一个字段sa_sigaction
+```c
+struct sigaction {  
+    union {
+        void (*sa_handler)(int);
+        void (*sa_sigaction)(int, siginfo_t *, void *);
+    } __sigaction_handler;
+    
+    sigset_t sa_mask;
+    int sa_flags;
+    void (*sa_restorer)(void);
+};
 
+/* Following defines make the union fields look like simple fields in the parent structure */
+
+#define sa_handler __sigaction_handler.sa_handler
+#define sa_sigaction __sigaction_handler.sa_sigaction
+```
+
+### The siginfo_t structure
+```c
+typedef struct {
+    int si_signo; /* Signal number */
+    int si_code; /* Signal code */
+    int si_trapno; /* Trap number for hardware-generated signal (unused on most architectures) */
+    union sigval si_value; /* Accompanying data from sigqueue() */
+    pid_t si_pid; /* Process ID of sending process */
+    uid_t si_uid; /* Real user ID of sender */
+    int si_errno; /* Error number (generally unused) */
+    void *si_addr; /* Address that generated signal (hardware-generated signals only) */
+    int si_overrun; /* Overrun count (Linux 2.6, POSIX timers) */
+    int si_timerid; /* (Kernel-internal) Timer ID (Linux 2.6, POSIX timers) */
+    long si_band; /* Band event (SIGPOLL/SIGIO) */
+    int si_fd; /* File descriptor (SIGPOLL/SIGIO) */
+    int si_status; /* Exit status or signal (SIGCHLD) */
+    clock_t si_utime; /* User CPU time (SIGCHLD) */
+    clock_t si_stime; /* System CPU time (SIGCHLD) */
+} siginfo_t;
+```
+- 定义macro`#if defined __USE_POSIX199309 || defined __USE_XOPEN_EXTENDED`开启siginfo_t的定义
 
 ## Interruption and Restarting of System Calls
+- 当system call被kernel阻塞，比如调用read()时会阻塞至有数据输入为止，此时signal handler又被某一个signal成功唤醒，在signal handler返回之后，system call则会失败并且将errno设置为EINTR("Interrupted function")
+- 在用`sigaction()`创建signal handler时，可以设置`SA_RESTART`标志位来代替process来自动重启system call，也不用处理system call有可能产生的`EINTR`错误
+
+### Modifying the SA_RESTART flag for a signal
+```c
+#include <signal.h>
+
+int siginterrupt(int sig, int flag);
+```
+- flag为1，则处理`sig`的signal handler则会打断阻塞的system call
+- flag为0，则处理`sig`的signal handler会自动重启阻塞的system call
