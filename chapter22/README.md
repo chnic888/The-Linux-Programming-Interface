@@ -27,9 +27,9 @@ ulimit -c unlimited
 - 如果一个signal被传递给一个处于停止状态process，那么在process被`SIGCONT`恢复执行之前，signal实际上并未真正被传递给process，`SIGKILL`除外
 
 ## Interruptible and Uninterruptible Process Sleep States
-- `TASK_INTERRUPTIBLE` aa
-- `TASK_UNINTERRUPTIBLE` aa
-- `TASK_KILLABLE` aa
+- `TASK_INTERRUPTIBLE` process正在等待某些event，process处在这种状态下的时长是不定的，如果此时为process产生一个signal，操作将会被中断，signal的传递也会将process唤醒。`ps(1)`命令下STAT字段标记为`S`
+- `TASK_UNINTERRUPTIBLE` process正在等待特定类型的event，如果此时为process产生一个signal，在process解除这种状态之前，signal不会被传递给process。`ps(1)`命令下STAT字段标记为`D`
+- `TASK_KILLABLE` 该状态和`TASK_UNINTERRUPTIBLE`类似，但是会在收到一个`fatal signal`时讲process唤醒，从而避免因为各种原因导致一个因为process挂起而必须重启系统的场景
 
 ## Hardware-Generated Signals
 - `SIGBUS` `SIGFPE` `SIGILL` `SIGSEGV`通常是由硬件异常所产生，较少通过kill()的方式来发送此类的signals
