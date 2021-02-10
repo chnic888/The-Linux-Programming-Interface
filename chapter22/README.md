@@ -60,6 +60,42 @@ signal可以被同步方式产生或异步方式产生。同步方式产生的si
 - `sigaction()`是建立signal handler首选的API
 
 ## Realtime Signals
+- `realtime signal`的范围相比`standard signal`有所扩大，可以用于application自定义signal
+- `realtime signal`是队列化管理，相比`standard signal`的非队列化管理，`realtime signal`可以保证对同一个signal的多次发送的多次发送
+- `realtime signal`在发送时，可以制定一些数据，并可以被接收process的signal handler获取
+- 不同`realtime signal`的发送顺序是可以保证的。如果存在多种不同的signals，编号越小的signal发送的优先级会越高。如果是相同编号的signal，则会按照传递过来的顺序进行发送
+- `SIGRTMIN`和`SIGRTMAX`分别对应realtime signal信号的编号的最大值和最小值
+- 为了确保平台兼容性，应当使用`SIGRTMIN + x`的方式来定义signal的编号
+
+Using realtime signals
+- 发送方的process使用`sigqueue()`来发送realtime signal和其所携带的数据
+- 接收方的process使用`sigaction()`并且指定`SA_SIGINFO`标志位来建立一个signal handler
+
+### Sending Realtime Signals
+```c
+#define _POSIX_C_SOURCE 199309
+
+#include <signal.h>
+int sigqueue(pid_t pid, int sig, const union sigval value);
+
+union sigval {
+    int sival_int; /* Integer value for accompanying data */
+    void *sival_ptr; /* Pointer value for accompanying data */
+};
+```
+- `sigqueue()`中很少使用`sival_ptr`字段，因为指针的的作用域在process内部，对于另外process几乎没有任何作用
+
+### Handling Realtime Signals
+```c
+struct sigaction act;
+
+sigemptyset(&act.sa_mask);
+act.sa_sigaction = handler;
+act.sa_flags = SA_RESTART | SA_SIGINFO;
+
+if (sigaction(SIGRTMIN + 5, &act, NULL) == -1)
+    errExit("sigaction");
+```
 
 ## Waiting for a Signal Using a Mask: sigsuspend()
 
