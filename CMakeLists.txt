@@ -96,3 +96,4 @@ add_subdirectory(chapter21/sigmask-longjmp)
 add_subdirectory(chapter21/t-sigaltstack)
 
 add_subdirectory(chapter22/t-sigqueue)
+add_subdirectory(chapter22/catch-rtsigs)

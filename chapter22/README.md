@@ -96,6 +96,11 @@ act.sa_flags = SA_RESTART | SA_SIGINFO;
 if (sigaction(SIGRTMIN + 5, &act, NULL) == -1)
     errExit("sigaction");
 ```
+- 一旦我们为sigaction引入了`SA_SIGINFO`flag，那么signal handler的第二个argument将会是`siginfo_t`的struct，内含realtime signal的附加信息
+  - `si_signo` 和signal handler中的第一个argument一致
+  - `si_code` 表示signal来源，对于使用`sigqueue()`的realtime signal来说，总是`SI_QUEUE`
+  - `si_value` process使用`sigqueue()`来发送signal是的第三个参数`union sigval value`，表示了伴随的数据
+  - `si_pid`和`si_uid` 发送进程的`process id`和`real user ID`
 
 ## Waiting for a Signal Using a Mask: sigsuspend()
 
