@@ -146,6 +146,9 @@ void psignal(int sig, const char *msg);
 int sigemptyset(sigset_t *set);
 int sigfillset(sigset_t *set);
 ```
+- `sigemptyset()` 用来初始化一个包含空signal的signal set
+- `sigfillset()` 用来初始化一个包含所有signals，也包括realtime signal的signal set
+- 必须使用`sigemptyset()`或者`sigfillset()`来初始化一个signal set来确保对变量正确的初始化和保证更好的可移植性
 
 ```c
 #include <signal.h>
@@ -159,6 +162,7 @@ int sigdelset(sigset_t *set, int sig);
 
 int sigismember(const sigset_t *set, int sig);
 ```
+- `sigismember()`来验证`sig`是否是signal set`set`的成员
 
 ```c
 #define _GNU_SOURCE
