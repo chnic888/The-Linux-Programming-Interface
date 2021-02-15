@@ -163,6 +163,7 @@ int sigdelset(sigset_t *set, int sig);
 int sigismember(const sigset_t *set, int sig);
 ```
 - `sigismember()`来验证`sig`是否是signal set`set`的成员
+- 可以使用定义在`<signal.h>`中的常量`NSIG`，表示最大的signal number + 1。当测试所有signal时，可以将`NSIG`作为上限
 
 ```c
 #define _GNU_SOURCE
@@ -183,7 +184,11 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
 - kernel会对每一个process维护一个`singal mask`，即一组被阻塞传递给该process的信号
 - 一个在`singal mask`内的signal将会被延迟传递给process，直到把signal从`signal mask`中移除来取消阻止
 - `signal mask`实际上是属于线程级别属性， 每个线程都可以使用`pthread_sigmask()`来独立的操作当前线程的sigmask
-- `SIGKILL`和`SIGSTOP`两种signal无法被`signal mask`处 理，kernel将会忽略对这两种signal的试图阻塞请求
+- `SIGKILL`和`SIGSTOP`两种signal无法被`signal mask`处理，kernel将会忽略对这两种signal的试图阻塞请求
+
+- `SIG_BLOCK` 将set所指向的signal set添加到现有的signal mask中
+- `SIG_UNBLOCK` 将set所指向的signal set从现有的signal mask中移除
+- `SIG_SETMASK` 将set所指向的signal set设置为现有的signal mask
 
 ```c
 sigset_t blockSet, prevMask;
