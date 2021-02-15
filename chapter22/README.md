@@ -103,10 +103,26 @@ if (sigaction(SIGRTMIN + 5, &act, NULL) == -1)
   - `si_pid`和`si_uid` 发送进程的`process id`和`real user ID`
 
 ## Waiting for a Signal Using a Mask: sigsuspend()
+```c
+#include <signal.h>
+
+int sigsuspend(const sigset_t *mask);
+```
 
 ## Synchronously Waiting for a Signal
+```c
+#define _POSIX_C_SOURCE 199309
+#include <signal.h>
+
+int sigwaitinfo(const sigset_t *set, siginfo_t *info);
+```
 
 ## Fetching Signals via a File Descriptor
+```c
+#include <sys/signalfd.h>
+
+int signalfd(int fd, const sigset_t *mask, int flags);
+```
 
 ## Interprocess Communication with Signals
 
