@@ -108,6 +108,13 @@ if (sigaction(SIGRTMIN + 5, &act, NULL) == -1)
 
 int sigsuspend(const sigset_t *mask);
 ```
+- `sigsuspend()`使用mask来替代process的signal mask，然后挂起执行process直到下一次的signal被捕获并且从signal handler返回后为止
+- 一旦从signal handler返回，`sigsuspend()`会将process的signal mask还原会调用之前的值
+```c
+sigprocmask(SIG_SETMASK, &mask, &prevMask); /* Assign new mask */
+pause();
+sigprocmask(SIG_SETMASK, &prevMask, NULL); /* Restore old mask */
+```
 
 ## Synchronously Waiting for a Signal
 ```c
