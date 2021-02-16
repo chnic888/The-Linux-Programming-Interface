@@ -4,7 +4,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -49,8 +48,9 @@ int tSigwaitinfo(int argc, char *argv[]) {
         }
 
         fprintf(stdout, "got signal: %d (%s)\n", sig, strsignal(sig));
-        printf(" si_signo=%d, si_code=%d (%s), si_value=%d\n", si.si_signo, si.si_code,
-               (si.si_code == SI_USER) ? "SI_USER" : (si.si_code == SI_QUEUE) ? "SI_QUEUE" : "other",
-               si.si_value.sival_int);
+        fprintf(stdout, " si_signo=%d, si_code=%d (%s), si_value=%d\n", si.si_signo, si.si_code,
+                (si.si_code == SI_USER) ? "SI_USER" : (si.si_code == SI_QUEUE) ? "SI_QUEUE" : "other",
+                si.si_value.sival_int);
+        fprintf(stdout, " si_pid=%ld, si_uid=%ld\n", (long) si.si_pid, (long) si.si_uid);
     }
 }
