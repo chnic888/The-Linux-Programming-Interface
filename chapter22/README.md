@@ -137,6 +137,7 @@ struct timespec {
     long tv_nsec; /* Nanoseconds */
 };
 ```
+- `timeout`指定了`sigtimedwait()`可以等待signal的最大时间
 
 ## Fetching Signals via a File Descriptor
 ```c
@@ -144,7 +145,30 @@ struct timespec {
 
 int signalfd(int fd, const sigset_t *mask, int flags);
 ```
+- `mask`是一个signal set，指定了接下来通过`read()`来读取signal的file descriptor
+- 如果指定fd为-1， `signalfd()`会创建一个新的file descriptor，否则，将修改现有fd相关的mask的值，且该fd一定是通过之前的`signalfd()`创建而成
+- 通过`read()`来读取signal时，提供给`read()`的缓冲区一定要足够能容纳至少一个`signalfd_siginfo`结构
+- 如果调用`read()`时，fd内并无pending signals，则`read()`将会阻塞直到有signal为止
 
+```c
+struct signalfd_siginfo {
+    uint32_t ssi_signo; /* Signal number */
+    int32_t ssi_errno; /* Error number (generally unused) */
+    int32_t ssi_code; /* Signal code */
+    uint32_t ssi_pid; /* Process ID of sending process */
+    uint32_t ssi_uid; /* Real user ID of sender */
+    int32_t ssi_fd; /* File descriptor (SIGPOLL/SIGIO) */
+    uint32_t ssi_tid; /* Kernel timer ID (POSIX timers) */
+    uint32_t ssi_band; /* Band event (SIGPOLL/SIGIO) */
+    uint32_t ssi_tid; /* (Kernel-internal) timer ID (POSIX timers) */
+    uint32_t ssi_overrun; /* Overrun count (POSIX timers) */
+    uint32_t ssi_trapno; /* Trap number */
+    int32_t ssi_status; /* Exit status or signal (SIGCHLD) */
+    int32_t ssi_int; /* Integer sent by sigqueue() */
+    uint64_t ssi_ptr; /* Pointer sent by sigqueue() */
+    uint64_t ssi_utime; /* User CPU time (SIGCHLD) */
+    uint64_t ssi_stime; /* System CPU time (SIGCHLD) */
+    uint64_t ssi_addr; /* Address that generated signal (hardware-generated signals only) */
+};
+```
 ## Interprocess Communication with Signals
-
-## Earlier Signal APIs (System V and BSD)   
