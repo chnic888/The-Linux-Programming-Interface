@@ -123,6 +123,20 @@ sigprocmask(SIG_SETMASK, &prevMask, NULL); /* Restore old mask */
 
 int sigwaitinfo(const sigset_t *set, siginfo_t *info);
 ```
+- `sigwaitinfo()`会挂起process的执行，直到set指向的signal set中的某一个signal被传递为止
+- 如果在调用`sigwaitinfo()`前，set中的某一种signal已经处于pending状态，则`sigwaitinfo()`会立刻返回，signal的编号会作为方法的返回值被返回，同时signal也会从process的pending列表中被移除
+
+```c
+#define _POSIX_C_SOURCE 199309
+#include <signal.h>
+
+int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *timeout);
+
+struct timespec {
+    time_t tv_sec; /* Seconds ('time_t' is an integer type) */
+    long tv_nsec; /* Nanoseconds */
+};
+```
 
 ## Fetching Signals via a File Descriptor
 ```c
