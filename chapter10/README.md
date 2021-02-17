@@ -1,4 +1,9 @@
 # TIME
+- `Real time`
+    - 某个标准时间点，比如calendar时间
+    - process生命周期内的某一个固定的时间点，通常为程序启动，也可以被叫做`elapsed`或`wall clock`
+  
+- `Process time` 一个process所使用的CPU时间总量
 
 ## Calendar Time
 ```c
@@ -148,7 +153,7 @@ char *setlocale(int category, const char *locale);
 - setlocale(LC_ALL, "")地区被指定为空字符串的时，意味着从环境变量取得locale的设置
 
 ## Process Time
-进程时间是进程创建后使用CPU的时间总量，可以被分为两部分
+进程时间是进程创建后使用CPU的总量时间，可以被分为两部分
 
 - User CPU time 是在user mode下所花费的时间数量，有时也被称为虚拟时间，它是程序访问CPU的时间
 - System CPU time 是在kernel model下花费时间的数量，它是内核用户执行system call或者代表程序执行其他任务的时间
