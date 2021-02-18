@@ -6,6 +6,8 @@
 - `Process time` 一个process所使用的CPU时间总量
 
 ## Calendar Time
+- calendar time存储为time_t类型的变量中
+
 ```c
 #include <sys/time.h>
 
@@ -16,11 +18,14 @@ struct timeval {
     suseconds_t tv_usec; /* Additional microseconds (long int) */
 };
 ```
+- `gettimeofday()`返回calendar time存储在`tv`指向的缓冲区中
+
 ```c
 #include <time.h>
 
 time_t time(time_t *timep);
 ```
+- 一般简单的采用`t = time(NULL)`方式来获取UTC时间即可
 
 ## Time-Conversion Functions
 ![10-1.png](img/10-1.png)
@@ -150,13 +155,13 @@ char *setlocale(int category, const char *locale);
 | LC_TIME | A file containing formatting rules for dates and times |
 | LC_MESSAGES | A directory containing files specifying formats and values used for affirmative and negative (yes/no) responses |
 
-- setlocale(LC_ALL, "")地区被指定为空字符串的时，意味着从环境变量取得locale的设置
+- `setlocale(LC_ALL, "")`地区被指定为空字符串的时，意味着从环境变量取得locale的设置
 
 ## Process Time
 进程时间是进程创建后使用CPU的总量时间，可以被分为两部分
 
-- User CPU time 是在user mode下所花费的时间数量，有时也被称为虚拟时间，它是程序访问CPU的时间
-- System CPU time 是在kernel model下花费时间的数量，它是内核用户执行system call或者代表程序执行其他任务的时间
+- `User CPU time` 是在user mode下所花费的时间数量，有时也被称为虚拟时间，它是程序访问CPU的时间
+- `System CPU time` 是在kernel model下花费时间的数量，它是内核用户执行system call或者代表程序执行其他任务的时间
 
 ```c
 #include <sys/times.h>
@@ -170,5 +175,12 @@ struct tms {
     clock_t tms_cstime; /* System CPU time of all (waited for) children */
 };
 ```
-- clock_t的时钟计时单元可以通过调用sysconf(_SC_CLK_TCK)来获得，然后用clock_t值来除以该数值来转换为秒
-- clock()返回值的计量单位是CLOCKS_PER_SEC，用返回值除以该数值来获取进程所使用CPU的秒数
+- `clock_t`的时钟计时单元可以通过调用`sysconf(_SC_CLK_TCK)`来获得，然后用clock_t值来除以该数值来转换为秒
+
+```c
+#include <time.h>
+
+clock_t clock(void);
+```
+- `clock()`作为一个简单的接口去获取process时间，返回一个calling process所使用的CPU总时间(user + system)
+- `clock()`返回值的计量单位是`CLOCKS_PER_SEC`，用返回值除以该数值来获取process所使用CPU的秒数

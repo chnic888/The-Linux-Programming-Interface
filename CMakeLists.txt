@@ -102,3 +102,5 @@ endif ()
 add_subdirectory(chapter22/t-sigqueue)
 add_subdirectory(chapter22/t-sigsuspend)
 add_subdirectory(chapter22/t-sigwaitinfo)
+
+add_subdirectory(chapter23/real-time)
