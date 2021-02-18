@@ -49,6 +49,9 @@ unsigned int alarm(unsigned int seconds);
 
 unsigned int sleep(unsigned int seconds);
 ```
+- 如果休眠正常结束，`sleep()`将返回0。如果被signal中断，`sleep()`将返回未休眠的秒数
+- 考虑到可移植性，应该尽量避免将`sleep()`和`alarm()`以及`setitimer()`混用
+
 ### High-Resolution Sleeping: nanosleep()
 ```c
 #define _POSIX_C_SOURCE 199309
