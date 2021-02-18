@@ -25,7 +25,7 @@ static void displayTimes(const char *msg, bool includeTimer) {
     }
 
     if (callNum % 20 == 0) {
-        fprintf(stdout, "    Elapsed Value Interval\n");
+        fprintf(stdout, "        Elapsed  Value Interval\n");
     }
 
     if (gettimeofday(&curr, NULL) == -1) {

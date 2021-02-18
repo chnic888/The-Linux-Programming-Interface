@@ -104,3 +104,4 @@ add_subdirectory(chapter22/t-sigsuspend)
 add_subdirectory(chapter22/t-sigwaitinfo)
 
 add_subdirectory(chapter23/real-time)
+add_subdirectory(chapter23/timed-read)
