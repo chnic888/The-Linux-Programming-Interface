@@ -172,3 +172,6 @@ struct signalfd_siginfo {
 };
 ```
 ## Interprocess Communication with Signals
+- signal异步就意味着要面对比如可重入需求、竞态竞争以及在signal handler中争取处理全局变量等问复杂问题
+- 标准的signal不是队列化的，即便是realtime signal，队列也存在数量上的限制，也就意味着会丢失信息
+- signal所携带的数据量太小，这种低带宽的的传输方式使得signal对比其他IPC方式(PIPE)相比极为缓慢
