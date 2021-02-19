@@ -105,4 +105,5 @@ add_subdirectory(chapter22/t-sigwaitinfo)
 
 add_subdirectory(chapter23/real-time)
 add_subdirectory(chapter23/t-sleep)
+add_subdirectory(chapter23/t-nanosleep)
 add_subdirectory(chapter23/timed-read)

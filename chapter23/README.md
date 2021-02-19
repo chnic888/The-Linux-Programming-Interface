@@ -64,6 +64,8 @@ struct timespec {
     long tv_nsec; /* Nanoseconds */
 };
 ```
+- SUSv3规定`nanosleep()`不能用signal来实现，因此可以和`alarm()`或`setitimer()`混用
+- 尽管`nanosleep()`没有使用signal来实现，但是依然可以被其他的signal handler打断
 
 ## POSIX Clocks
 
