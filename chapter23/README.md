@@ -78,7 +78,7 @@ int clock_gettime(clockid_t clockid, struct timespec *tp);
 int clock_getres(clockid_t clockid, struct timespec *res);
 ```
 
-| Clock ID |  Description |
+| Clock ID | Description |
 | --- | --- |
 | CLOCK_REALTIME | Settable system-wide real-time clock |
 | CLOCK_MONOTONIC | Nonsettable monotonic clock |
