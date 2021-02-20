@@ -51,14 +51,16 @@ int open(const char *pathname, int flags, ... /* mode_t mode */);
 | O_NONBLOCK | Open in nonblocking mode | v3 |
 | O_SYNC | Make file writes synchronous | v3 |
 
+- `O_EXCL` 此标志和`O_CREAT`结合使用表示如果文件已经存在，则不会打开文件，且`open()`调用失败，设置errno为`EEXIST`
+
 ### Errors from open()
-- `EACCES`
-- `EISDIR`
-- `EMFILE`
-- `ENFILE`
-- `ENOENT`
-- `EROFS`
-- `ETXTBSY`
+- `EACCES` 文件权限不允许calling process以flags参数指定的方式打开文件
+- `EISDIR` 所指定的文件属于目录，而调用者企图打开该文件进行读写操作
+- `EMFILE` process已经打开的fd数量达到了process资源限制所设定的上限，`RLIMIT_NOFILE`
+- `ENFILE` 打开文件的数量已经达到了系统允许的上限
+- `ENOENT` 文件不存在且未指定`O_CREAT`标志 或 指定了`O_CREAT`但是`pathname`指定的目录之一不存在 或 `pathname`为符号链接且链接指向的文件不存在 
+- `EROFS` 所指定的文件隶属于read-only文件系统，而调用者试图以写方式打开文件
+- `ETXTBSY` 所指定的文件为可执行文件且正在运行
 
 ### The creat() System Call
 ```c
