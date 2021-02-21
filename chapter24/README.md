@@ -1,6 +1,12 @@
 # PROCESS CREATION
 
 ## Overview of fork(), exit(), wait(), and execve()
+- `fork()`
+- `exit(status)`
+- `fork()`
+- `fork()`
+
+![24-1.png](./img/24-1.png)
 
 ## Creating a New Process: fork()
 
