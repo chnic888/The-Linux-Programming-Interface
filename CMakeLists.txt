@@ -2,15 +2,16 @@ cmake_minimum_required(VERSION 3.17)
 
 project(The-Linux-Programming-Interface C)
 
-set(START 3)
-set(END 24)
-
 foreach (NUM RANGE ${START} ${END})
+    if(NUM LESS 3)
+        continue()
+    endif()
+
     set(PREFIX )
 
-    IF(NUM LESS 10)
+    if(NUM LESS 10)
         set(PREFIX 0)
-    ENDIF()
+    endif()
 
     add_subdirectory(chapter${PREFIX}${NUM})
 endforeach ()
