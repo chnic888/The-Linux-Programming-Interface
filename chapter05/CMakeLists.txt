@@ -1,0 +1,11 @@
+project(FILE-IO-FURTHER-DETAILS C)
+
+add_subdirectory(5-1)
+add_subdirectory(5-2)
+add_subdirectory(5-3)
+add_subdirectory(5-4)
+add_subdirectory(5-5)
+add_subdirectory(5-6)
+add_subdirectory(fcntl-get)
+add_subdirectory(readv)
+add_subdirectory(writev)

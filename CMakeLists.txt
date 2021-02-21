@@ -2,20 +2,9 @@ cmake_minimum_required(VERSION 3.17)
 
 project(The-Linux-Programming-Interface C)
 
-add_subdirectory(chapter03/3-1)
-add_subdirectory(chapter04/4-1)
-add_subdirectory(chapter04/4-2)
-add_subdirectory(chapter04/seek-io)
-
-add_subdirectory(chapter05/5-1)
-add_subdirectory(chapter05/5-2)
-add_subdirectory(chapter05/5-3)
-add_subdirectory(chapter05/5-4)
-add_subdirectory(chapter05/5-5)
-add_subdirectory(chapter05/5-6)
-add_subdirectory(chapter05/fcntl-get)
-add_subdirectory(chapter05/readv)
-add_subdirectory(chapter05/writev)
+add_subdirectory(chapter03)
+add_subdirectory(chapter04)
+add_subdirectory(chapter05)
 
 add_subdirectory(chapter06/6-1)
 add_subdirectory(chapter06/6-3)
