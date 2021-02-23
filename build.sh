@@ -1,8 +1,8 @@
 #!/bin/sh
 
 BUILD_DIR='./build'
-START=3
-END=24
+START=1
+END=64
 
 if [ $# -eq 1 ]; then
     START="$1"
