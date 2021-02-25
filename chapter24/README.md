@@ -7,6 +7,9 @@
 - `execve(pathname, argv, envp)` 会加载一个新的程序(`程序路径名pathname`，`参数列表argv`， `环境变量列表envp`)到process的内存当中，现有的`program text`则会被丢弃，`stack` `data`和`heap`则会被刷新以便创建新程序，这一操作通常被称为执行一个新程序
 
 ![24-1.png](./img/24-1.png)
+- 图中的`execve()`system call是可选的
+- 图中的`wait()`system call也是可选的，parent process可以对忽略child process
+- 但是`wait()`通常来说也是不可或缺的，当其中之一的child process终止时，kernel会发`SIGCHLD`signal给parent process，因此经常在处理`SIGCHLD`的signal handler中使用。`SIGCHLD`默认的disposition是ignore
 
 ## Creating a New Process: fork()
 ```c
