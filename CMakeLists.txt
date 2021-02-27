@@ -24,4 +24,5 @@ add_subdirectory(chapter21)
 add_subdirectory(chapter22)
 add_subdirectory(chapter23)
 add_subdirectory(chapter24)
+add_subdirectory(chapter25)
 
