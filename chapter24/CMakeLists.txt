@@ -8,3 +8,4 @@ add_subdirectory(fork-whos-on-first)
 add_subdirectory(fork-sig-sync)
 
 add_subdirectory(24-1)
+add_subdirectory(24-5)
