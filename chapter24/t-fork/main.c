@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 
     switch (childPid = fork()) {
         case -1:
-            fprintf(stderr, "failed to create process\n", errno);
+            fprintf(stderr, "failed to create process, %d\n", errno);
             exit(EXIT_FAILURE);
         case 0:
             idata *= 3;

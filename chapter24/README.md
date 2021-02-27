@@ -17,6 +17,8 @@
 
 pid_t fork(void);
 ```
+- 完成对`fork()`的调用后将存在两个process，而且每个process都会从`fork()`的返回处继续执行
+- `fork()`返回之后的两个process将执行相同`program text`，但是会有独立`stack` `data`和`heap segments`的拷贝，每个process都可以修改各自`stack` `data`和`heap segments`中的变量而不会影响其他process
 
 ```c
 pid_t childPid; /* Used in parent after successful fork() to record PID of child */
@@ -30,11 +32,27 @@ switch (childPid = fork()) {
         /* Perform actions specific to parent */
 }
 ```
+- 可以通过`fork()`的返回值来区别parent process和child process
+    - parent process中将返回创建的child process的`pid`
+    - 对于child process，`fork()`方法将返回`0`
+    - 如果无法创建child process，`fork()`则会返回`-1`
+- 调用`fork()`之后，无法确定系统会优先调度哪个process来使用CPU
+
 ### File Sharing Between Parent and Child
+- `fork()`执行后，child process会获得parent process内所有的fd的副本，副本的创建类似于`dup()`，也就是parent/child均指向相同的`open file description`
+- 如果不需要parent和child process共享fd，在调用`fork()`后的程序需要设计
+    - parent和child process使用不同的fd
+    - 各自立刻关闭不在使用的fd，如果某一个process执行了`exec()`可以添加`close-on-exec`flag
 
 ### Memory Semantics of fork()
+![24-2.png](./img/24-2.png)
 
 ## The vfork() System Call
+```c
+#include <unistd.h>
+
+pid_t vfork(void);
+```
 
 ## Race Conditions After fork()
 
