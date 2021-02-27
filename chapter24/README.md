@@ -60,6 +60,9 @@ switch (childPid = fork()) {
 
 pid_t vfork(void);
 ```
+- `vfork()`无需为child process复制虚拟内存页或者页表，相反，child process会共享parent process的内存，直至成功执行了`exec()`或者调用`_exit()`退出
+- 在child process调用`exec()`或者`_exit()`之前会先暂停parent process的执行，因此`vfork()`在语义上会保证系统优先child process来调度CPU
+- 除非速度绝对重要的场合，新的程序不应当使用`vfork()`而应当使用`fork()`
 
 ## Race Conditions After fork()
 
