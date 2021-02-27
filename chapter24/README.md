@@ -44,8 +44,15 @@ switch (childPid = fork()) {
     - parent和child process使用不同的fd
     - 各自立刻关闭不在使用的fd，如果某一个process执行了`exec()`可以添加`close-on-exec`flag
 
-### Memory Semantics of fork()
 ![24-2.png](./img/24-2.png)
+
+### Memory Semantics of fork()
+- 从概念上来说，可以将`fork()`认定为是对parent process的`text` `data` `heap`和`stack segments`的拷贝。
+- `fork()`之后通常会调用`exec()`来替换program text并且重新初始化child process的`data` `heap`和`stack segments`，因此现代的Unix/Linux通常会使用两种技术来避免内存的浪费  
+    - kernel将每一个process的`text segment`设置为只读，从而使得process无法修改自身的代码，意味着`fork()`之后的child process的`text segment`的`page-table entries`自动指向的是parent process的虚拟内存page frames
+    - 对于parent process的`data` `heap`和`stack segments`内的内存页，kernel采用的是`copy-on-write`技术来处理
+    
+![24-3.png](./img/24-3.png)
 
 ## The vfork() System Call
 ```c
