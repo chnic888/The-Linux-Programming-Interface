@@ -65,5 +65,6 @@ pid_t vfork(void);
 - 除非速度绝对重要的场合，新的程序不应当使用`vfork()`而应当使用`fork()`
 
 ## Race Conditions After fork()
+- 调用`fork()`之后，无法确定parent还是child process谁先获得CPU的访问权。如果在多处理器的系统中，也可能同时各自访问一个CPU
 
 ## Avoiding Race Conditions by Synchronizing with Signals
