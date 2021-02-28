@@ -1,7 +1,7 @@
 # PROCESS TERMINATION
 
 ## Terminating a Process: _exit() and exit()
-- `abnormal termination` 由signal的接收产生，并且signal的默认的disposition是终止当前process
+- `abnormal termination` 由signal的接收产生，并且signal的默认的disposition是终止当前process，比如给process发送`SIGKILL`或`SIGTERM`等signals
 - `normal termination` 使用`_exit()`system call终止当前process
 
 ```c
@@ -24,7 +24,7 @@ void exit(int status);
 ## Details of Process Termination
 
 ## Exit Handlers
-- `exit handler` 一个由开发者提供的函数，可在process生命周期内的任意时间点注册并在process调用`exit()`正常终止时自动执行。如果程序是异常终止则不会调用`exit handler`
+- `exit handler` 一个由开发者提供的函数，可在process生命周期内的任意时间点注册并在process调用`exit()`正常终止时自动执行。如果程序直接调用`_exit()`是因为signal而异常终止则不会调用`exit handler`
 - 避免使用`SIGKILL`来终止process，因为无法改变默认的disposition，建议使用`SIGTERM`来终止process
 
 ### Registering exit handlers
