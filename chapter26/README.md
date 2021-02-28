@@ -8,6 +8,11 @@
 
 pid_t wait(int *status)
 ```
+- 如果没有任何一个calling process的child processes终止，且这些child process之前也并未被等待过，那么`wait()`调用将被阻塞，假如之后某个child process终止，那么`wait()`则会立刻返回
+- 如果`status`非空，child process终止后的返回值会通过`status`指向的整数型变量返回
+- kernel会为parent process下的所有child process添加process的CPU时间和资源使用情况统计信息
+- 将终止的child process的pid作为`wait()`结果返回
+- `wait()`返回-1的一个原因是calling process已经无child process可等待，这时errno会被设置为`ECHILD`
 
 ### The waitpid() System Call
 ```c
