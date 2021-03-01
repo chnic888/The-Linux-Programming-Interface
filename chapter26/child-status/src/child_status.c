@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 int childStatus(int argc, char *argv[]) {
     int status;
@@ -52,6 +53,4 @@ int childStatus(int argc, char *argv[]) {
             }
 
     }
-
-    return (EXIT_SUCCESS);
 }
