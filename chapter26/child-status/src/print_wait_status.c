@@ -12,7 +12,7 @@ void printWaitStatus(const char *msg, int status) {
 
     if (WIFEXITED(status)) {
         fprintf(stdout, "child exited, status=%d\n", WEXITSTATUS(status));
-    } else if (WEXITSTATUS(status)) {
+    } else if (WIFSIGNALED(status)) {
         fprintf(stdout, "child killed by signal %d (%s)", WTERMSIG(status), strsignal(WTERMSIG(status)));
 #ifdef WCOREDUMP
         if (WCOREDUMP(status)) {
