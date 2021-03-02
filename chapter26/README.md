@@ -79,9 +79,14 @@ pid_t wait4(pid_t pid, int *status, int options, struct rusage *rusage);
 - `wait4()`等同于`waitpid(pid, &status, options)`，`wait4()`等待的是选定的一个或者多个child processes
 
 ## Orphans and Zombies
-- pid为`1`的init进程会接管孤儿process，如果一个child process的parent process被终止，可以通过`getppid()`是否为`1`来判断
-- parent process在执行`wait()`之前child process已经被终止，`wait()`可以确定child process是被如何终止，kernel通过把child process转变成僵尸process来处理这种情况，僵尸process会释放大部分资源，并且在kernel的`process table`记录一条数据
-
+- `orphan process` pid为`1`的`init`process会接管`orphan process`，如果一个child process的parent process被终止，可以通过`getppid()`是否为`1`来判断
+- `zombie process` parent process在执行`wait()`之前child process已经被终止，child process会被kernel转化成`zombie process`(在kernel的`process table`记录一条数据)，并会释放其大部分资源
+    - parent process仍然可以对`zombie process`调用`wait()`以确定`zombie process`是被如何终止
+    - `zombie process`并不是一个真正的`process`，因此无法通过signal杀死甚至是`SIGKILL`
+    - 如果parent process调用了`wait()`，kernel会移除`zombie process`，如果parent process在终止之前都没有调用`wait()`，`init`会接管`zombie process`并调用`wait()`来通知kernel移除`zombie process`
+    - 如果parent process无法执行`wait()`，则`zombie process`会一直驻留在kernel的`process table`当中（如果`process table`被写满则kernel无法创建新的process），直到parent process被杀死或者退出才会释放`zombie process`，因为此时`zombie proces`被`init`接管
+    - 如果parent process是一个长期存活并且创建了很多child process，parent process的需要同/异步调用`wait()`或者通过`SIGCHLD`signal来确保`dead process`被转化成为长时间存活的`zombie process`
+  
 ## The SIGCHLD Signal
 
 ### Establishing a Handler for SIGCHLD
