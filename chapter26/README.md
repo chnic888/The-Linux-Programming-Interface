@@ -100,7 +100,25 @@ pid_t wait4(pid_t pid, int *status, int options, struct rusage *rusage);
 ## The SIGCHLD Signal
 
 ### Establishing a Handler for SIGCHLD
+- 无论一个child process何时终止，一个`SIGCHLD`的signal都会被发送给parent process，而parent process对`SIGCHLD`的默认的disposition是忽略
+- 如果对`SIGCHLD`实现了signal handler，由于`sigaction()`默认会临时block唤醒他的signal(除非`SA_NODEFER`被指定)，并且signal也没有被队列化处理(多个`SIGCHLD`只会被捕获一次)，因此需要以poll的方式来调用`waitpid()`
+```c
+while (waitpid(-1, NULL, WNOHANG) > 0)
+    continue;
+```
+
+#### Design issues for SIGCHLD handlers
+- 一个保证可移植应用程序应当在创建child process之前就先注册好`SIGCHLD`的signal handler
+- `waitpid()`有可能会改变`errno`，因此需要在signal handler中需要考虑是否应当handler返回前恢复`errno`的值
 
 ### Delivery of SIGCHLD for Stopped Children
+- 如果signal导致child process**停止**，parent process也有可能收到`SIGCHLD`signal
+- 通过`sigaction()`注册signal handler时，如果添加`SA_NOCLDSTOP`标志位，那么parent process不会在child process被停止的时发送`SIGCHLD`signal。
 
 ### Ignoring Dead Child Processes
+- 对`SIGCHLD`的disposition显式的设置为`SIG_IGN`，child process会在后续被终止后立刻从系统中移除而不是转化为zombie process
+- `SIGCHLD`的默认disposition为ignore，但是显式的设置`SIG_IGN`会和默认的ignore有行为上的差异
+- 对`SIGCHLD`显式设置`SIG_IGN`并不会影响已经存在的zombie process，因此唯一完全保证可移植性的方案就是在`SIGCHLD`的signal handler内部通过`wait()`或者`waitpid()`产生zombie process
+
+#### The sigaction() SA_NOCLDWAIT flag
+- 使用`sigaction()`来处理`SIGCHLD`并且指定`SA_NOCLDWAIT`标志和对`SIGCHLD`显式的设置`SIG_IGN`功能类似
