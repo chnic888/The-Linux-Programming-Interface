@@ -64,6 +64,16 @@ void handler(int sig) {
 
 int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options);
 ```
+- `idtype`和`id`指定了那些child process需要等待
+    - `idtype=P_ALL` 等待任何的child process，忽略`id`
+    - `idtype=P_PID` 等待pid为`id`的child process
+    - `idtype=P_PGID` 等待process group id为`id`的child process
+- `options`可以指定的的字段
+    - `WEXITED` 等待无论正常还是不正常终止的child process
+    - `WSTOPPED` 等待通过signal而停止的child process
+    - `WCONTINUED` 等待通过`SIGCONT`signal恢复运行的child process
+    - `WNOHANG` 如果pid为`id`的child process无返回信息，`waitid()`返回`0`即poll方式。如果没有pid为`id`的child process相匹配，则errno为`ECHILD`
+    - `WNOWAIT` child process会返回status但是仍然会继续处于一个可被等待的状态，也就意味着稍后可以继续使用`waitid()`来获取相同的信息
 
 ### The wait3() and wait4() System Calls
 ```c
