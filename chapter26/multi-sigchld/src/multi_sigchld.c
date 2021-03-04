@@ -7,6 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 
 static volatile int numLiveChildren = 0;
 
