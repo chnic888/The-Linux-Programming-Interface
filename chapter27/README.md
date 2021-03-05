@@ -32,6 +32,11 @@ int execl(const char *pathname, const char *arg, ... /* , (char *) NULL */);
 | `execv()` | pathname |  array | caller’s environ |
 | `execl()` | pathname | list | caller’s environ |
 
+- `exec`后的单个字母代表着function提供的不同的功能
+    - `p`代表是`filename + PATH`模式，否则则为`pathname`模式
+    - `v`代表的是参数是以`array`的方式，`l`代表参数是以`list`的方式，两种方式都需要以`NULL`为结尾
+    - `e`代表的是环境列表以`array`的方式显式的传递，否则则会复用calling process的环境列表
+
 ### The PATH Environment Variable
 
 ### Specifying Program Arguments as a List
