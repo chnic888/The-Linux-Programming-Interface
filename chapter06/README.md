@@ -74,7 +74,6 @@ extern char etext, edata, end;
 
 ## Command-Line Arguments (argc, argv)
 
-
 ## Environment List
 - 每一个process都会有一个字符串数组叫做`environment list`或者`environment`
 - 新process在创建之时，会继承其parent process的`environment list`

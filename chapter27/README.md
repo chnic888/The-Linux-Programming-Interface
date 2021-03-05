@@ -66,13 +66,34 @@ int fexecve(int fd, char *const argv[], char *const envp[]);
 ```
 
 ### Execution of interpreter scripts
+- `execve()`如果检测到传入的文件以`#!`开头，就会解析该行的剩余部分，然后按照固定格式来执行`interpreter`程序
+```shell
+interpreter-path [ optional-arg ] script-path arg...
+```
 ![27-1.png](./img/27-1.png)
 
 ## File Descriptors and exec()
+- 默认情况下，一个老程序在调用`exec()`加载新程序前打开的所有fd，会通过`exec()`传递给新程序并且此时fd依然是有效并且是打开状态，新程序无需了解文件名或者是重新打开文件便可以直接使用fd
 
 ### The close-on-exec flag (FD_CLOEXEC)
+- 某些fd有可能是通过第三方的library打开，但是作为第三方的library无法强制program在调用`execve()`之前关闭fd
+- 如果`execve()`因为某些原因调用失败，可能还需要继续保证fd的打开状态，但是如果有些类型的fd一旦关闭，再次打开的难度极大
+
+```c
+int flags;
+flags = fcntl(fd, F_GETFD);
+if (flags == -1)
+errExit("fcntl");
+flags |= FD_CLOEXEC;
+if (fcntl(fd, F_SETFD, flags) == -1)
+errExit("fcntl");
+```
+- kernel为每一个fd提供了`close-on-exec`标志，如果`exec()`执行成功，会自动关闭该fd，如果调用失败则fd会继续保持打开状态
 
 ## Signals and exec()
+- `exec()`执行时会替换原有的program text，但是text中可能包含calling program的signal handlers，kernel会把所有已处理的signal的dispositions设置成为`SIG_DFL`
+- 为了保证最大的可移植性，应当在调用`exec()`之前执行`signal(SIGCHLD, SIG_DFL)`，当然程序也不能假设`SIGCHLD`默认的disposition就是`SIG_DFL`
+- 在`exec()`调用阶段，process`signal mask`和`pending signals`都会被保存，新的程序可以继续对signal进行block和queue，因此在`exec()`前不应当`blocked`或者`ignored`任何的signals
 
 ## Executing a Shell Command: system()
 ```c
@@ -80,6 +101,13 @@ int fexecve(int fd, char *const argv[], char *const envp[]);
 
 int system(const char *command);
 ```
+- `system()`允许calling program执行任意的shell命令，`system()`会创建一个新的child process来运行shell，并且用shell来执行shell命令
+- `system()`的运行效率低下，使用`system()`运行shell命令至少要创建两个processes， 一个用于运行shell，剩余的一个或多个用来执行shell所执行的命令
+- `system()`的返回值
+    - 假如`command`为NULL，`system()`在shell可用返回非0，若不可用则返回0
+    - 如果无法创建child process或者获取其终止状态，则`system()`返回-1
+    - 如果child process无法执行shell，`system()`的返回值和shell调用`_exit(127)`终止时一样
+    - 如果所有system calls都成功，`system()`会返回shell command的终止状态，也就是最后一条命令时退出的状态，如果command被signal所杀，大多数shell返回`128+n`，n为signal number
 
 ## Implementing system()
 ![27-2.png](./img/27-2.png)
