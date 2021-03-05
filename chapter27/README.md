@@ -34,10 +34,12 @@ int execl(const char *pathname, const char *arg, ... /* , (char *) NULL */);
 
 - `exec`后的单个字母代表着function提供的不同的功能
     - `p`代表是`filename + PATH`模式，否则则为`pathname`模式
-    - `v`代表的是参数是以`array`的方式，`l`代表参数是以`list`的方式，两种方式都需要以`NULL`为结尾
+    - `v`代表的是参数是以`array`的方式，`l`代表参数是以`list`的方式，两种方式都需要以`NULL`指针来结尾
     - `e`代表的是环境列表以`array`的方式显式的传递，否则则会复用calling process的环境列表
 
 ### The PATH Environment Variable
+- child process会在被创建时从parent process处继承一份环境变量的副本
+- 避免对于`set-user-ID`或`set-group-ID`的程序使用`execvp()`和`execlp()`，以防止执行恶意程序。实际操作中，应当使用已知安全的路径来替换之前定义好的`PATH`
 
 ### Specifying Program Arguments as a List
 

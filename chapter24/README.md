@@ -19,6 +19,7 @@ pid_t fork(void);
 ```
 - 完成对`fork()`的调用后将存在两个process，而且每个process都会从`fork()`的返回处继续执行
 - `fork()`返回之后的两个process将执行相同`program text`，但是会有独立`stack` `data`和`heap segments`的拷贝，每个process都可以修改各自`stack` `data`和`heap segments`中的变量而不会影响其他process
+- child process会从parent process继承`environment list`
 
 ```c
 pid_t childPid; /* Used in parent after successful fork() to record PID of child */

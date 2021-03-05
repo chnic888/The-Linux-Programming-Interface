@@ -77,7 +77,7 @@ extern char etext, edata, end;
 
 ## Environment List
 - 每一个process都会有一个字符串数组叫做`environment list`或者`environment`
-- 新跑process在创建之时，会继承其parent process的`environment list`
+- 新process在创建之时，会继承其parent process的`environment list`
 - child process只有在创建的时候才能获得其parent process的环境`environment list`，所以种传递是单向且一次性的
 
 ### Accessing the environment from a program
