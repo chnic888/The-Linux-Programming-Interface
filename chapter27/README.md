@@ -109,5 +109,11 @@ int system(const char *command);
     - 如果child process无法执行shell，`system()`的返回值和shell调用`_exit(127)`终止时一样
     - 如果所有system calls都成功，`system()`会返回shell command的终止状态，也就是最后一条命令时退出的状态，如果command被signal所杀，大多数shell返回`128+n`，n为signal number
 
+### Avoid using system() in set-user-ID and set-group-ID programs
+- `Set-user-ID`和`set-group-ID`的程序在特权模式下运行，不能使用`system()`，以免造成安全隐患
+
 ## Implementing system()
 ![27-2.png](./img/27-2.png)
+- 执行`system("sleep 20")`时会有三个processes，`calling process` `shell process`和`shell command process`
+- `SIGINT`和`SIGQUIT`在`shell command process`执行期间被`calling process`忽略
+- `SIGINT`和`SIGQUIT`在child process中，应当是已处理的signal的disposition设置成默认值，其他signal的disposition保持不变
