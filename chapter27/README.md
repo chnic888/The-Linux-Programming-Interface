@@ -23,6 +23,15 @@ int execv(const char *pathname, char *const argv[]);
 int execl(const char *pathname, const char *arg, ... /* , (char *) NULL */);
 ```
 
+| Function | Specification of program file (–, p) | Specification of arguments (v, l) | Source of environment (e, –) |
+| --- | --- | --- | --- |
+| `execve()` | pathname |  array | envp argument |
+| `execle()` | pathname | list | envp argument |
+| `execlp()` | filename + PATH | list | caller’s environ |
+| `execvp()` | filename + PATH |  array | caller’s environ |
+| `execv()` | pathname |  array | caller’s environ |
+| `execl()` | pathname | list | caller’s environ |
+
 ### The PATH Environment Variable
 
 ### Specifying Program Arguments as a List
