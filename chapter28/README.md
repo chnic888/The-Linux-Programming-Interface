@@ -107,9 +107,72 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 | CLONE_VM | Parent and child share virtual memory |
 
 ### The clone() flags Argument
+- `thread`和`process`属于KSE`kernel scheduling entity`，只是对比其他SKEs提供了或多或少属性共享上的不同
+
+#### Sharing file descriptor tables: CLONE_FILES
+- 如果设置`CLONE_FILES`，parent process和child process会共享同一个`open file descriptors table`
+- 如果不设置`CLONE_FILES`，child process只是获取了parent process的`open file descriptors table`的拷贝
+- `POSIX threads`规范要求process中的所有thread共享相同的`open file descriptors table`
+
+#### Sharing file system–related information: CLONE_FS
+- 如果设置`CLONE_FS`，parent process和child process会共享同文件系统相关信息包括`umask`、根目录和当前工作目录
+- `POSIX threads`规范要求实现`CLONE_FS`提供的属性共享
+
+#### Sharing signal dispositions: CLONE_SIGHAND
+- 如果设置`CLONE_SIGHAND`，parent process和child process会共享相同的`signal dispositions table`，无论在哪个process调用`sigaction()`或`signal()`修改signal的disposition，都会影响其他process
+- 如果不设置`CLONE_SIGHAND`，child process只是获取了parent process的`signal dispositions table`的拷贝
+- `POSIX threads`规范要求共享`signal dispositions`
+
+#### Sharing the parent’s virtual memory: CLONE_VM
+- 如果设置`CLONE_VM`，parent process和child process会共享同一份`virtual memory pages`，无论在哪个process调用`mmap()`或`munmap()`，都会影响其他process
+- 如果不设置`CLONE_VM`，child process只是获取了parent process的`virtual memory pages`的拷贝  
+- `POSIX threads`规范也对thread之间共享`virtual memory pages`有要求
+
+#### Thread groups: CLONE_THREAD
+- 如果设置`CLONE_THREAD`，child process会被置于parent process的thread group中
+- 如果不设置`CLONE_THREAD`，child process会被置于新的thread group中
+- POSIX规定process所有的thread共享同一个pid，`thread group`就是共享同一个`thread group identifier (TGID)`的一组KSE
+
+![28-1.png](./img/28-1.png)
+- 一个`thread group`内每个thread都有一个唯一的`thread identifier(TID)`
+- `thread group`内的首个`thread`即为`thread group leader`，其`TID`等于`TGID`
+- `thread group`内的所有thread都有一个相同的parent process id(PPID)， 即为`thread group leader`的的PPID，`thread group`内的所有thread都终止以后，parent process才会收到`SIGCHLD`signal
+- 如果一个通过`CLONE_THREAD`标志创建的thread被终止，需要通过`pthread_join()`而不是`wait()`来检测
+- 如果`thread group`内的任意thread调用了`exec()`，那么除了`thread group leader`之外的threads将会被终止，新的program将会在`thread group leader`中执行
+- 如果`thread group`内的任意thread调用了`fork()`或`vfork()`来创建child process，则组内任何的thread都可以使用`wait()`来监控其child process
+
+#### Threading library support: CLONE_PARENT_SETTID, CLONE_CHILD_SETTID, and CLONE_CHILD_CLEARTID
+
+#### Thread-local storage: CLONE_SETTLS
+
+#### Sharing System V semaphore undo values: CLONE_SYSVSEM
+
+#### Per-process mount namespaces: CLONE_NEWNS
+
+#### Making the child’s parent the same as the caller’s: CLONE_PARENT
+
+#### Making the child’s PID the same as the parent’s PID: CLONE_PID (obsolete)
+
+#### Process tracing: CLONE_PTRACE and CLONE_UNTRACED
+
+#### Suspending the parent until the child exits or execs: CLONE_VFORK
+
+#### New clone() flags to support containers
+
+#### Use of clone() flags
+- `fork()` 约等于flags指定为`SIGCHLD`的`clone()`调用
+- `vfork()` 等于flags指定为`CLONE_VM | CLONE_VFORK | SIGCHLD`的`clone()`调用
+- `LinuxThreads threading`的实现使用flags指定为`CLONE_VM | CLONE_FILES | CLONE_FS | CLONE_SIGHAND`的`clone()`调用
+- `NPTL threading`的实现使用flags指定为`CLONE_VM | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_THREAD | CLONE_SETTLS | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM`的`clone()`调用
 
 ### Extensions to waitpid() for Cloned Children
+- 通过`clone()`产生的child process，可以通过`waitpid()` `wait3()` `wait4()`的掩码参数`options`附加如下值
+    - `__WCLONE` 如果设置只会等待`clone()`产生的child process，不设置则张炯会等待**非**`clone()`产生的child process
+    - `__WALL` 等待所有的child process，不区分是否通过`clone()`产生
+    - `__WNOTHREAD` 只等待calling process自己的child process，`waitpid()`不能使用此标志
 
 ## Speed of Process Creation
+- `fork()` process所占的内存越大，`fork()`所需的时间也就越长，因为要复制页表，以及将`data` `heap` `stack segment page entries`标记为只读
+- `vfork()` process的的内存大小不会影响`vfork()`的时间，因为`vfork()`不会拷页表和页，因此calling process的虚拟内存大小不会对其有影响
 
 ## Effect of exec() and fork() on Process Attributes
