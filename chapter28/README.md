@@ -142,22 +142,36 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 - 如果`thread group`内的任意thread调用了`fork()`或`vfork()`来创建child process，则组内任何的thread都可以使用`wait()`来监控其child process
 
 #### Threading library support: CLONE_PARENT_SETTID, CLONE_CHILD_SETTID, and CLONE_CHILD_CLEARTID
+- 如果设置`CLONE_PARENT_SETTID`，kernel会将child thread id写入`pitd`指向的位置，在对parent process复制之前，就会把CTID写入`ptid`所指向的内存，可以保证在`clone()`返回之前就将新的tid赋值给`ptid`指针，从来避免race conditions
+- 如果设置`CLONE_CHILD_SETTID`，`clone()`会将child thread id写入`ctid`指向的位置，对`ctid`的设置只会存在于child内存当中，如果设置了`CLONE_VM`，还是会影响到parent
+- 如果设置`CLONE_CHILD_CLEARTID`，那么`clone()`会将child process终止时将`ctid`所指向的内容清零
 
 #### Thread-local storage: CLONE_SETTLS
+- 如果设置`CLONE_SETTLS`，参数`tls`所指向thead级别使用的`thread-local`存储缓冲区的结构`user_desc`
 
 #### Sharing System V semaphore undo values: CLONE_SYSVSEM
+- 如果设置`CLONE_SYSVSEM`，parent process和child process共享同一个`System V semaphore undo values list`
+- 如果不设置`CLONE_SYSVSEM`，parent process和child process各自有自己的`undo list`，且child process的列表为空
 
 #### Per-process mount namespaces: CLONE_NEWNS
+- 默认情况下，parent process和child process共享同一个mount namespace，所以只要有一个process调用了`mount()`和`umount()`，改变也会为其他process所见
 
 #### Making the child’s parent the same as the caller’s: CLONE_PARENT
+- 如果设置`CLONE_PARENT`，那么`child process.PPID = calling clone() process.PPID`
+- 如果不设置`CLONE_PARENT`，那么`child process.PPID = calling clone() process.PID`
+- child process的终止，会向`child process.PPID`所指向的parent process发出signal
 
 #### Making the child’s PID the same as the parent’s PID: CLONE_PID (obsolete)
+- 如果设置`CLONE_PID`，child pid则会等于他的parent的pid
 
 #### Process tracing: CLONE_PTRACE and CLONE_UNTRACED
+- 如果设置`CLONE_PTRACE`并且在在trace calling process，那么child process也会被traced
 
 #### Suspending the parent until the child exits or execs: CLONE_VFORK
+- 如果设置`CLONE_VFORK`，parent process将一直被挂起直到child process调用了`exec()`或`_exit()`来释放虚拟内存资源位置
 
 #### New clone() flags to support containers
+- 对于容器提供支持的flags `CLONE_IO` `CLONE_NEWIPC` `CLONE_NEWNET` `CLONE_NEWPID` `CLONE_NEWUSER` `CLONE_NEWUTS`
 
 #### Use of clone() flags
 - `fork()` 约等于flags指定为`SIGCHLD`的`clone()`调用
