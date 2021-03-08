@@ -121,12 +121,14 @@ int access(const char *pathname, int mode);
 | X_OK | Can the file be executed? |
 
 ### The Process File Mode Creation Mask: umask()
-- open(2), mkdir(2)会使用umask来修改指定的权限
 ```c
 #include <sys/stat.h>
 
 mode_t umask(mode_t mask);
 ```
+- 对于新建文件，kernel使用`open()`或`creat()`中的`mode`参数来指定权限
+- 对于新建目录，kernel会根据`mkdir()`的`mode`参数来指定权限
+- `umask`是process级别的属性，用来控制当process创建文件或者目录时那些权限为应该被**turn off**
 
 ### Changing File Permissions: chmod() and fchmod()
 ```c

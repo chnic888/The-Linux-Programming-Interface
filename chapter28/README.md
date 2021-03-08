@@ -110,17 +110,18 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 - `thread`和`process`属于KSE`kernel scheduling entity`，只是对比其他SKEs提供了或多或少属性共享上的不同
 
 #### Sharing file descriptor tables: CLONE_FILES
-- 如果设置`CLONE_FILES`，parent process和child process会共享同一个`open file descriptors table`
-- 如果不设置`CLONE_FILES`，child process只是获取了parent process的`open file descriptors table`的拷贝
+- 如果设置`CLONE_FILES`，parent process和child process会共享同一个`open file descriptors table`，因此对一个process的fd的分配和释放，比如`open()` `close()` `dup()` `pipe()` `socket()`，都会对其他process可见
+- 如果不设置`CLONE_FILES`，child process只是获取了parent process的`open file descriptors table`的副本
 - `POSIX threads`规范要求process中的所有thread共享相同的`open file descriptors table`
 
 #### Sharing file system–related information: CLONE_FS
-- 如果设置`CLONE_FS`，parent process和child process会共享同文件系统相关信息包括`umask`、根目录和当前工作目录
+- 如果设置`CLONE_FS`，parent process和child process会共享同文件系统相关信息，因此对一个process的`umask()` `chdir()` `chroot()`会影响其他process
 - `POSIX threads`规范要求实现`CLONE_FS`提供的属性共享
 
 #### Sharing signal dispositions: CLONE_SIGHAND
 - 如果设置`CLONE_SIGHAND`，parent process和child process会共享相同的`signal dispositions table`，无论在哪个process调用`sigaction()`或`signal()`修改signal的disposition，都会影响其他process
-- 如果不设置`CLONE_SIGHAND`，child process只是获取了parent process的`signal dispositions table`的拷贝
+- 如果不设置`CLONE_SIGHAND`，child process只是获取了parent process的`signal dispositions table`的副本
+- `CLONE_SIGHAND`不会影响parent和child process之间的`signal mask`和`pending signals set`，parent和child process之间是彼此独立的  
 - `POSIX threads`规范要求共享`signal dispositions`
 
 #### Sharing the parent’s virtual memory: CLONE_VM
@@ -129,8 +130,8 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 - `POSIX threads`规范也对thread之间共享`virtual memory pages`有要求
 
 #### Thread groups: CLONE_THREAD
-- 如果设置`CLONE_THREAD`，child process会被置于parent process的thread group中
-- 如果不设置`CLONE_THREAD`，child process会被置于新的thread group中
+- 如果设置`CLONE_THREAD`，child会被置于parent的thread group中
+- 如果不设置`CLONE_THREAD`，child会被置于新的thread group中
 - POSIX规定process所有的thread共享同一个pid，`thread group`就是共享同一个`thread group identifier (TGID)`的一组KSE
 
 ![28-1.png](./img/28-1.png)
