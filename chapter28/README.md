@@ -132,30 +132,36 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 #### Thread groups: CLONE_THREAD
 - 如果设置`CLONE_THREAD`，child会被置于parent的thread group中
 - 如果不设置`CLONE_THREAD`，child会被置于新的thread group中
-- POSIX规定process所有的thread共享同一个pid，`thread group`就是共享同一个`thread group identifier (TGID)`的一组KSE
+- POSIX规定process所有的thread共享同一个pid，即不同thread调用`getpid()`都会返回相同值，`thread group`就是共享同一个`thread group identifier (TGID)`的一组KSE
 
 ![28-1.png](./img/28-1.png)
-- 一个`thread group`内每个thread都有一个唯一的`thread identifier(TID)`
-- `thread group`内的首个`thread`即为`thread group leader`，其`TID`等于`TGID`
-- `thread group`内的所有thread都有一个相同的parent process id(PPID)， 即为`thread group leader`的的PPID，`thread group`内的所有thread都终止以后，parent process才会收到`SIGCHLD`signal
-- 如果一个通过`CLONE_THREAD`标志创建的thread被终止，需要通过`pthread_join()`而不是`wait()`来检测
+
+- 一个`thread group`内每个thread都有一个唯一的`thread identifier(TID)`，thread可以通过`gettid()`system call来获取自己的`TID`
+- `TID`和`PID`的数据类型都为`pid_t`，且`TID`在系统级别是唯一的，除了一个thread是process内`thread group leader`的情况之外，kernel可以保证系统不会出现`TID`**等于**`PID`的情况
+- `thread group`内的首个`thread`即为`thread group leader`，其`TID`等于`TGID`，也等于`PID`
+- `thread group`内的所有thread都有一个相同的`parent process id(PPID)`， 即为`thread group leader`的`PPID`，`thread group`内的所有thread都终止以后，parent process才会收到`SIGCHLD`signal
+- 如果一个通过`CLONE_THREAD`标志创建的thread被终止，不会有signal会发给该thread的创建者(创建者通过`clone()`创建)。POSIX thread不同于process，需要通过`pthread_join()`而不是`wait()`来检测是否终止
 - 如果`thread group`内的任意thread调用了`exec()`，那么除了`thread group leader`之外的threads将会被终止，新的program将会在`thread group leader`中执行
-- 如果`thread group`内的任意thread调用了`fork()`或`vfork()`来创建child process，则组内任何的thread都可以使用`wait()`来监控其child process
+- 如果`thread group`内的任意thread调用了`fork()`或`vfork()`来创建child，则组内任何的thread都可以使用`wait()`或类似函数来监控child
+- Linux 2.6开始，如果设置了`CLONE_THREAD`，也必须同时设置`CLONE_SIGHAND`
 
 #### Threading library support: CLONE_PARENT_SETTID, CLONE_CHILD_SETTID, and CLONE_CHILD_CLEARTID
-- 如果设置`CLONE_PARENT_SETTID`，kernel会将child thread id写入`pitd`指向的位置，在对parent process复制之前，就会把CTID写入`ptid`所指向的内存，可以保证在`clone()`返回之前就将新的tid赋值给`ptid`指针，从来避免race conditions
-- 如果设置`CLONE_CHILD_SETTID`，`clone()`会将child thread id写入`ctid`指向的位置，对`ctid`的设置只会存在于child内存当中，如果设置了`CLONE_VM`，还是会影响到parent
-- 如果设置`CLONE_CHILD_CLEARTID`，那么`clone()`会将child process终止时将`ctid`所指向的内容清零
+- 如果设置`CLONE_PARENT_SETTID`，kernel会将`CTID`写入`pitd`指向的位置，在对parent process复制之前，就会把`CTID`拷贝到`ptid`的位置。可以保证即便没有设置`CLONE_VM`，parent thread和child thread均可以在此位置获得child thread id 
+- 设置`CLONE_PARENT_SETTID`，可以保证在`clone()`返回之前就将新的`CTID`赋值给`ptid`指针，从来避免race conditions
+- 如果设置`CLONE_CHILD_SETTID`，`clone()`会将`CTID`写入`ctid`指向的位置，并且对`ctid`的设置只会存在于child内存当中，如果设置了`CLONE_VM`，还是会影响到parent
+- 如果设置`CLONE_CHILD_CLEARTID`，那么`clone()`会在child终止时将`ctid`所指向的内存清零，借助`CLONE_CHILD_CLEARTID`，NPTL threading implementation可获取thread的终止通知
+- 通过`pthread_create()`创建一个thread时，NPTL会使用`clone()`，并且`ptid`和`ctid`都指向同一个位置，当child终止时，由于设置了`CLONE_CHILD_CLEARTID`，`ctid`被清除，并且这个清除动作对process内的所有thread都是可见的(由于设置了`CLONE_VM`)
+- kernel将`ctid`指向的位置当做`futex`，`futex`为一种有效的同步机制，执行`futex()`system call会block的等待`ctid`所指向区域的变化，因此也可以获得thread终止的通知(`pthread_join()`的实现原理)。kernel清除cit的同时，也会唤醒任意的因为执行了`futex()`而被blocked的KSE
 
 #### Thread-local storage: CLONE_SETTLS
-- 如果设置`CLONE_SETTLS`，参数`tls`所指向thead级别使用的`thread-local`存储缓冲区的结构`user_desc`
+- 如果设置`CLONE_SETTLS`，参数`tls`所指向thead级别使用的`thread-local`存储缓冲区的结构`user_desc`，此为NPTL为了支持thread-local storage的实现，在Linux 2.6之后加入的flag
 
 #### Sharing System V semaphore undo values: CLONE_SYSVSEM
-- 如果设置`CLONE_SYSVSEM`，parent process和child process共享同一个`System V semaphore undo values list`
-- 如果不设置`CLONE_SYSVSEM`，parent process和child process各自有自己的`undo list`，且child process的列表为空
+- 如果设置`CLONE_SYSVSEM`，parent和child共享同一个`System V semaphore undo values list`
+- 如果不设置`CLONE_SYSVSEM`，parent和child各自独立的`undo list`，且child的列表为初始为空
 
 #### Per-process mount namespaces: CLONE_NEWNS
-- 默认情况下，parent process和child process共享同一个mount namespace，所以只要有一个process调用了`mount()`和`umount()`，改变也会为其他process所见
+- 默认情况下，parent和child共享同一个mount namespace，任意一个process调用了`mount()`和`umount()`改变了mount namespace，也会被其他process所见
 
 #### Making the child’s parent the same as the caller’s: CLONE_PARENT
 - 如果设置`CLONE_PARENT`，那么`child process.PPID = calling clone() process.PPID`
@@ -169,7 +175,7 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 - 如果设置`CLONE_PTRACE`并且在在trace calling process，那么child process也会被traced
 
 #### Suspending the parent until the child exits or execs: CLONE_VFORK
-- 如果设置`CLONE_VFORK`，parent process将一直被挂起直到child process调用了`exec()`或`_exit()`来释放虚拟内存资源位置
+- 如果设置`CLONE_VFORK`，parent将一直被挂起直到child调用了`exec()`或`_exit()`来释放虚拟内存资源
 
 #### New clone() flags to support containers
 - 对于容器提供支持的flags `CLONE_IO` `CLONE_NEWIPC` `CLONE_NEWNET` `CLONE_NEWPID` `CLONE_NEWUSER` `CLONE_NEWUTS`
@@ -191,3 +197,20 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 - `vfork()` process的的内存大小不会影响`vfork()`的时间，因为`vfork()`不会拷页表和页，因此calling process的虚拟内存大小不会对其有影响
 
 ## Effect of exec() and fork() on Process Attributes
+| Process attribute | `exec()` | `fork()` | Interfaces affecting attribute; additional notes |
+| --- | --- | --- | --- |
+| **_Process address space_** |  |  |  |
+| Text segment | No | Shared | Child process shares text segment with parent. |
+| Stack segment | No | Yes | Function entry/exit; alloca(), longjmp(), siglongjmp(). |
+| Data and heap segments | No | Yes | brk(), sbrk(). |
+| Environment variables | See notes | Yes | putenv(), setenv(); direct modification of environ. Overwritten by execle() and execve() and preserved by remaining exec() calls. |
+| Memory mappings | No | Yes;see notes | mmap(), munmap(). A mapping’s MAP_NORESERVE flag is inherited across fork(). Mappings that have been marked with madvise(MADV_DONTFORK) are not inherited across fork(). |
+| Memory locks | No | No | mlock(), munlock() |
+| **_Process identifiers and credentials_** |  |  |  |
+| Process ID | Yes | No | |
+| Parent process ID | Yes | No | |
+| Process group ID | Yes | Yes | setpgid(). |
+| Session ID | Yes | Yes | setsid(). |
+| Real IDs | Yes | Yes | setuid(), setgid(), and related calls. |
+| Effective and saved set IDs | See notes | Yes | setuid(), setgid(), and related calls. Chapter 9 explains how exec() affects these IDs. |
+| Supplementary group IDs | Yes | Yes | setgroups(), initgroups(). |
