@@ -38,27 +38,27 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start)
 ## Thread Termination
 ```c
 include <pthread.h>
-        
+
 void pthread_exit(void *retval);
 ```
 
 ## Thread IDs
 ```c
 include <pthread.h>
-        
+
 pthread_t pthread_self(void);
 ```
 
 ```c
 include <pthread.h>
-        
+
 int pthread_equal(pthread_t t1, pthread_t t2);
 ```
 
 ## Joining with a Terminated Thread
 ```c
 include <pthread.h>
-        
+
 int pthread_join(pthread_t thread, void **retval);
 ```
 
