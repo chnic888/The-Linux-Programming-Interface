@@ -214,3 +214,66 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 | Real IDs | Yes | Yes | setuid(), setgid(), and related calls. |
 | Effective and saved set IDs | See notes | Yes | setuid(), setgid(), and related calls. Chapter 9 explains how exec() affects these IDs. |
 | Supplementary group IDs | Yes | Yes | setgroups(), initgroups(). |
+| **_Files, file I/O, and directories_** |  |  |  |
+| Open file descriptors | See notes | Yes | open(), close(), dup(), pipe(), socket(), and so on. File descriptors are preserved across exec() unless marked close-on-exec. Descriptors in child and parent refer to same open file descriptions; see Section 5.4. |
+| Close-on-exec flag | Yes (if off) | Yes | fcntl(F_SETFD). |
+| File offsets | Yes | Shared | lseek(), read(), write(), readv(), writev(). Child shares file offsets with parent. |
+| Open file status flags | Yes | Shared | open(), fcntl(F_SETFL). Child shares open file status flags with parent. |
+| Asynchronous I/O operations | See notes | No | aio_read(), aio_write(), and related calls. Outstanding operations are canceled during an exec(). |
+| Directory streams | No | Yes; see notes | opendir(), readdir(). SUSv3 states that child gets a copy of parent’s directory streams, but these copies may or may not share the directory stream position. On Linux, the directory stream position is not shared. |
+| **_File system_** |  |  |  |
+| Current working directory | Yes | Yes | chdir(). |
+| Root directory | Yes | Yes | chroot(). |
+| File mode creation mask | Yes | Yes | umask(). |
+| **_Signals_** |  |  |  |
+| Signal dispositions | See notes | Yes | signal(), sigaction(). During an exec(), signals with dispositions set to default or ignore are unchanged; caught signals revert to their default dispositions. See Section 27.5. |
+| Signal mask | Yes | Yes | Signal delivery, sigprocmask(), sigaction(). |
+| Pending signal set | Yes | No | Signal delivery; raise(), kill(), sigqueue(). |
+| Alternate signal stack | No | Yes | sigaltstack(). |
+| **_Timers_** |  |  |  |
+| Interval timers | Yes | No | setitimer(). |
+| Timers set by alarm() | Yes | No | alarm(). |
+| POSIX timers | No | No | timer_create() and related calls. |
+| **_POSIX threads_** |  |  |  |
+| Threads | No | See notes | During fork(), only calling thread is replicated in child. |
+| Thread cancelability state and type | No | Yes | After an exec(), the cancelability type and state are reset to PTHREAD_CANCEL_ENABLE and PTHREAD_CANCEL_DEFERRED, respectively |
+| Mutexes and condition variables | No | Yes | See Section 33.3 for details of the treatment of mutexes and other thread resources during fork(). |
+| **_Priority and scheduling_** |  |  |  |
+| Nice value | Yes | Yes | nice(), setpriority(). |
+| Scheduling policy and priority | Yes | Yes | sched_setscheduler(), sched_setparam(). |
+| **_Resources and CPU time_** |  |  |  |
+| Resource limits | Yes | Yes | setrlimit(). |
+| Process and child CPU times | Yes | No | As returned by times(). |
+| Resource usages | Yes | No | As returned by getrusage(). |
+| **_Interprocess communication_** |  |  |  |
+| System V shared memory segments | No | Yes | shmat(), shmdt(). |
+| POSIX shared memory | No | Yes | shm_open() and related calls. |
+| POSIX message queues | No | Yes | mq_open() and related calls. Descriptors in child and parent refer to same open message queue descriptions. A child doesn’t inherit its parent’s message notification registrations. |
+| POSIX named semaphores | No | Shared | sem_open() and related calls. Child shares references to same semaphores as parent. |
+| POSIX unnamed semaphores | No | See notes | sem_init() and related calls. If semaphores are in a shared memory region, then child shares semaphores with parent; otherwise, child has its own copy of the semaphores. |
+| System V semaphore adjustments | Yes | No | semop(). See Section 47.8. |
+| File locks | Yes | See notes | flock(). Child inherits a reference to the same lock as parent. |
+| Record locks | See notes | No | fcntl(F_SETLK). Locks are preserved across exec() unless a file descriptor referring to the file is marked close-on-exec; see Section 55.3.5. |
+| **_Miscellaneous_** |  |  |  |
+| Locale settings | No | Yes | setlocale(). As part of C run-time initialization, the equivalent of setlocale(LC_ALL, “C”) is executed after a new program is execed. |
+| Floating-point environment | No | Yes | When a new program is execed, the state of the floating-point environment is reset to the default; see fenv(3). |
+| Controlling terminal | Yes | Yes |  |
+| Exit handlers | No | Yes | atexit(), on_exit(). |
+| **_Linux-specific_** |  |  |  |
+| File-system IDs | See notes | Yes | setfsuid(), setfsgid(). These IDs are also changed any time the corresponding effective IDs are changed. |
+| timerfd timers | Yes | See notes | timerfd_create(); child inherits file descriptors referring to same timers as parent. |
+| Capabilities | See notes | Yes | capset(). The handling of capabilities during an exec() is described in Section 39.5. |
+| Capability bounding set | Yes | Yes |
+| Capabilities securebits flags | See notes | Yes | All securebits flags are preserved during an exec() except SECBIT_KEEP_CAPS, which is always cleared. |
+| CPU affinity | Yes | Yes | sched_setaffinity(). |
+| SCHED_RESET_ON_FORK | Yes | No | See Section 35.3.2. |
+| Allowed CPUs | Yes | Yes | See cpuset(7). |
+| Allowed memory nodes | Yes | Yes | See cpuset(7). |
+| Memory policy | Yes | Yes | See set_mempolicy(2). |
+| File leases | Yes | See notes | fcntl(F_SETLEASE). Child inherits a reference to the same lease as parent. |
+| Directory change notifications | Yes | No | The dnotify API, available via fcntl(F_NOTIFY). |
+| prctl(PR_SET_DUMPABLE) | See notes | Yes | During an exec(), the PR_SET_DUMPABLE flag is set, unless execing a set-user-ID or set-group-ID program, in which case it is cleared. |
+| prctl(PR_SET_PDEATHSIG) | Yes | No |  |
+| prctl(PR_SET_NAME) | No | Yes |  |
+| oom_adj | Yes | Yes | See Section 49.9. |
+| coredump_filter | Yes | Yes | See Section 22.1. |
