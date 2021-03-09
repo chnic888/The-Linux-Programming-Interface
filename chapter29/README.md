@@ -14,6 +14,8 @@
     - 创建thread比创建process通常要快10倍，Linux上通过`clone()`system call来实现thread
 
 ## Background Details of the Pthreads API
+
+### Pthreads data types
 | Data type | Description |
 | --- | --- |
 | pthread_t | Thread identifier |
@@ -25,6 +27,7 @@
 | pthread_once_t | One-time initialization control context |
 | pthread_attr_t | Thread attributes object |
 
+### Threads and errno
 - 在multithreaded程序中，每个thread都有属于自己的errno
 - Pthreads API的所有Pthreads functions均返回`0`表示成功，返回positive error number表示失败
 
@@ -34,13 +37,24 @@
 
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start)(void *), void *arg);
 ```
+- 新thread通过调用带有`arg`参数的`start()`开始执行，`arg`参数为`void *`类型，可以指向任何对象类型的指针并传递给`start()`函数，一般情况下`arg`指针指向一个global或heap变量，如果需要向`start()`传递多个参数，可以将`arg`指向一个struct
+- 参数`thread`指向`pthread_t`类型的buffer，在执行
+- 参数`attr`是指向`pthread_attr_t`对象的指针，如果设置为NULL，将使用默认属性    
 
 ## Thread Termination
+- thread终止的方法
+    - thread的`start`函数执行了`return`语句并返回指定值
+    - thread调用了`pthread_exit()`
+    - 使用`pthread_cancel()`取消了thread    
+    - 任意thread调用了`exit()`或者main thread执行了`return`语句，所有process中的threads都会立刻终止
 ```c
 include <pthread.h>
 
 void pthread_exit(void *retval);
 ```
+- 调用`pthread_exit()`相当于在thread中执行了`return`语句
+- 参数`retval`指定了thread的返回值，`retval`所指向的值不应分配在`thread stack`上，`thread stack`上的内容在thread终止的时候失效
+- 如果main thread调用了`pthread_exit()`，其他thread也会继续执行
 
 ## Thread IDs
 ```c
