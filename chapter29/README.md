@@ -81,6 +81,8 @@ int pthread_join(pthread_t thread, void **retval);
 - `pthread_join()`会等待`thread`指定的thread终止，一旦thread终止，`pthread_join()`会解除阻塞立刻返回，这种操作被称之为`joining`(连接)
 - `retval`如果为一个非NULL的指针，将会收到一个thread终止时候返回值的拷贝，这个返回值是thread调用`return`或者`pthread_exit()`指定的值
 - 如果thread并未`detached`，则必须使用`pthread_join()`来进行连接，如果连接失败则thread终止之后会转变成为`zombie thread`，从而浪费系统资源
+- `thread`之间是平等的，process的任何thread可以通过`pthread_join()`来连接process中的其他threads，这点和process就有区别，当parent process通过`fork()`创建child process，parent是唯一可以对child进行`wait()`调用的process
+- 无法连接任意的thread，因为参数`thread`必须指向一个thread，也无法执行一个`nonblocking`的连接
 
 ## Detaching a Thread
 ```c
@@ -88,7 +90,22 @@ int pthread_join(pthread_t thread, void **retval);
 
 int pthread_detach(pthread_t thread);
 ```
+- 默认情况下的thread是`joinable`的状态，如果不关心返回状态并且希望系统自动清理终止的thread，可以通过`pthread_detach()`来使得thread变成`detached`状态
+- `joinable`到`detached`的状态转换是不可逆的，且处于`detached`状态的thread是无法被连接的
+- `pthread_detach()`只是关心thread终止之后会发生什么，并不关心thread是如何被终止的，其他thread调用了`exit()`或者main thread调用了`return`，`detached`状态的thread也会被立刻终止
 
 ## Thread Attributes
+- 通过`pthread_create()`的参数`attr`来控制，`attr`的类型为`pthread_attr_t`，可以在创建new thread时候指定一些属性
 
 ## Threads Versus Processes
+- multithread的优点
+    - thread共享数据很简单，process则需要更多的开销，比如共享内存段或者使用pipe
+    - thread的创建要快于process的创建，thread级context-switch时间要比process要短
+- multithread的缺点
+    - 需要考虑函数的thread-safe或者以thread-safe方式来调用函数
+    - thread之间共享相同的地址空间和其他属性，一个thread的问题会影响到其他thread
+    - 每个thread都在争夺宿主process中有限的virtual address space
+- 在multithread程序中需要小心处理signal，建议在multithread程序中避免使用signal 
+- multithread程序中的所有thread必须执行相同的program text
+- 要多thread间共享的信息视应用来判断优劣
+    
