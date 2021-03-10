@@ -38,7 +38,7 @@
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start)(void *), void *arg);
 ```
 - 新thread通过调用带有`arg`参数的`start()`开始执行，`arg`参数为`void *`类型，可以指向任何对象类型的指针并传递给`start()`函数，一般情况下`arg`指针指向一个global或heap变量，如果需要向`start()`传递多个参数，可以将`arg`指向一个struct
-- 参数`thread`指向`pthread_t`类型的buffer，在执行
+- 参数`thread`指向`pthread_t`类型的buffer，在`pthread_create()`函数`return`之前会把一个thread的唯一标识符拷贝进buffer中。SUSv3明确规定在新thread开始执行之前，不需要初始化`thread`所指向的buffer，新`thread`可能在`pthread_create()`函数return之前就开始执行，因此只能使用`pthread_self()`来获取自己的ID 
 - 参数`attr`是指向`pthread_attr_t`对象的指针，如果设置为NULL，将使用默认属性    
 
 ## Thread Termination
@@ -54,7 +54,7 @@ void pthread_exit(void *retval);
 ```
 - 调用`pthread_exit()`相当于在thread中执行了`return`语句
 - 参数`retval`指定了thread的返回值，`retval`所指向的值不应分配在`thread stack`上，`thread stack`上的内容在thread终止的时候失效
-- 如果main thread调用了`pthread_exit()`，其他thread也会继续执行
+- 如果main thread调用了`pthread_exit()`，不会影响其他thread的继续执行
 
 ## Thread IDs
 ```c
@@ -62,12 +62,15 @@ include <pthread.h>
 
 pthread_t pthread_self(void);
 ```
+- `Thread ID(TID)` process内的每一个thread的唯一标识符，每个thread可以通过`pthread_self()`来获取自己的TID
 
 ```c
 include <pthread.h>
 
 int pthread_equal(pthread_t t1, pthread_t t2);
 ```
+- `pthread_equal()`函数用来检查两个thread的ID是否相同，在Linux的threading实现中，TID在所有的process中都是唯一的
+- `pthread_t`在不同的实现中定义是不一致的，因此必须使用`pthread_equal()`来判断是否相等，以满足最大的可移植性
 
 ## Joining with a Terminated Thread
 ```c
@@ -75,6 +78,9 @@ include <pthread.h>
 
 int pthread_join(pthread_t thread, void **retval);
 ```
+- `pthread_join()`会等待`thread`指定的thread终止，一旦thread终止，`pthread_join()`会解除阻塞立刻返回，这种操作被称之为`joining`(连接)
+- `retval`如果为一个非NULL的指针，将会收到一个thread终止时候返回值的拷贝，这个返回值是thread调用`return`或者`pthread_exit()`指定的值
+- 如果thread并未`detached`，则必须使用`pthread_join()`来进行连接，如果连接失败则thread终止之后会转变成为`zombie thread`，从而浪费系统资源
 
 ## Detaching a Thread
 ```c
