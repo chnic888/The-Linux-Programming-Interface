@@ -2,20 +2,56 @@
 
 ## Protecting Accesses to Shared Variables: Mutexes
 - `critical section` 是指访问某一共享资源并且应当以`atomic`来执行的代码片段
+- 为了避免thread之间试图更新共享变量时所出的问题，必须使用`mutex(mutual exclusion)`来确保在同一时间只有一个thread可以访问某个共享资源，`mutex`可以确保对共享资源的原子访问
+- 一个`mutex`会有两种状态`locked`和`unlocked`，在任何时刻至多只能有一个thread可以获取一个`mutex`上的锁，试图对一个`locked`状态的`mutex`上锁，讲可能引起阻塞或者失败报错
+- 一旦`thread`对一个`mutex`锁定，随即就变成了`mutex`的所有者，也只有所有者才能对`mutex`进行解锁
+
+![30-2.png](./img/30-2.png)
 
 ### Statically Allocated Mutexes
+- 一个`mutex`既可以被被分配成为一个静态变量，也可以在运行时动态创建，比如通过`malloc()`
+```c
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+```
 
 ### Locking and Unlocking a Mutex
+- 初始化之后的`mutex`处于`unlocked`状态，`pthread_mutex_lock()`和`pthread_mutex_unlock()`可以lock或者unlock一个`mutex`
+
 ```c
 #include <pthread.h>
 
 int pthread_mutex_lock(pthread_mutex_t *mutex);
 int pthread_mutex_unlock(pthread_mutex_t *mutex);
 ```
+- `pthread_mutex_lock()`参数`mutex`指定了需要锁定的mutex
+    - 如果此时的mutex处于`unlocked`状态，则会锁定mutex并且立刻返回
+    - 如果此时的mutex处于`locked`状态，也就是被另一thread锁定，则`pthread_mutex_lock()`会一直阻塞直至mutex被解锁为止
+    - 如果一个thread已经持有一个mutex的锁，并且再次调用`pthread_mutex_lock()`，则根据mutex的默认类型会有两种结果：deadlock或者调用失败并把errno设置为`EDEADLK`，Linux默认使用deadlock策略
+- 如果有多个thread试图锁定一个刚刚通过`pthread_mutex_unlock()`解锁的mutex，无法预测哪个thread可以获取锁
+
+#### pthread_mutex_trylock() and pthread_mutex_timedlock()
+```c
+#include <pthread.h>
+
+int pthread_mutex_trylock(pthread_mutex_t *mutex);
+int pthread_mutex_unlock(pthread_mutex_t *mutex);
+```
+- 如果`mutex`当前是`locked`状态，对其使用`pthread_mutex_trylock()`则会失败并设置errno为`EBUSY`
+- 对于mutex的良好设计应该是一个thread持有mutex的时间应当尽量的短，以避免妨碍其他thread并发执行，这也保证了因为`mutex`被blocked的thread可以立刻获取mutex
 
 ### Performance of Mutexes
+- `file locks`和`semaphores`总是需要system call来执行lock和unlock的操作，每个system call虽然开销小但是仍是一个可感知的开销
+- `mutexes`通过原子的机器语言级别的操作来实现，并且仅在需要锁征用的情况下才会发生system call
+- Linux中，`mutexes`通过`futexes(fast user space mutexes)`机制来实现，锁的征用需要通过`futex()`system call
 
 ### Mutex Deadlocks
+- 当多个thread试图锁定同一组`mutex`时，就有可能发生deadlock
+
+![30-3.png](./img/30-3.png)
+
+- 解决deadlock可能的方案
+    - `mutex hierarchy` 定义一套`mutex`的层级关系，当多个thread对一组`mutex`操作时，应该总是以相同的顺序对这个`mutex`组进行锁定
+    - `try, and then back off` thread先使用`pthread_mutex_lock()`锁定第一个mutex，然后使用`pthread_mutex_trylock()`锁定剩余的`mutexes`，如果任意的`pthread_mutex_trylock()`调用失败，则该thread释放所有属于自己的`mutex`
 
 ### Dynamically Initializing a Mutex
 ```c
