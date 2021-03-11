@@ -59,16 +59,28 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex);
 
 int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr);
 ```
+- `PTHREAD_MUTEX_INITIALIZER`只能用于对`mutex`进行静态默认属性的初始化，其他的场景需要使用`pthread_mutex_init()`来对`mutex`进行初始化
+- 参数`mutex`指定了将要初始化的mutex
+- `attr`是指向`pthread_mutexattr_t`类型对象的指针，该对象在函数调用之前已经经过了初始化，用于定义`mutex`的属性
+- 如下情况下应当使用`pthread_mutex_init()`而不是使用静态分配的`mutex`
+    - 动态分配于heap中的`mutex`
+    - `mutex`是在stack中分配的自动变量
+    - 静态分配且不使用默认属性的`mutex`  
 
 ```c
 #include <pthread.h>
 
 int pthread_mutex_destroy(pthread_mutex_t *mutex);
 ```
+- 如果一个自动或者动态分配的`mutex`不再被需要，应当使用`pthread_mutex_destroy()`将其销毁
+- 只有一个`locked`状态的`mutex`，且后续没有thread试图锁定`mutex`，才能安全的把`mutex`销毁
 
 ### Mutex Attributes
 
 ### Mutex Types
+- `PTHREAD_MUTEX_NORMAL` 不具有deadlock自检功能类型的`mutex`，如果thread试图对自己锁定的mutex加锁，则发生死锁
+- `PTHREAD_MUTEX_ERRORCHECK` 对`mutex`所有的操作都会执行错误检查，此种`mutex`相比普通`mutex`慢，一般用于调试使用
+- `PTHREAD_MUTEX_RECURSIVE` 
 
 ## Signaling Changes of State: Condition Variables
 
