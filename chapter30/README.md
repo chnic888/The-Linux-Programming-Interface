@@ -1,16 +1,34 @@
 # THREADS: THREAD SYNCHRONIZATION
 
 ## Protecting Accesses to Shared Variables: Mutexes
+- `critical section` 是指访问某一共享资源并且应当以`atomic`来执行的代码片段
 
 ### Statically Allocated Mutexes
 
 ### Locking and Unlocking a Mutex
+```c
+#include <pthread.h>
+
+int pthread_mutex_lock(pthread_mutex_t *mutex);
+int pthread_mutex_unlock(pthread_mutex_t *mutex);
+```
 
 ### Performance of Mutexes
 
 ### Mutex Deadlocks
 
 ### Dynamically Initializing a Mutex
+```c
+#include <pthread.h>
+
+int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr);
+```
+
+```c
+#include <pthread.h>
+
+int pthread_mutex_destroy(pthread_mutex_t *mutex);
+```
 
 ### Mutex Attributes
 

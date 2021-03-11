@@ -54,7 +54,7 @@ void pthread_exit(void *retval);
 ```
 - 调用`pthread_exit()`相当于在thread中执行了`return`语句
 - 参数`retval`指定了thread的返回值，`retval`所指向的值不应分配在`thread stack`上，`thread stack`上的内容在thread终止的时候失效
-- 如果main thread调用了`pthread_exit()`，不会影响其他thread的继续执行
+- 如果main thread调用了`pthread_exit()`来代替`exit()`和执行`return`，不会影响其他thread的继续执行
 
 ## Thread IDs
 ```c
