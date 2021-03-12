@@ -80,7 +80,7 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex);
 ### Mutex Types
 - `PTHREAD_MUTEX_NORMAL` 不具有deadlock自检功能类型的`mutex`，如果thread试图对自己锁定的mutex加锁，则发生死锁
 - `PTHREAD_MUTEX_ERRORCHECK` 对`mutex`所有的操作都会执行错误检查，此种`mutex`相比普通`mutex`慢，一般用于调试使用
-- `PTHREAD_MUTEX_RECURSIVE` 
+- `PTHREAD_MUTEX_RECURSIVE` 一个递归的`mutex`维护了锁计数器，当thread第一次取得`mutex`则计数器被设为1，后续同一thread每次执行加锁操作都会增加计数器，解锁则会减少这个锁计数器，只有锁的计数器降为0时才会释放该`mutex`  
 
 ## Signaling Changes of State: Condition Variables
 
