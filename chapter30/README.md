@@ -83,6 +83,7 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex);
 - `PTHREAD_MUTEX_RECURSIVE` 一个递归的`mutex`维护了锁计数器，当thread第一次取得`mutex`则计数器被设为1，后续同一thread每次执行加锁操作都会增加计数器，解锁则会减少这个锁计数器，只有锁的计数器降为0时才会释放该`mutex`  
 
 ## Signaling Changes of State: Condition Variables
+- `condition variable` 条件变量允许一个thread向其他thread发送关于共享变量(或其他共享资源)状态变化的通知，并允许其他thread等待这种通知
 
 ### Statically Allocated Condition Variables
 
