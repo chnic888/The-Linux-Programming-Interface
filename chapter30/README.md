@@ -65,7 +65,7 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr);
 - 如下情况下应当使用`pthread_mutex_init()`而不是使用静态分配的`mutex`
     - 动态分配于heap中的`mutex`
     - `mutex`是在stack中分配的自动变量
-    - 静态分配且不使用默认属性的`mutex`  
+    - 静态分配且不使用默认属性的`mutex`
 
 ```c
 #include <pthread.h>
@@ -80,7 +80,7 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex);
 ### Mutex Types
 - `PTHREAD_MUTEX_NORMAL` 不具有deadlock自检功能类型的`mutex`，如果thread试图对自己锁定的mutex加锁，则发生死锁
 - `PTHREAD_MUTEX_ERRORCHECK` 对`mutex`所有的操作都会执行错误检查，此种`mutex`相比普通`mutex`慢，一般用于调试使用
-- `PTHREAD_MUTEX_RECURSIVE` 一个递归的`mutex`维护了锁计数器，当thread第一次取得`mutex`则计数器被设为1，后续同一thread每次执行加锁操作都会增加计数器，解锁则会减少这个锁计数器，只有锁的计数器降为0时才会释放该`mutex`  
+- `PTHREAD_MUTEX_RECURSIVE` 一个递归的`mutex`维护了锁计数器，当thread第一次取得`mutex`则计数器被设为1，后续同一thread每次执行加锁操作都会增加计数器，解锁则会减少这个锁计数器，只有锁的计数器降为0时才会释放该`mutex`
 
 ## Signaling Changes of State: Condition Variables
 - `condition variable` 条件变量允许一个thread向其他thread发送关于共享变量(或其他共享资源)状态变化的通知，并允许其他thread等待这种通知
@@ -96,7 +96,7 @@ pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 - `condition variable`的主要操作是`signal`和`wait`
     - `signal operation`发送一个signal给一个或者多个thread，通知threads某个共享变量的状态已经改变
     - `wait operation`是指处于阻塞状态直至收到一个通知
-  
+
 ```c
 #include <pthread.h>
 
@@ -106,7 +106,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 ```
 - `pthread_cond_signal()`和`pthread_cond_broadcast()`都可以根据`cond`指定的条件变量来发送signal
     - `pthread_cond_signal()` 只保证至少一个处于blocked状态的thread会被唤醒
-    - `pthread_cond_broadcast()` 所有被blocked状态的thread会被唤醒 
+    - `pthread_cond_broadcast()` 所有被blocked状态的thread会被唤醒
 - `pthread_cond_wait()`将阻塞一个thread直到收到了条件变量`cond`的通知
 - `pthread_cond_signal()`的使用场景
     - 不需要同时唤醒所有的thread，因此`pthread_cond_signal()`更为高效
@@ -119,15 +119,22 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 #include <pthread.h>
 int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime);
 ```
-- `pthread_cond_timedwait()`的`abstime`指定了在条件变量被signal通知之前处于休眠状态的thread的时间上限
+- `pthread_cond_timedwait()`的`abstime`指定了在条件变量被signal通知之前处于休眠状态的thread的时间上限，如果超过了时间上限`abstime`且条件变量也并未收到通知，则返回错误`ETIMEDOUT`
 
 #### Using a condition variable in the producer-consumer example
 - `pthread_cond_wait()`总是需要结合着`condition variable`和`mutex`一起使用，之后`pthread_cond_wait()`会执行如下的操作
-    - 解锁`mutex`指定的mutex
-    - 阻塞calling thread，直到另一thread给`cond`指向的`condition variable`发signal为止
-    - 重新锁定`mutex`
+    - 解锁`mutex`指定的mutex，并**同时**阻塞calling thread，以等待另一thread给`cond`指向的`condition variable`发送signal
+    - 收到另一thread向`condition variable`发送的signal之后，`pthread_cond_wait()`返回并重新锁定`mutex`
+- `condition variable`和`mutex`之间的关系
+    - thread锁定`mutex`并准备检查`predicate`，也就是`shared variable`是否满足某种状态
+    - 检查`predicate`是否满足要求
+    - 如果`predicate`不满足要求，calling thread会先解锁`mutex`然后在`condition variable`处休眠以等待signal，这里解锁`mutex`+休眠是一个原子性的操作，也就是在calling thread在进入休眠之前，不可能有其他的thread获取`mutex`，因此也可不可能有thread发送`condition variable`的signal，calling thread休眠之后其他的thread便可以访问`shared variable`，因为`mutext`此时已经处于`unlocked`的状态
+    - 当thread因为`condition variable`被通知而被重新唤醒时，thread需要对`mutex`再次锁定，`pthread_cond_wait()`方法返回时`mutex`已经被再次锁定，通常情况下被重新唤醒的thread会立刻访问`predicate`
+    - `pthread_cond_wait()`中的`mutex`的作用并不是为了保护`condition variable`，而是为了保护被`condition variable`用来实现signal机制的`predicate`
 
 ### Testing a Condition Variable’s Predicate
+- 必须使用while循环而不是if语句来控制对`pthread_cond_wait()`的调用，因为从`pthread_cond_wait()`返回时，并不能判断`predicate`的状态，因此应该立刻检查`predicate`，并且在条件不满足时重新使得thread进入休眠，这么做的几种原因
+- 给`condition variable`发送signal意味着“可能有些事情”需要接受signal并唤醒的thread去完成，而不是”一定有一些事情“要完成，因此需要重新判断`predicate`
 
 ### Example Program: Joining Any Terminated Thread
 
