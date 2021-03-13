@@ -9,7 +9,7 @@
 ![30-2.png](./img/30-2.png)
 
 ### Statically Allocated Mutexes
-- 一个`mutex`既可以被被分配成为一个静态变量，也可以在运行时动态创建，比如通过`malloc()`
+- `mutex`既可以被被分配成为一个静态变量，也可以在运行时动态创建，比如通过`malloc()`
 ```c
 pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 ```
@@ -84,10 +84,19 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex);
 
 ## Signaling Changes of State: Condition Variables
 - `condition variable` 条件变量允许一个thread向其他thread发送关于共享变量(或其他共享资源)状态变化的通知，并允许其他thread等待这种通知
+- 一个条件变量总是应当结合着`mutex`来使用，条件变量根据`mutex`的状态改变发出通知
 
 ### Statically Allocated Condition Variables
+- `condition variable`既可以被静态分配也可以被动态分配，条件变量的类型为`pthread_cond_t`
+```c
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+```
 
 ### Signaling and Waiting on Condition Variables
+- `condition variable`的主要操作是`signal`和`wait`
+    - `signal operation`发送一个signal给一个或者多个thread，通知threads某个共享变量的状态已经改变
+    - `wait operation`是指处于阻塞状态直至收到一个通知
+  
 ```c
 #include <pthread.h>
 
@@ -95,11 +104,28 @@ int pthread_cond_signal(pthread_cond_t *cond);
 int pthread_cond_broadcast(pthread_cond_t *cond);
 int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 ```
+- `pthread_cond_signal()`和`pthread_cond_broadcast()`都可以根据`cond`指定的条件变量来发送signal
+    - `pthread_cond_signal()` 只保证至少一个处于blocked状态的thread会被唤醒
+    - `pthread_cond_broadcast()` 所有被blocked状态的thread会被唤醒 
+- `pthread_cond_wait()`将阻塞一个thread直到收到了条件变量`cond`的通知
+- `pthread_cond_signal()`的使用场景
+    - 不需要同时唤醒所有的thread，因此`pthread_cond_signal()`更为高效
+    - 某一个thread被优先调度，此thread检查shared variable(s)状态并发现仍然有任务需完成，该thread完成了所需工作，并改变shared variable(s)表明任务完成并解锁相关的mutex
+    - 每个剩余的thread轮流锁定`mutex`并且测试`shared variable`的状态
+- `pthread_cond_broadcast()`使用场景
+    - 处于等待状态的所有thread被设计成为执行不同的任务
 
 ```c
 #include <pthread.h>
 int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime);
 ```
+- `pthread_cond_timedwait()`的`abstime`指定了在条件变量被signal通知之前处于休眠状态的thread的时间上限
+
+#### Using a condition variable in the producer-consumer example
+- `pthread_cond_wait()`总是需要结合着`condition variable`和`mutex`一起使用，之后`pthread_cond_wait()`会执行如下的操作
+    - 解锁`mutex`指定的mutex
+    - 阻塞calling thread，直到另一thread给`cond`指向的`condition variable`发signal为止
+    - 重新锁定`mutex`
 
 ### Testing a Condition Variable’s Predicate
 
