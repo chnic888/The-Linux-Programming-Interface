@@ -143,9 +143,14 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
 
 int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr);
 ```
+- 自动和动态的初始化`condition variable`必须使用`pthread_cond_init()`
+- 不采用默认属性的静态分配的`condition variable`也必须使用`pthread_cond_init()`
 
 ```c
 #include <pthread.h>
 
 int pthread_cond_destroy(pthread_cond_t *cond);
 ```
+- `pthread_cond_destroy()`用来销毁自动或者动态分配的`condition variable`，`PTHREAD_COND_INITIALIZER`创建的静态初始化的`condition variable`无需调用`pthread_cond_destroy()`来销毁
+- 一个`condition variable`在仅当没有thread在等待他的时，将其销毁才是安全的。
+- 如果`condition variable`驻留在动态创建的内存区域，应该释放内存前就将其销毁。自动分配的`condition variable`应该在宿主函数返回前就应予销毁
