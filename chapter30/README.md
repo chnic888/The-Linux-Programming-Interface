@@ -135,8 +135,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
 ### Testing a Condition Variable’s Predicate
 - 必须使用while循环而不是if语句来控制对`pthread_cond_wait()`的调用，因为从`pthread_cond_wait()`返回时，并不能判断`predicate`的状态，因此应该立刻检查`predicate`，并且在条件不满足时重新使得thread进入休眠，这么做的几种原因
 - 给`condition variable`发送signal意味着“可能有些事情”需要接受signal并唤醒的thread去完成，而不是”一定有一些事情“要完成，因此需要重新判断`predicate`
-
-### Example Program: Joining Any Terminated Thread
+- 有些实现中，有可能发生虚假唤醒，也就是没有任何thread给`condition variable`发送signal，处于等待的thread仍有可能被唤醒，因此需要重新判断`predicate`
 
 ### Dynamically Allocated Condition Variables
 ```c
