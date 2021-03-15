@@ -23,16 +23,16 @@ pthread_once_t once_var = PTHREAD_ONCE_INIT;
 - `thread-specific`数据允许函数为不同的thread分别维护一个变量的副本
 
 ### Thread-Specific Data from the Library Function’s Perspective
-- 函数必须给每个调用他的thread单独分配一个存储块，thread第一次调用函数时候会分配存储块
-- 后续相同thread对函数的调用，函数都应当返回第一次为thread分配的存储块
-- 不同的函数都需要`thread-specific`数据，每个函数也需要方法标识出自己的`thread-specific`
-- 因为函数无法控制当`thread`终止时发生的情况，因此需要一种机制能够自动的回收thread的存储块，以免造成内存泄露
+- 函数必须给每个调用他的thread单独分配一个存储块，存储块且只能函数被thread第一次调用时候被分配一次
+- 后续相同thread对此函数的调用，函数都应当返回第一次为thread分配的存储块，函数不能把存储数据的指针指向一个自动变量，因为自动变量在函数退出时会自动消失，也不能分配成为一个静态变量，每个静态变量在单个process中只有一个实例
+- 不同的函数都需要不同的`thread-specific`数据，每个函数也需要方法能标识出自己的`thread-specific`，以便能和其他的`thread-specific`数据区分开
+- 因为函数无法控制当`thread`终止时发生的情况，因此需要一种机制能够自动的回收thread的存储块，以避免造成内存泄露
 
 ### Overview of the Thread-Specific Data API
-- `pthread_key_create()`来创建`key`，用以区分`pthread_key_create()`函数和其他函数使用的`thread-specific`数据项，`key`仅需在首个thread第一次调用`pthread_key_create()`的时候生成，因此可配合`pthread_once()`在使用
-- `pthread_key_create()`可以定义`destructor`解构函数，thread终止时Pthreads AP会自动调用`destructor`解构函数并释放为`key`分配的存储块
-- 函数给每个调用他的thread分配一个`thread-specific`数据块，这个分配通过`malloc()`或者类似函数来实现，分配数据块只会在每个thread第一次调用函数时分配
-- `pthread_setspecific()`和`pthread_getspecific()`通过和之前的`key`结合，可以做到将指针存入或读出数据块，如果调用`pthread_getspecific()`时还没有特定的指针和`key`关联，函数会返回NULL
+- 一个函数创建`key`，用以区分他自己和其他函数所使用`thread-specific`数据。`key`可以通过`pthread_key_create()`来创建，`key`仅需在首个thread在访问函数的时候生成，且后续多少个thread访问这个函数，`key`也能被生成一次，因此可通过`pthread_once()`来控制在multi-thread环境下``pthread_key_create()`只被执行一次
+- `pthread_key_create()`可以自定义`destructor`解构函数，拥有`thread-specific`的thread终止时Pthreads AP会自动调用`destructor`解构函数，并将指向存储块的指针作为参数传入解构函数
+- 函数给每个调用他的thread分配一个`thread-specific`数据块，这个分配通过`malloc()`或者类似函数来实现，且也只会在每个thread第一次调用函数时分配一次
+- `pthread_setspecific()`通过和之前的`key`结合使用，可以做到将指针存入`thread-specific`数据块，`pthread_getspecific()`则返回`key`相关联的数据块指针，如果调用`pthread_getspecific()`时没有指针和`key`关联，函数会返回NULL
 
 ### Details of the Thread-Specific Data API
 ```c
@@ -40,10 +40,14 @@ pthread_once_t once_var = PTHREAD_ONCE_INIT;
 
 int pthread_key_create(pthread_key_t *key, void (*destructor)(void *));
 ```
-- `pthread_key_create()`返回一个新的`thread-specific`数据键，并且通过`key`指向的buffer返回给调用者
-- `key`可以被process内的所有thread使用，因此`key`应当指向一个全局变量 
-- 只要thread终止时`key`关联的值不为NULL，`destructor`指向的函数就会被自动执行，并将与`key`关联的值作为参数传入`destructor`函数中，如果无需解构函数，则将`destructor`置为NULL
+- `pthread_key_create()`给calling thread创建一个新的`thread-specific`数据键，并且通过`key`指向的buffer返回给calling thread
+- `key`可以被process内的所有thread使用，因此`key`应当指向一个全局变量，以便所有的thread都可以访问
+- 只要thread终止时`key`关联的值为非NULL，`destructor`指向的函数就会被自动执行，并将与`key`关联的值作为参数传入`destructor`函数中，如果无需解构函数，则可将`destructor`设置为NULL
 - 如果一个thread有多个`thread-specific`数据块，无法确定解构函数调用的顺序，因此每个解构函数的设计应当相互独立
+
+![31-2.png](./img/31-2.png)
+- 一个全局的数组，存放`thread-specific`数据key的信息
+- 每个thread包含一个数组，存有为每个thread分配的`thread-specific`数据块的指针
 
 ```c
 #include <pthread.h>
