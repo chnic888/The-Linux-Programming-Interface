@@ -2,6 +2,8 @@ project(THREADS-THREAD-SAFETY-AND-PER-THREAD-STORAGE C)
 
 find_package(Threads)
 
-add_subdirectory(strerror-test)
-add_subdirectory(strerror-tsd)
-add_subdirectory(strerror-tls)
+if (UNIX AND NOT APPLE)
+    add_subdirectory(strerror-test)
+    add_subdirectory(strerror-tsd)
+    add_subdirectory(strerror-tls)
+endif ()
