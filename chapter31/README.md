@@ -46,8 +46,10 @@ int pthread_key_create(pthread_key_t *key, void (*destructor)(void *));
 - 如果一个thread有多个`thread-specific`数据块，无法确定解构函数调用的顺序，因此每个解构函数的设计应当相互独立
 
 ![31-2.png](./img/31-2.png)
+
 - 一个全局的数组，存放`thread-specific`数据key的信息
 - 每个thread包含一个数组，存有为每个thread分配的`thread-specific`数据块的指针
+- `pthread_key_t`类型的key通过`pthread_key_create()`来创建，并作为数组`pthread_keys`的index
 
 ```c
 #include <pthread.h>
@@ -55,6 +57,11 @@ int pthread_key_create(pthread_key_t *key, void (*destructor)(void *));
 int pthread_setspecific(pthread_key_t key, const void *value);
 void *pthread_getspecific(pthread_key_t key);
 ```
+- `pthread_setspecific()`要求Pthreads API将`value`的拷贝在一个数据结构中，并且与calling thread和`key`相关联
+- `pthread_getspecific()`会返回和当前thread之前相关联的`key`的`value`
+
+![31-3.png](./img/31-3.png)
+- 当`thread`被创建时，他所有的`thread-specific`数据指针都会被初始化为NULL，所以当一个函数被一个`thread`第一次调用时，必须使用`pthread_getspecific()`来检查`key`所关联的value是否存在
 
 ### Employing the Thread-Specific Data API
 
