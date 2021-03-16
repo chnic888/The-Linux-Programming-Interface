@@ -63,8 +63,15 @@ void *pthread_getspecific(pthread_key_t key);
 ![31-3.png](./img/31-3.png)
 - 当`thread`被创建时，他所有的`thread-specific`数据指针都会被初始化为NULL，所以当一个函数被一个`thread`第一次调用时，必须使用`pthread_getspecific()`来检查`key`所关联的value是否存在
 
-### Employing the Thread-Specific Data API
-
 ### Thread-Specific Data Implementation Limits
+- 应用程序可以用过`PTHREAD_KEYS_MAX`来定义`thread-specific`数据key的数量，也可以通过`sysconf(_SC_THREAD_KEYS_MAX)`来定义，Linux支持最多1024个keys
 
 ## Thread-Local Storage
+- 创建`thread-local`变量，只需要在全局或者静态变量声明中包含`__thread`即可，每个thread都有一份对于`thread-local`变量的拷贝，`thread-local`变量会一直存在直到thread终止，终止后`thread-local`的存储也会被自动释放
+```c
+static __thread buf[MAX_ERROR_LEN];
+```
+
+- 如果变量中使用了`static`或`extern`关键字，`__thread`必须紧随其后
+- 和全局变量和静态变量的声明一样，`thread-local`变量在声明时可设置一个初始值
+- 可以使用`&`地址操作符来获取`thread-local`变量的地址

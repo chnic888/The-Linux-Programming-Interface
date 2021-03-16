@@ -4,3 +4,4 @@ find_package(Threads)
 
 add_subdirectory(strerror-test)
 add_subdirectory(strerror-tsd)
+add_subdirectory(strerror-tls)
