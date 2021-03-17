@@ -38,7 +38,7 @@ static void *threadFunc(void *arg) {
 
     pthread_cleanup_push(cleanupHandler, buf);
 
-    while (glob == 0)) {
+    while (glob == 0) {
         s = pthread_cond_wait(&cond, &mtx);
         if (s != 0) {
             fprintf(stdout, "failed to call pthread_cond_wait(), %d\n", errno);
