@@ -41,8 +41,15 @@ int pthread_setcanceltype(int type, int *oldtype);
 
 void pthread_testcancel(void);
 ```
+- 如果thread处于一个不包含取消点计算密集型的循环代码中，则无法被取消
+- `pthread_testcancel()`会产生一个取消点，取消请求处于pending状态的thread调用此函数之后，就会被立即终止
+- 当代码不包含取消点时，需要对`pthread_testcancel(void)`进行周期性的调用，以确保对pending的取消请求作出相应
 
 ## Cleanup Handlers
+- 每个`thread`都可以添加一个或者多个清理函数，并在thread被取消时候自动执行这些函数，清理函数可以执行一些清理动作，比如修改全局变量，解锁`mutex`等操作
+- 每个`thread`都有一个清理函数栈，清理函数会以后进先出的原则从栈顶开始执行
+- 如果`thread`顺利执行完所有代码并备有被取消，则清理函数则不会被调用
+
 ```c
 #include <pthread.h>
 
@@ -50,4 +57,4 @@ void pthread_cleanup_push(void (*routine)(void*), void *arg);
 void pthread_cleanup_pop(int execute);
 ```
 
-## Asynchronous Cancelability
+## Asynchronous Cancellability
