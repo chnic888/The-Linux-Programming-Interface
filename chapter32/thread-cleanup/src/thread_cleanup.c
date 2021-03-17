@@ -65,14 +65,14 @@ int threadCleanup(int argc, char *argv[]) {
     sleep(2);
 
     if (argc == 1) {
-        fprintf(stdout, "main: about to cancel thread\n");
+        fprintf(stdout, "main:  about to cancel thread\n");
         s = pthread_cancel(thr);
         if (s != 0) {
             fprintf(stderr, "failed to call pthread_cancel(), %d\n", errno);
             exit(EXIT_FAILURE);
         }
     } else {
-        fprintf(stdout, "main: about to signal condition variable\n");
+        fprintf(stdout, "main:  about to signal condition variable\n");
         glob = 1;
         s = pthread_cond_signal(&cond);
         if (s != 0) {

@@ -56,5 +56,10 @@ void pthread_testcancel(void);
 void pthread_cleanup_push(void (*routine)(void*), void *arg);
 void pthread_cleanup_pop(int execute);
 ```
+- `pthread_cleanup_push()`会将参数`routine`指向的方法添加到calling thread的清理函数栈的栈顶，`arg`指向的参数会被当成参数传递给`routine`指向的方法
+- `pthread_cleanup_pop()`会将清理函数栈的栈顶函数弹出并执行，如果参数`execute`为非0，函数即便在thread被非取消情况下也会被执行，`pthread_cleanup_pop()`伴随`pthread_cleanup_push()`调用
+- thread的清理函数栈如果有未弹出的函数，如果调用`pthread_exit()`会自动所未弹出的函数会被弹出并执行，如果正常`return`返回则不会调用这些清理函数
 
 ## Asynchronous Cancellability
+- 一个异步取消thread`PTHREAD_CANCEL_ASYNCHRONOUS`，可以被随时取消，取消动作不会等到下一个取消点才会被触发
+- 一个可以被异步取消的thread不应当分配任何资源，也不能获取比如`mutexes` `semaphores`或`locks`，典型的使用场景就是取消计算密集型循环的thread
