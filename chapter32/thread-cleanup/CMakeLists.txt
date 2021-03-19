@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(31-thread-cleanup C)
+project(32-thread-cleanup C)
 
 include_directories(./include)
 add_library(${PROJECT_NAME}_static STATIC src/thread_cleanup.c)
