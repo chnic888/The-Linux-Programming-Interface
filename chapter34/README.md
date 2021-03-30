@@ -52,28 +52,49 @@ int setpgid(pid_t pid, pid_t pgid);
 
 pid_t getsid(pid_t pid);
 ```
+- `getsid()`返回由`pid`指定的process的SID
+- 如果`pid`为0，会返回calling process的SID
 
 ```c
 #include <unistd.h>
 
 pid_t setsid(void);
 ```
+- `setsid()`会创建一个新的session，且calling process会成为新session的leader，也会成为新的session里新process group的leader，因此calling process的`PGID`和`SID`会被设置成为和`PID`一样的值
+-  calling process没有controlling terminal，之前的连接也会被断开
+
 ## Controlling Terminals and Controlling Processes
+- session被创建之后默认没有`controlling terminal`，且当session leader第一次打开一个还没有成为任何session终端的controlling terminal时，此时才会建立controlling terminal，除非在调用`open()`时指定了`O_NOCTTY`标记
+- `fork()`创建的child process会继承parent process的controlling terminal，且在`exec()`调用中被保留
+- 当session leader打开一个controlling terminal时，他也同时成为了terminal的controlling process。如果之后和terminal断开连接，kernel会发送一个`SIGHUP`类型的signal给controlling process
+- 如果一个process拥有一个controlling terminal，此时`open()`一个特殊的文件`/dev/tty`则可以获得这个terminal的fd，如果process没有controlling terminal，则打开`/dev/tty`时会收到`ENXIO`错误
+- 使用`ioctl(fd, TIOCNOTTY)`能够删除process和`fd`指定的controlling terminal之间的关联关系
+
 ```c
 #include <stdio.h> /* Defines L_ctermid constant */
 
 char *ctermid(char *ttyname);
 ```
+- `ctermid()`返回一个指向controlling terminal的路径名，且路径名也可以被返回在`ttyname`指向的buffer中
 
 ## Foreground and Background Process Groups
 ```c
 #include <unistd.h>
 
 pid_t tcgetpgrp(int fd);
+```
+- `tcgetpgrp()`返回`fd`所指定的terminal的foreground process group的PGID，而且必须是calling process的controlling terminal
+
+```c
+#include <unistd.h>
+
 int tcsetpgrp(int fd, pid_t pgid);
 ```
+- `tcsetpgrp()` 找到`fd`指定的calling process的controlling terminal，并且把他的foreground process group ID设置成为`pgid`，而且`pgid`必须和calling process的session下的某一个PGID能够匹配的上
 
 ## The SIGHUP Signal
+- 当一个controlling process失去了和他的terminal之间的连接，kernel会发送一个`SIGHUP`signal给controlling process来通知连接已经断开
+- `SIGHUP`signal的默认disposition是终止process
 
 ### Handling of SIGHUP by the Shell
 
