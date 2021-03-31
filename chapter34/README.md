@@ -97,6 +97,8 @@ int tcsetpgrp(int fd, pid_t pgid);
 - `SIGHUP`signal的默认disposition是终止process
 
 ### Handling of SIGHUP by the Shell
+- `login session` 在一个登录session中，shell通常是terminal的controlling process，大多数shell会为`SIGHUP`建立signal handler，并且在handler里终止terminal
+- `nohup(1)`可以使得一个command对`SIGHUP`signal免疫，通过将command将`SIGHUP`的disposition设置成为`SIG_IGN`来实现
 
 ### SIGHUP and Termination of the Controlling Process
 
