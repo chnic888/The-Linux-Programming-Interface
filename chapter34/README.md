@@ -105,8 +105,13 @@ int tcsetpgrp(int fd, pid_t pgid);
 - 如果由于terminal断开而导致的向`controlling process`发送`SIGHUP`signal而导致的`controlling process`的终止，`SIGHUP`会被发送给terminal的`foreground process group`里的所有process
 
 ## Job Control
+- `job control` 允许一个shell用户同时执行多个命令，一个前台和多个后台命令
 
 ### Using Job Control Within the Shell
+- 当输入命令以&结束时，则该命令会作为后台任务运行
+- 只有在`foreground job`里的process才能读取controlling terminal
+
+![34-2.png](./img/34-2.png)
 
 ### Implementing Job Control
 
