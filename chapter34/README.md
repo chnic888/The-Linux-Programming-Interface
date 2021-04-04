@@ -108,7 +108,9 @@ int tcsetpgrp(int fd, pid_t pgid);
 - `job control` 允许一个shell用户同时执行多个命令，一个前台和多个后台命令
 
 ### Using Job Control Within the Shell
-- 当输入命令以&结束时，则该命令会作为后台任务运行
+- 当输入命令以&结束时，则该命令会作为`background job`运行
+- 当有一个`foreground job`运行时，可以使用`suspend`字符(Control-Z)来发送`SIGTSTP`的signal给terminal的`foreground process group`，来挂起`foreground job`在`background`
+- 一个在挂起在`background`的job，可以通过`fg`命令来恢复job在`foreground`运行，也可以通过`bg`命令在`background`恢复运行，这情况都是shell通过发送一个`SIGCONT`signal来resume停止的jobs
 - 只有在`foreground job`里的process才能读取controlling terminal
 
 ![34-2.png](./img/34-2.png)
