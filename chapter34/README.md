@@ -116,6 +116,8 @@ int tcsetpgrp(int fd, pid_t pgid);
 ![34-2.png](./img/34-2.png)
 
 ### Implementing Job Control
+- signal一般只有在**sending process**的`real user ID`或`effective user ID`等于**receiving process**的`real user ID`或`saved set-user-ID`时才会被发送
+- ` SIGCONT`signal是一个例外，kernel允许一个process(比如shell)向同一个session下的任意process发送`SIGCONT`signal
 
 ### Handling Job-Control Signals
 
