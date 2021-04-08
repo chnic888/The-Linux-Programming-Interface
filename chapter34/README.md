@@ -122,3 +122,12 @@ int tcsetpgrp(int fd, pid_t pgid);
 ### Handling Job-Control Signals
 
 ### Orphaned Process Groups (and SIGHUP Revisited)
+- `orphaned process group`的定义
+    - group内每个process和他的parent process都属于同一个process group
+    - group内每个process的parent属于另外的一个session，不是当前group所属的session
+- `non-orphan process group` 一个process group组内至少一个process的parent在同一个session内，但是属于不同的process group   
+
+![34-3.png](./img/34-3.png)
+
+- 一个process可以向同一个session中的任意其他process发送`SIGCONT`signal，但是如果child process属于不同的session，标准的signal发送规则就会生效
+- 如果一个`process group`变成了orphaned并且还存在已经停止的成员，所有成员会被发送`SIGHUP`signal来通知他们已经与session断开，随后会发送`SIGHUP`signal来恢复执行。假如`orphaned process group`不包含已停止的成员，则不会有signal被发送
