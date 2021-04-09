@@ -2,8 +2,8 @@
 
 ## Overview
 - `process group` 由一个或多个共享同一个`process group identifier(PGID)`的process组成
-- `PGID`和`PID`的类型都是`pid_t`，每一个`process group`都会有一个leader，也就是创建该`process group`的process，leader的`PID`会成为`process group`的`PGID`，新process会继承parent process的`PGID`
-- `process group lifetime` 起始于leader process创建group，终止于最后一个process退出group，且leader process无需是group中最后的process
+- `PGID`和`PID`的类型都是`pid_t`，每一个`process group`都会有一个leader，也就是成为该`process group`第一成员的process，leader的`PID`会成为`process group`的`PGID`，新process会继承parent process的`PGID`
+- `process group lifetime` 起始于leader process加入`process group`，终止于最后一个process退出group，且leader process无需是group中最后的process
 - `session` 是一组`process group`的集合，process是哪个session的成员是由`session identifier(SID)`来决定的，且`SID`和`PID`的类型都是`pid_t`，第一个创建`session`的process为`session leader`，leader的`PID`会成为`session`的`SID`，新process会继承parent process的`SID`
 - `session`中的所有process共享一个单独的`controlling terminal`
 - 在任何时候，`session`中其中一个`process group`会成为`foreground process group`，其他的groups则会成为`background process groups`，且只有`foreground process group`才能从`controlling terminal`中读取输入
@@ -39,11 +39,9 @@ pid_t getpgrp(void);
 
 int setpgid(pid_t pid, pid_t pgid);
 ```
-- `setpgid()`由`pid`指定的process的PGID被设置成为`pgid`
-- 如果`pid`为0，则calling process的PGID会被设置成为`pgid`
-- 如果`pgid`为0，由`pid`指定的process的PGID被设置成为`pid`
-- 如果`pid`和`pgid`指向同一process，则会创建一个新的`process group`且该process会成为leader
-- 如果`pid`和`pgid`的值不同，则会将`pid`指定的process移动到`pgid`所指定的`process group`中
+- 如果`setpgid()`把`pid`所指向的target process的PGID设置为target process的PID，等同于`setpgid(pid_t pid, pid_t pid)`，那么target process将会成为一个新的`process group`的leader process，并且新的process group的PGID等于target process的PID
+- 如果`setpgid()`把`pid`所指向的target process的PGID设置为不同于target process的PID的值，等同于`setpgid(pid_t pid, pid_t pgid)`且`pid != pgid`，那么target process会被移动到`pgid`所指定的已经存在的process group中
+- 如果`setpgid()`把`pid`所指向的target process的PGID保持不变，那么`setpgid()`不会对target process产生影响
 
 ## Sessions
 ```c
@@ -77,7 +75,9 @@ char *ctermid(char *ttyname);
 ```
 - `ctermid()`返回一个指向controlling terminal的路径名，且路径名也可以被返回在`ttyname`指向的buffer中
 
-## Foreground and Background Process Groups
+## Foreground and Background Process Groups 
+- 在一个session中，同一时刻只能有一个process group是`foreground process group`，除此之外session中的其他process group都是`background process groups`
+
 ```c
 #include <unistd.h>
 
