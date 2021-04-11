@@ -134,8 +134,16 @@ int sched_getparam(pid_t pid, struct sched_param *param);
 - `sched_getscheduler()`和`sched_getparam()`system calls，`pid`指定了要被查询的process，如果`pid`等于0，则查询calling process，unprivileged process无需验证即可以通过这两个system calls查询任意process的信息
 
 #### Preventing realtime processes from locking up the system
+- `SCHED_RR`和`SCHED_FIFO`策略下的process会抢占低优先级process，在使用这两种策略时需要小心realtime process一直占用CPU而锁住系统的情况
+    - 使用`setrlimit()`来是设置一个合理的CPU time的low soft resource limit(`RLIMIT_CPU`)，如果process消耗过多的CPU时间，process会收到一个`SIGXCPU`signal，且默认的disposition是杀死process
+    - 使用`alarm()`，如果process执行的时钟时间超过了`alarm()`的设置，process会收到一个`SIGALRM`signal，且默认的disposition是杀死process
+    - 创建一个高优先级的watchdog process来监控和度量其他process，在有必要的时候还可以降低优先级和发送signal杀死其他process
+    - 设置`RLIMIT_RTTIME`来控制一个process在一个realtime scheduling策略下在执行不阻塞的system call的情况下的单次消费CPU时间的数量，单位为毫秒
 
 #### Preventing child processes from inheriting privileged scheduling policies
+- `SCHED_RESET_ON_FORK` Linux 2.6.32之后新增加的一个策略，通过`sched_setscheduler()`的参数`policy`来指定，如果设置了此策略，那么process通过`fork()`创建的child process则不会继续parent的调度策略和优先级
+    - 如果calling process拥有一个realtime scheduling策略(`SCHED_RR`或`SCHED_FIFO`)，那么child process的策略将会被重置成标准的round-robin time-sharing策略(`SCHED_OTHER`)
+    - 如果process的nice value为负值，那么child process的nice value将会重置为0
 
 ### Relinquishing the CPU
 ```c
@@ -157,6 +165,7 @@ struct timespec {
     long tv_nsec; /* Nanoseconds */
 };
 ```
+- `sched_rr_get_interval()`system call能够得到`pid`指定的`SCHED_RR`process的每次被授权使用CPU的time slice长度
 
 ## CPU Affinity
 ```c
@@ -165,6 +174,11 @@ struct timespec {
 
 int sched_setaffinity(pid_t pid, size_t len, cpu_set_t *set);
 ```
+- `sched_setaffinity()`system call设置了`pid`指定的process的CPU affinity，如果`pid`为0，calling process的CPU affinity则会被改变
+- CPU affinity是一个thread级别的属性，如果使用在thread上，`pid`指定的是`tid`，如果`pid`为0，calling thread的CPU affinity则会被改变
+- `len`参数指定了`set`参数的字节数`sizeof(cpu_set_t)`
+- unprivileged process只能在其的`effective user ID`等于target process的`real user ID`或`effective user ID`的情况下才能设置CPU affinity
+- privileged process`CAP_SYS_NICE`可以设置任何process的CPU affinity
 
 ```c
 #define _GNU_SOURCE
@@ -175,6 +189,10 @@ void CPU_SET(int cpu, cpu_set_t *set);
 void CPU_CLR(int cpu, cpu_set_t *set);
 int CPU_ISSET(int cpu, cpu_set_t *set);
 ```
+- `CPU_ZERO()`将`set`初始化为空
+- `CPU_SET()`添加`cpu`到`set`中
+- `CPU_CLR()`从`set`里删除`cpu`
+- `CPU_ISSET()`判断`cpu`是否存在于`set`中
 
 ```c
 #define _GNU_SOURCE
@@ -182,3 +200,6 @@ int CPU_ISSET(int cpu, cpu_set_t *set);
 
 int sched_getaffinity(pid_t pid, size_t len, cpu_set_t *set);
 ```
+- `sched_getaffinity()`system call获取`pid`指定的process的CPU affinity mask，如果`pid`为0，则返回calling process的CPU affinity mask
+- `sched_getaffinity()`没有权限控制，unprivileged process可以获取系统中任何process的CPU affinity mask 
+- 通过`fork()`创建的child process会继承parent process的CPU affinity mask，并且在`exec()`调用中会得到保留
