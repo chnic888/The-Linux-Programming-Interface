@@ -95,6 +95,9 @@ struct sched_param {
     int sched_priority; /* Scheduling priority */
 };
 ```
+- `sched_setscheduler()` system call修改`pid`指定的process的调度策略和优先级，如果pid为0，那么calling process的属性会被修改
+- `sched_priority` 指定了调度优先级，对于`SCHED_RR`和`SCHED_FIFO`策略，值必须在`sched_get_priority_min()`至`sched_get_priority_max()`范围内，对于其他策略，优先级必须是`0`
+- `policy` 指定了调度策略
 
 | Policy | Description | SUSv3 |
 | --- | --- | --- |
@@ -104,13 +107,22 @@ struct sched_param {
 | SCHED_BATCH | Similar to SCHED_OTHER, but intended for batch execution (since Linux 2.6.16) |  |
 | SCHED_IDLE | Similar to SCHED_OTHER, but with priority even lower than nice value +19 (since Linux 2.6.23) |  |
 
+- `sched_setscheduler()`调用成功之后，`pid`指定的process会被移动到与其优先级级别对应的队列的队尾
+- 调度策略和优先级会在`fork()`时候被child process继承，并且在`exec()`调用保持
+
 ```c
 #include <sched.h>
 
 int sched_setparam(pid_t pid, const struct sched_param *param);
 ```
+- `sched_setparam()` system call只会修改`pid`指定的process的调度策略，但是不会修改优先级
 
 #### Privileges and resource limits affecting changes to scheduling parameters
+- 如果一个process有一个非0的`RLIMIT_RTPRIO`的soft limit，process可以随意修改自己的调度策略和优先级，只要符合实时优先级上限和`RLIMIT_RTPRIO`的soft limit即可
+- 如果`RLIMIT_RTPRIO`的soft limit为0，那么process只能降低自己的实时调度优先级或者从实时策略切换到非实时策略
+- `SCHED_IDLE`是一个特殊的策略，运行在这个策略下的process无法修改自己的策略
+- 其他unprivileged process也能执行策略和优先级的修改工作，只要calling process的`effective user ID`和target process的`real user ID`或`effective user ID`相等即可
+- process的`RLIMIT_RTPRIO`soft limit只能决定process自己的调度策略和优先级，这些变更既可以由process自身也可以由其他的unprivileged process发起
 
 #### Retrieving scheduling policies and priorities
 ```c
@@ -119,6 +131,7 @@ int sched_setparam(pid_t pid, const struct sched_param *param);
 int sched_getscheduler(pid_t pid);
 int sched_getparam(pid_t pid, struct sched_param *param);
 ```
+- `sched_getscheduler()`和`sched_getparam()`system calls，`pid`指定了要被查询的process，如果`pid`等于0，则查询calling process，unprivileged process无需验证即可以通过这两个system calls查询任意process的信息
 
 #### Preventing realtime processes from locking up the system
 
@@ -130,6 +143,8 @@ int sched_getparam(pid_t pid, struct sched_param *param);
 
 int sched_yield(void);
 ```
+- 一个`realtime process`可以通过两种方式自愿放弃CPU，通过调用一个阻塞的system call或者调用`sched_yield()`
+- `sched_yield()` 如果calling process优先级相等的队列中存在runnable process，那么calling process会被放置在队列的队尾，队列的队头会被调度使用CPU。如果队列中不存在runnable process，那么calling process会继续使用CPU
 
 ### The SCHED_RR Time Slice
 ```c
