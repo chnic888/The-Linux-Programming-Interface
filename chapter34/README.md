@@ -4,6 +4,7 @@
 - `process group` 由一个或多个共享同一个`process group identifier(PGID)`的process组成
 - `PGID`和`PID`的类型都是`pid_t`，每一个`process group`都会有一个leader，也就是成为该`process group`第一成员的process，leader的`PID`会成为`process group`的`PGID`，新process会继承parent process的`PGID`
 - `process group lifetime` 起始于leader process加入`process group`，终止于最后一个process退出group，且leader process无需是group中最后的process
+- 对于`process group`来说，不需要有一个succeeding leader，也就是一旦leader退出了，`process group`就将失去leader，不需要有其他的process来继任leader，可以通过`kill(2)`来给一个没有leader的`process group`里的所有成员发送signal  
 - `session` 是一组`process group`的集合，process是哪个session的成员是由`session identifier(SID)`来决定的，且`SID`和`PID`的类型都是`pid_t`，第一个创建`session`的process为`session leader`，leader的`PID`会成为`session`的`SID`，新process会继承parent process的`SID`
 - `session`中的所有process共享一个单独的`controlling terminal`
 - 在任何时候，`session`中其中一个`process group`会成为`foreground process group`，其他的groups则会成为`background process groups`，且只有`foreground process group`才能从`controlling terminal`中读取输入
@@ -63,9 +64,9 @@ pid_t setsid(void);
 - calling process没有controlling terminal，之前的连接也会被断开
 
 ## Controlling Terminals and Controlling Processes
-- session被创建之后默认没有`controlling terminal`，且当session leader第一次打开一个还没有成为任何session终端的controlling terminal时，此时才会建立controlling terminal，除非在调用`open()`时指定了`O_NOCTTY`标记
+- session被创建之后默认没有`controlling terminal`，当`session leader`第一次打开一个terminal，且此terminal还有变成其他session的controlling terminal时，此时才会建立controlling terminal，除非在调用`open()`时指定了`O_NOCTTY`标记
 - `fork()`创建的child process会继承parent process的controlling terminal，且在`exec()`调用中被保留
-- 当session leader打开一个controlling terminal时，他也同时成为了terminal的controlling process。如果之后和terminal断开连接，kernel会发送一个`SIGHUP`类型的signal给controlling process
+- 当session leader打开一个controlling terminal时，他也同时成为了terminal的controlling process。如果terminal后续发生断连，kernel会发送一个`SIGHUP`signal给controlling process来通知此事件
 - 如果一个process拥有一个controlling terminal，此时`open()`一个特殊的文件`/dev/tty`则可以获得这个terminal的fd，如果process没有controlling terminal，则打开`/dev/tty`时会收到`ENXIO`错误
 - 使用`ioctl(fd, TIOCNOTTY)`能够删除process和`fd`指定的controlling terminal之间的关联关系
 
