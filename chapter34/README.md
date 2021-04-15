@@ -58,8 +58,9 @@ pid_t getsid(pid_t pid);
 
 pid_t setsid(void);
 ```
-- `setsid()`会创建一个新的session，且calling process会成为新session的leader，也会成为新的session里新process group的leader，因此calling process的`PGID`和`SID`会被设置成为和`PID`一样的值
--  calling process没有controlling terminal，之前的连接也会被断开
+- `setsid()`如果calling process不是process group的leader，则会创建一个新的session
+- calling process会成为新session的leader，也会成为新的session里新process group的leader，因此calling process的`PGID`和`SID`会被设置成为和`PID`一样的值
+- calling process没有controlling terminal，之前的连接也会被断开
 
 ## Controlling Terminals and Controlling Processes
 - session被创建之后默认没有`controlling terminal`，且当session leader第一次打开一个还没有成为任何session终端的controlling terminal时，此时才会建立controlling terminal，除非在调用`open()`时指定了`O_NOCTTY`标记

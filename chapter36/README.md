@@ -78,7 +78,7 @@ struct rlimit {
 - `RLIMIT_MSGQUEUE`
 - `RLIMIT_NICE`
 - `RLIMIT_NOFILE` 指定了process能够分配到的最大的file descriptor的数量 + 1
-- `RLIMIT_NPROC`
+- `RLIMIT_NPROC` 指定了calling process的`real user ID`下最多可以创建process的数量，Linux实际指的是可以创建thread的数量，和`/proc/sys/kernel/threads-max`配置功能相同
 - `RLIMIT_RSS`
 - `RLIMIT_RTPRIO` 指定了使用`sched_setscheduler()`和`sched_setparam()`给process设置的实时优先级的最高值
 - `RLIMIT_RTTIME` 指定了在realtime scheduling策略下运行的一个process在不休眠的情况下最多可以消耗的CPU时间
