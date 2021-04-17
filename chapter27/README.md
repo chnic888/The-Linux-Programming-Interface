@@ -10,7 +10,8 @@ int execve(const char *pathname, char *const argv[], char *const envp[]);
 - `pathname`是加载到process内存内新的program的路径名，既可以是绝对路径也可以是相对于calling process工作目录的相对路径
 - `argv`指定了传递给新program命令行参数，并作为新程序C语言main函数的第二个`char *argv[]`参数
 - `envp`指定了新program的环境列表，指向的字符串格式为`name=value`
-- 由于`execve()`会加载新的program，因此一旦成功调用则永远不会有返回值，失败则会返回-1并可通过`errno`来判断错误原因
+- 调用`execve()`之后，因为同一process依然存在，因此process ID保持不变  
+- 由于`execve()`会加载新的program，因此一旦成功调用则永远不会有返回值，也不需要检查返回值。一旦有返回值，则意味着调用失败，会返回-1，并可通过`errno`来判断错误原因
 
 ## The exec() Library Functions
 ```c
