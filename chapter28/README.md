@@ -74,12 +74,14 @@ struct acct_v3 {
 
 int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ... /* pid_t *ptid, struct user_desc *tls, pid_t *ctid */ );
 ```
-- `clone()`是Linux的特有system call，基于threading库来实现，因此会有损程序的可移植性
-- `clone()`生成的child process会去执行`func`指定的函数，因此`func`又被成为`child function`，调用参数由`func_arg`指定
-- `func`返回或者调用`exit()`或`_exit()`之后，`clone()`system call产生的child process则会被终止，`func`的返回值为process的退出状态，parent process可以使用`wait()`系列函数来等待child process
-- `child_stack`指向child process需要使用的stack空间，因为大多数硬件架构中，stack是向下增长的，所以`child_stack`指针应该指向内存块的高位
-- `clone()`如果成功创建child process，返回值为child pid，如果创建失败则返回-1
-- `flags`的低字节指定了child process的`termination signal`，这个signal会在child process被终止时传递给parent process，如果`clone()`产生的child process被signal**停止**，`parent process`则仍然会收到`SIGCHLD`signal
+- `clone()`是Linux的特有system call，可以用来创建process也可以用来创建thread，因此主要被来作为threading libraries的实现
+- `clone()`创建的new process和`fork()`创建的process几乎一样，都是对parent process的复制
+    - `fork()`创建的child process会从`fork()`的调用点继续执行
+    - `fork()`创建的child process会去执行`func`指定的`child function`，调用参数由`func_arg`指定
+- `func`返回(`func`的返回值为process的退出状态)或者调用`exit()`或`_exit()`之后，child process就会终止.parent process可以使用`wait()`系列函数来等待child process
+- 因为`clone()`产生的child可能会共享parent的内存，因此不能使用parent的stack，`child_stack`指向child需要使用的stack，因为大多数硬件架构中，stack是向下增长的，所以`child_stack`指针应该指向内存块的高位
+- `clone()`如果成功创建child，返回值为child的id，如果创建失败则返回-1
+- `flags`的低字节指定了child的`termination signal`，这个signal会在child终止时被发送给parent，如果`clone()`产生的child被signal**停止**，parent则仍然会收到`SIGCHLD`signal
 
 | Flag | Effect if present |
 | --- | --- |
@@ -107,32 +109,33 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 | CLONE_VM | Parent and child share virtual memory |
 
 ### The clone() flags Argument
-- `thread`和`process`属于KSE`kernel scheduling entity`，只是对比其他SKEs提供了或多或少属性共享上的不同
+- `thread`和`process`都属于KSE`kernel scheduling entity`，相比其他SKEs来说，只是在属性共享提供了多或少的不同
 
 #### Sharing file descriptor tables: CLONE_FILES
-- 如果设置`CLONE_FILES`，parent process和child process会共享同一个`open file descriptors table`，因此对一个process的fd的分配和释放，比如`open()` `close()` `dup()` `pipe()` `socket()`，都会对其他process可见
-- 如果不设置`CLONE_FILES`，child process只是获取了parent process的`open file descriptors table`的副本
-- `POSIX threads`规范要求process中的所有thread共享相同的`open file descriptors table`
+- 如果设置`CLONE_FILES`，parent和child会共享同一个`open file descriptors table`，因此在任意一个KSE中对fd的分配和释放(`open()` `close()` `dup()` `pipe()` `socket()`)都会对其他KSE可见
+- 如果不设置`CLONE_FILES`，则不会共享`open file descriptors table`，child只会在`clone()`调用时获取一份parent table的副本，child获取到的fd的副本和parent的fd都指向相同的open file
+- `POSIX threads`规范要求一个process中的所有thread共享相同的`open file descriptors`
 
 #### Sharing file system–related information: CLONE_FS
-- 如果设置`CLONE_FS`，parent process和child process会共享同文件系统相关信息，因此对一个process的`umask()` `chdir()` `chroot()`会影响其他process
+- 如果设置`CLONE_FS`，parent和child会共享同文件系统信息(`umask` `chroot` `chdir`)，因此对任意一个KSE的`umask()` `chdir()` `chroot()`会影响其他KSE
 - `POSIX threads`规范要求实现`CLONE_FS`提供的属性共享
 
 #### Sharing signal dispositions: CLONE_SIGHAND
-- 如果设置`CLONE_SIGHAND`，parent process和child process会共享相同的`signal dispositions table`，无论在哪个process调用`sigaction()`或`signal()`修改signal的disposition，都会影响其他process
-- 如果不设置`CLONE_SIGHAND`，child process只是获取了parent process的`signal dispositions table`的副本
-- `CLONE_SIGHAND`不会影响parent和child process之间的`signal mask`和`pending signals set`，parent和child process之间是彼此独立的  
+- 如果设置`CLONE_SIGHAND`，parent和child会共享相同的`signal dispositions table`，在任意一个process调用`sigaction()`或`signal()`修改disposition，都会影响其他process
+- 如果不设置`CLONE_SIGHAND`，则不会共享`signal dispositions`，child只是获取了parent的`signal dispositions table`的副本，如同`fork()`和`vfork()`的实现
+- `CLONE_SIGHAND`不会影响`process signal mask`和`pending signals set`，parent和child两个process之间是彼此独立的  
 - `POSIX threads`规范要求共享`signal dispositions`
 
 #### Sharing the parent’s virtual memory: CLONE_VM
-- 如果设置`CLONE_VM`，parent process和child process会共享同一份`virtual memory pages`，无论在哪个process调用`mmap()`或`munmap()`，都会影响其他process
-- 如果不设置`CLONE_VM`，child process只是获取了parent process的`virtual memory pages`的拷贝  
+- 如果设置`CLONE_VM`，parent和child会共享同一份`virtual memory pages`，如同`vfork()`的实现，在任意一个KSE调用`mmap()`或`munmap()`，都会影响其他KSE
+- 如果不设置`CLONE_VM`，child只是获取了parent的一份`virtual memory pages`的拷贝，如同`forl()`的实现  
 - `POSIX threads`规范也对thread之间共享`virtual memory pages`有要求
 
 #### Thread groups: CLONE_THREAD
-- 如果设置`CLONE_THREAD`，child会被置于parent的thread group中
-- 如果不设置`CLONE_THREAD`，child会被置于新的thread group中
-- POSIX规定process所有的thread共享同一个pid，即不同thread调用`getpid()`都会返回相同值，`thread group`就是共享同一个`thread group identifier (TGID)`的一组KSE
+- 如果设置`CLONE_THREAD`，child thread会被置于parent thread的thread group中
+- 如果不设置`CLONE_THREAD`，child thread会被置于新的thread group中
+- POSIX规定要求一个process内的素有thread共享一个`pid`，因此所有thread调用`getpid()`均应该获取到同一个`pid`
+- `thread group`就是共享同一个`thread group identifier (TGID)`的一组KSE，Linux2.4之后，`getpid()`会返回calling thread的`TGID`
 
 ![28-1.png](./img/28-1.png)
 
@@ -146,22 +149,34 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 - Linux 2.6开始，如果设置了`CLONE_THREAD`，也必须同时设置`CLONE_SIGHAND`
 
 #### Threading library support: CLONE_PARENT_SETTID, CLONE_CHILD_SETTID, and CLONE_CHILD_CLEARTID
-- 如果设置`CLONE_PARENT_SETTID`，kernel会将`CTID`写入`pitd`指向的位置，在对parent process复制之前，就会把`CTID`拷贝到`ptid`的位置。可以保证即便没有设置`CLONE_VM`，parent thread和child thread均可以在此位置获得child thread id 
-- 设置`CLONE_PARENT_SETTID`，可以保证在`clone()`返回之前就将新的`CTID`赋值给`ptid`指针，从来避免race conditions
-- 如果设置`CLONE_CHILD_SETTID`，`clone()`会将`CTID`写入`ctid`指向的位置，并且对`ctid`的设置只会存在于child内存当中，如果设置了`CLONE_VM`，还是会影响到parent
-- 如果设置`CLONE_CHILD_CLEARTID`，那么`clone()`会在child终止时将`ctid`所指向的内存清零，借助`CLONE_CHILD_CLEARTID`，NPTL threading implementation可获取thread的终止通知
-- 通过`pthread_create()`创建一个thread时，NPTL会使用`clone()`，并且`ptid`和`ctid`都指向同一个位置，当child终止时，由于设置了`CLONE_CHILD_CLEARTID`，`ctid`被清除，并且这个清除动作对process内的所有thread都是可见的(由于设置了`CLONE_VM`)
-- kernel将`ctid`指向的位置当做`futex`，`futex`为一种有效的同步机制，执行`futex()`system call会block的等待`ctid`所指向区域的变化，因此也可以获得thread终止的通知(`pthread_join()`的实现原理)。kernel清除cit的同时，也会唤醒任意的因为执行了`futex()`而被blocked的KSE
+- 如果设置`CLONE_PARENT_SETTID`，kernel会将child thread的`CTID`写入`pitd`指向的内存位置。且`CTID`被拷贝到`ptid`的位置会发生在对parent process的内存复制之前。所以即便没有设置`CLONE_VM`，parent和child thread均可以在此位置获得CTID 
+```c
+tid = clone(...);
+```
+- `CLONE_PARENT_SETTID`被设计的原因是为了确保可以稳定获取新thread的`tid`，因为通过`clone()`的返回值获取`tid`并不可靠。对tid的赋值必须发生在`clone()`返回之后，可能在赋值之前thread就已经被意外终止
+- 通过设置`CLONE_PARENT_SETTID`，可以保证在`clone()`返回之前就将新的`CTID`写入`ptid`指向的位置，从而避免race conditions
+
+- 如果设置`CLONE_CHILD_SETTID`，`clone()`会将`CTID`写入`ctid`指向的位置，此操作只会发生在child内存当中，如果设置了`CLONE_VM`，还是会影响到parent thread
+
+- 如果设置`CLONE_CHILD_CLEARTID`，那么`clone()`会在child thread终止时将`ctid`所指向的内存清零。借助`CLONE_CHILD_CLEARTID`，`NPTL threading implementation`可获取thread终止时的通知
+
+- 通过`pthread_create()`创建一个thread时，`NPTL`会使用`clone()`，并且使得`ptid`和`ctid`都指向同一个位置的内存
+    - 由于`NPTL`使用了`CLONE_PARENT_SETTID`，因此`ptid`指向的内存位置会被写入新的thread的`tid`，并且由于`ctid`也是指向同一位置，因此通过`ctid`也可以获取到该`tid`
+    - 由于`NPTL`使用了`CLONE_CHILD_CLEARTID`，当child thread终止时，`ctid`指向的内存会被清零，因此便可由此获取到thread终止时的通知，并且对`ctid`的改变对process内的所有thread可见
+  
+- kernel将`ctid`指向的位置当做`futex`，`futex`为一种有效的同步机制`futex(2)`
+    - 执行`futex()`system call会block所有正在等待`ctid`所指向位置发生变化的thread，由此便可获得thread终止时的通知，也是`pthread_join()`的实现原理
+    - kernel清除`cit`的同时，也会唤醒任意的因为执行了`futex()`而被blocked的KSE
 
 #### Thread-local storage: CLONE_SETTLS
-- 如果设置`CLONE_SETTLS`，参数`tls`所指向thead级别使用的`thread-local`存储缓冲区的结构`user_desc`，此为NPTL为了支持thread-local storage的实现，在Linux 2.6之后加入的flag
+- 如果设置`CLONE_SETTLS`，参数`tls`则会指向一个`user_desc`结构的`thread-local`存储buffer，NPTL使用此flag来支持thread-local storage的实现
 
 #### Sharing System V semaphore undo values: CLONE_SYSVSEM
-- 如果设置`CLONE_SYSVSEM`，parent和child共享同一个`System V semaphore undo values list`
-- 如果不设置`CLONE_SYSVSEM`，parent和child各自独立的`undo list`，且child的列表为初始为空
+- 如果设置`CLONE_SYSVSEM`，parent和child共享同一个单个的`System V semaphore undo values list`
+- 如果不设置`CLONE_SYSVSEM`，parent和child各自拥有独立的`undo list`，且child的列表为初始为空
 
 #### Per-process mount namespaces: CLONE_NEWNS
-- 默认情况下，parent和child共享同一个mount namespace，任意一个process调用了`mount()`和`umount()`改变了mount namespace，也会被其他process所见
+- 默认情况下，parent和child共享同一个`mount namespace`，在任意一个process调用了`mount()`和`umount()`改变了mount namespace，也会被其他process所见，如同`fork()`和`vfork()`的实现
 
 #### Making the child’s parent the same as the caller’s: CLONE_PARENT
 - 如果设置`CLONE_PARENT`，那么`child process.PPID = calling clone() process.PPID`
@@ -172,10 +187,10 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 - 如果设置`CLONE_PID`，child pid则会等于他的parent的pid
 
 #### Process tracing: CLONE_PTRACE and CLONE_UNTRACED
-- 如果设置`CLONE_PTRACE`并且在在trace calling process，那么child process也会被traced
+- 如果设置`CLONE_PTRACE`并且calling process也正在被traced，那么child process也会被traced
 
 #### Suspending the parent until the child exits or execs: CLONE_VFORK
-- 如果设置`CLONE_VFORK`，parent将一直被挂起直到child调用了`exec()`或`_exit()`来释放虚拟内存资源
+- 如果设置`CLONE_VFORK`，parent的执行将一直被挂起，直至child通过`exec()`或`_exit()`释放virtual memory resources，如果`vfork()`的实现
 
 #### New clone() flags to support containers
 - 对于容器提供支持的flags `CLONE_IO` `CLONE_NEWIPC` `CLONE_NEWNET` `CLONE_NEWPID` `CLONE_NEWUSER` `CLONE_NEWUTS`
