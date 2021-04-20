@@ -1,9 +1,9 @@
 # FILE I/O BUFFERING
 
 ## Kernel Buffering of File I/O: The Buffer Cache
-- `read()`和`write()`system call在操作磁盘文件时不会直接发起对磁盘的访问，而是在user-space缓存和kernel buffer cache的缓存之间复制数据
-- `write()`被执行后，会立刻返回，在后续的某个时刻kernel会flush缓冲区内的数据到磁盘上
-- `read()`调用会从缓冲区中读数据，直到把缓冲区中的数据读完，之后kernel会把文件的下一个segment读入至缓冲区缓存
+- `read()`和`write()`system call在操作磁盘文件时不会直接发起对磁盘的访问，而是在user-space buffer和存在于kernel buffer cache的buffer之间复制数据
+- `write(fd, "abc", 3)`的操作实际是上把3 bytes的数据从user-space buffer flush到kernel-space buffer中，`write()`被执行后，会立刻返回，在后续的某个时刻，kernel会flush kernel-space buffer到磁盘上
+- kernel会首先把磁盘上的数据加载到一个kernel-space buffer中，`read()`调用会从buffer中读数据直到把buffer中的数据消耗完毕，之后kernel会把文件的下一个segment读入至kernel-space buffer中
 
 ### Effect of buffer size on I/O system call performance
 - system call尽管比磁盘操作要快很多，但system call所花费的时间也是相当可观的。kernel必须捕获调用，检查system call参数有效性并且在user space和kernel space间传输数据
@@ -23,7 +23,6 @@ int setvbuf(FILE *stream, char *buf, int mode, size_t size);
 - 如果buf为NULL，那么stdio library会自动分配一个缓冲区
 - `setvbuf()`出错时返回非0值
 
-**mode代表了缓冲类型**
 - `_IONBF` 不对I/O进行缓冲，stdio library内的function将会立刻调用read() or write() system call.
 - `_IOLBF` 行级别缓冲，在输入一个换行符前对数据进行缓冲，除非缓冲区已满。对于输入流，每次只读取一行数据。
 - `_IOFBF` 采用全缓冲，单次的read()和write()的数据大小和缓冲区大小相同，磁盘文件默认采取这种方式进行缓冲。
@@ -49,8 +48,9 @@ void setbuffer(FILE *stream, char *buf, size_t size);
 
 int fflush(FILE *stream);
 ```
-- 当stream为输出流时，fflush()将强制将stdio输出流内的数据通过write() system call写入到kernel buffer中
-- 当stream为输入流时，fflush()将丢弃所有输入流已经缓冲的数据
+- 不管使用何种`buffering mode`，在任何时刻都可以使用`fflush()`将强制将`stdio`输出流内的数据进行写入，比如通过`write()`写入到kernel buffer中
+- 当`stream`为NULL时，`fflush()`会将flush所有的`stdio`输出流相关的buffers
+- 当`stream`为输入流时，`fflush()`将丢弃所有已缓冲的输入数据  
 
 ## Controlling Kernel Buffering of File I/O
 - `synchronized I/O completion` 一个I/O操作，要么数据已经成功的被传输到磁盘，要么被诊断为不成功的操作
