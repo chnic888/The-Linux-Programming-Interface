@@ -74,6 +74,15 @@ P'(effective) = P'(permitted)
 ## Effect on Process Capabilities of Changing User IDs
 
 ## Changing Process Capabilities Programmatically
+- 在Debian或Ubuntu中，需要安装`libcap-dev`来获取所需的头文件`sys/capability.h`
+```shell
+sudo apt install libcap-dev
+```
+
+- 使用`cap_get_proc()`从kernel获取一份process当前的capability sets的副本，并将其以struct的形式放入user-space中，也可以使用`cap_init()`来创建一个空的capability sets的struct。在`libcap`API中，`cap_t`为struct的指针
+- 使用`cap_set_flag()`在user-space的struct中对`permitted sets` `effective sets`和`inheritable sets`进行更新，对需要修改的capabilities进行增加`CAP_SET`或者删除`CAP_CLEAR`的操作
+- 使用`cap_set_proc()`把修改后的struct从user-space回传给kernel-space以修改process的capabilities
+- 使用`cap_free()`来释放给struct分配的内存
 
 ## Creating Capabilities-Only Environments
 

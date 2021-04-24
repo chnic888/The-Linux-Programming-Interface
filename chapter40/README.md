@@ -1,4 +1,5 @@
 # LOGIN ACCOUNTING
+- `Login accounting`是关注记录哪些用户当前登录系统以及记录过去的登录和登出的行为
 
 ## Overview of the utmp and wtmp Files
 
