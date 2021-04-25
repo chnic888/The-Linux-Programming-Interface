@@ -1,4 +1,7 @@
 project(LOGIN-ACCOUNTING C)
 
 add_subdirectory(dump-utmpx)
-add_subdirectory(view-lastlog)
+
+if (UNIX AND NOT APPLE)
+    add_subdirectory(view-lastlog)
+endif()
