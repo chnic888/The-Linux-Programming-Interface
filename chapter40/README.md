@@ -67,7 +67,7 @@ struct utmpx *getutxent(void);
 struct utmpx *getutxid(const struct utmpx *ut);
 struct utmpx *getutxline(const struct utmpx *ut);
 ```
-- `getutxent()` `getutxid()` `getutxline()` 会从`utmp`文件内读出一条记录并且返回一个指向改记录的`utmpx`struct的指针
+- `getutxent()` `getutxid()` `getutxline()`会从`utmp`文件内读出一条记录并且返回一个指向改记录的`utmpx`struct的指针
 
 ```c
 #define _GNU_SOURCE
@@ -83,6 +83,7 @@ int utmpxname(const char *file);
 
 char *getlogin(void);
 ```
+- `getlogin()`返回登录到calling process的controlling terminal的用户名，会使用`utmp`文件内维护的信息
 
 ## Updating the utmp and wtmp Files for a Login Session
 ```c
@@ -90,6 +91,7 @@ char *getlogin(void);
 
 struct utmpx *pututxline(const struct utmpx *ut);
 ```
+- `pututxline()`将`ut`指向的struct `utmpx`写入到`/var/run/utmp`中，或者是之前调用`utmpxname()`时所指定的另外一文件
 
 ```c
 #define _GNU_SOURCE
@@ -97,5 +99,22 @@ struct utmpx *pututxline(const struct utmpx *ut);
 
 void updwtmpx(char *wtmpx_file, struct utmpx *ut);
 ```
+- `updwtmpx()`将`ut`指向的struct `utmpx`附加到`wtmpx_file`所指定的文件尾部
 
 ## The lastlog
+- `lastlog`文件记录着每个用户最近一次登录到系统的时间
+    - `login`程序可以通过`lastlog`文件来通知用户上次登录的时间
+    - Linux中，`lastlog`文件位置在`/var/log/lastlog`
+    - 使用`__PATH_LASTLOG`来获取`lastlog`文件路径，避免使用hard code
+
+```c
+#define UT_NAMESIZE 32
+#define UT_HOSTSIZE 256
+
+struct lastlog {
+    time_t ll_time; /* Time of last login */
+    char ll_line[UT_NAMESIZE]; /* Terminal for remote login */
+    char ll_host[UT_HOSTSIZE]; /* Hostname for remote login */
+};
+```
+- `lastlog` struct是不包含用户名和uid的，`lastlog`文件使用uid作为记录的索引，因此如果需要找到uid为1000的用户的记录，记录在文件中的位置为`(1000 * sizeof(struct lastlog))`
