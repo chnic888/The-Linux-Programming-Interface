@@ -112,7 +112,7 @@ void updwtmpx(char *wtmpx_file, struct utmpx *ut);
 #define UT_HOSTSIZE 256
 
 struct lastlog {
-    time_t ll_time; /* Time of last login */
+    time_t ll_time; /* Time of last login */q
     char ll_line[UT_NAMESIZE]; /* Terminal for remote login */
     char ll_host[UT_HOSTSIZE]; /* Hostname for remote login */
 };
