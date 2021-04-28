@@ -45,4 +45,6 @@ int rlimitNproc(int argc, char *argv[]) {
                 break;
         }
     }
+
+	return (EXIT_SUCCESS);
 }
