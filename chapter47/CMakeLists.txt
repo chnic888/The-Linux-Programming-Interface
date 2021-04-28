@@ -1,0 +1,1 @@
+project(SYSTEM-V-SEMAPHORES C)

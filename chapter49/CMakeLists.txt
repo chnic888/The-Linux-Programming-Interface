@@ -1,0 +1,1 @@
+project(MEMORY-MAPPINGS C)

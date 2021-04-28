@@ -1,0 +1,1 @@
+project(PIPES-AND-FIFOS C)
