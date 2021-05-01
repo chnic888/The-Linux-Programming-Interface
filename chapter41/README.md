@@ -10,7 +10,6 @@
 ```shell
 $ ar options archive object-file...
 ```
-&nbsp;
 - 程序和静态库链接起来的两种方式
     - 把静态库的全名作为链接命令的一部分
     ```shell
