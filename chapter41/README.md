@@ -26,6 +26,8 @@ $ ar options archive object-file...
     ```
 
 ## Overview of Shared Libraries
+- `static library` 当程序是以链接静态库的方式来构建的时，构建出的可执行文件会包含所有被链接的object files的副本。不同的程序链接同样的静态库，每个程序都会拥有这个单独的object files的副本
+- `shared library` 共享库的核心思想就是object modules的单个副本会被所有需要这个modules的程序共享，当第一个需要这个shared library的程序启动的时候，库的单个副本就会被加载进内存，当后面使用同一个shared library的程序启动时，程序会使用已经被加载进入内存的库的副本
 
 ## Creating and Using Shared Libraries—A First Pass
 
