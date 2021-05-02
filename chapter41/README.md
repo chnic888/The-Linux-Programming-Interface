@@ -59,7 +59,7 @@ $ export LD_LIBRARY_PATH=/non-standard-directory:$LD_LIBRARY_PATH
 ```
 
 ### The Shared Library Soname
-- `soname`是为共享库创建一个alias，目的是不使用共享库的real name
+- `soname` `(shared object name)`是为共享库创建一个alias，目的是不使用共享库的real name
 
 ```shell
 $ gcc -g -c -fPIC -Wall mod1.c mod2.c mod3.c
