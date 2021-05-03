@@ -11,16 +11,16 @@
 $ ar options archive object-file...
 ```
 - 程序和静态库链接起来的两种方式
-    - 把静态库的全名作为链接命令的一部分
+	- 把静态库的全名作为链接命令的一部分
     ```shell
     $ gcc -g -c prog.c
     $ gcc -g -o prog prog.o libdemo.a
     ```
-    - 将静态库放在链接程序可以搜索到的标准目录中，比如`/usr/lib`，然后使用`–l`选项来指定静态库名，也就是`libname.a`里**name**的部分
+	- 将静态库放在链接程序可以搜索到的标准目录中，比如`/usr/lib`，然后使用`–l`选项来指定静态库名，也就是`libname.a`里**name**的部分
     ```shell
     $ gcc -g -o prog prog.o -ldemo
     ```
-    - 如果静态库文件不在标准目录内，可以使用`-L`选项来指定静态库文件所处在的目录
+	- 如果静态库文件不在标准目录内，可以使用`-L`选项来指定静态库文件所处在的目录
     ```shell
     $ gcc -g -o prog prog.o -Lmylibdir -ldemo
     ```
@@ -78,20 +78,20 @@ $ ln -s libfoo.so libbar.so
 ```
 - 创建一个symbolic link来将soname链接到real name上
 
-![41-1.png](./img/41-1.png)  
+![41-1.png](./img/41-1.png)
 
 ![41-2.png](./img/41-2.png)
 
 ## Useful Tools for Working with Shared Libraries
-- `ldd(1)`
-- `objdump`
-- `readelf`
-- `nm`
+- `ldd(1)` `(list dynamic dependencies)`命令显示了一个程序运行所需的共享库，`ldd`命令会接续出每个库的引用
+- `objdump` 命令从一个可执行文件、编译过的对象或共享库中获取包括反汇编的二进制机器码
+- `readelf` 命令从一个可执行文件、编译过的对象或共享库中显示各个ELF的头部信息
+- `nm` 命令会列出目标库或者可执行程序中定义的一组符号
 
 ## Shared Library Versions and Naming Conventions
 - 共享库的real name的格式规范为`libname.so.major-id.minor-id`
-    - `major version identifier`即为`major-id`，由一个数字构成，并且这个数字随着库的每个不兼容版本的发布而顺序递增
-    - `minor version identifier`即为`minor-id`，用来区分major版本中兼容的minor版本，`minor-id`可以为任意字符串，但是根据惯例`minor-id`应是一个数字或者两个由小数点分隔的数字，其中第一个数字指定了`minor version`，第二个数字表示`minor version`的`patch level`或`revision number`
+	- `major version identifier`即为`major-id`，由一个数字构成，并且这个数字随着库的每个不兼容版本的发布而顺序递增
+	- `minor version identifier`即为`minor-id`，用来区分major版本中兼容的minor版本，`minor-id`可以为任意字符串，但是根据惯例`minor-id`应是一个数字或者两个由小数点分隔的数字，其中第一个数字指定了`minor version`，第二个数字表示`minor version`的`patch level`或`revision number`
 - 共享库的soname应该只包含`major-id`并排除`minor-id`，因此soname的格式规范应该为`libname.so.major-id`
 
 | Name |  Format |  Description |
@@ -103,12 +103,21 @@ $ ln -s libfoo.so libbar.so
 ![41-3.png](./img/41-3.png)
 
 ## Installing Shared Libraries
+- `ldconfig(8)`会搜索一组标准目录，之后会创建或者更新缓存文件`/etc/ld.so.cache`，使之包含标准目录中的major库的版本列表，如果一个库包含多个major版本，那么这个库的每个major版本对应的最新minor版本文件都会被包含，动态连接器在会在运行时通过这个文件来解析库名 
+- `ldconfig(8)`会检查每个库的各个major版本下的最新的minor版本以找出内嵌的`soname`，并且在同一目录为每个soname创建或者更新相应的`symbolic link`
+- 每当安装了一个新的库，或者更新活删除现有库，或者`/etc/ld.so.conf`中的目录列表被修改之后，都应该运行`ldconfig`
 
 ## Compatible Versus Incompatible Libraries
+- 如果共享库的新版本对兼容之前的版本，则只需要修改minor版本来修改real name
+- 如果共享库的新版本对不兼容之前的版本，则必须重新定义一个新的major版本的库
 
 ## Upgrading Shared Libraries
 
 ## Specifying Library Search Directories in an Object File
+- `–rpath` 当一个库属于一个固定的位置，但这个位置不属于动态链接器搜寻的标准目录时，可以通过`–rpath`选项来在可执行文件内插入一个搜索的目录列表
+```shell
+$ gcc -g -Wall -Wl,-rpath,/home/mtk/pdir -o prog prog.c libdemo.so
+```
 
 ## Finding Shared Libraries at Run Time
 
