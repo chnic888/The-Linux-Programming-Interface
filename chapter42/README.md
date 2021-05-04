@@ -29,6 +29,26 @@ const char *dlerror(void);
 
 void *dlsym(void *handle, char *symbol);
 ```
+- `dlsym()`在`handle`指向的库以及该库的依赖树中搜索名为`symbol`的symbol(函数或者变量) address，如果找不到则返回`NULL`
+- `dlsym()`的返回的`symbol value`有可能为NULL，这一点与`symbol not found`的返回值则无法区分，为了能区分出不同的情况，必须先调用`dlerror()`
+
+- 如果symbol是一个变量的名称
+```c
+int *ip;
+
+ip = (int *) dlsym(symbol, "myvar");
+if (ip != NULL)
+    printf("Value is %d\n", *ip);
+```
+
+- 如果symbol是一个函数的名称
+```c
+int (*funcp)(int);
+
+*(void **) (&funcp) = dlsym(handle, symbol);
+
+funcp = (int (*) (int)) dlsym(handle, symbol);
+```
 
 ### Closing a Shared Library: dlclose()
 ```c
@@ -36,6 +56,7 @@ void *dlsym(void *handle, char *symbol);
 
 int dlclose(void *handle);
 ```
+- `dlclose()`会减小handle引用的库的计数，如果计数变为0且其他库也不需要该库的symbol了，则会卸载这个库
 
 ###  Obtaining Information About Loaded Symbols: dladdr()
 ```c
@@ -51,8 +72,16 @@ typedef struct {
     void *dli_saddr; /* Actual value of the symbol returned in 'dli_sname' */
 } Dl_info;
 ```
+- `dladdr()`返回一个给定地址`addr`对应的`Dl_info`结构的信息，`addr`通常是通过`dlsym()`来获得
 
 ### Accessing Symbols in the Main Program
+- 如果主程序使用`dlopen()`加载一个共享库A，并且使用`dlsym()`获取到了`x()`的地址，`x()`中又调用了`y()`，`y()`也许在A的依赖树中可以找到，此时需要`x()`回调主程序中的`y()`，则需要提供`––export–dynamic`链接选项
+```c
+$ gcc -Wl,--export-dynamic main.c
+
+//等价命令
+$ gcc -export-dynamic main.c
+```
 
 ## Controlling Symbol Visibility
 
@@ -63,7 +92,21 @@ typedef struct {
 ### Symbol Versioning
 
 ## Initialization and Finalization Functions
+- 不管是被自动加载还是显式的使用`dlopen()`加载，初始化函数和终止函数都会被自动执行
 
+```c
+void __attribute__ ((constructor)) some_name_load(void)
+{
+ /* Initialization code */
+}
+```
+
+```c
+void __attribute__ ((destructor)) some_name_unload(void)
+{
+ /* Finalization code */
+}
+```
 ## Preloading Shared Libraries
 
 ## Monitoring the Dynamic Linker: LD_DEBUG
