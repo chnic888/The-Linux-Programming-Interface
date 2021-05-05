@@ -86,8 +86,22 @@ $ gcc -export-dynamic main.c
 ```
 
 ## Controlling Symbol Visibility
+- 使用C语言提供的`static`关键字，使得一个symbol私有于一个源代码模块，从而使得他无法被其他目标文件绑定
+- 使用gcc提供的一个专有的编译属性，执行了和`static`关键字类似的任务
+  ```c
+  void __attribute__ ((visibility("hidden")))
+  func(void) {
+    /* Code */
+  }	
+  ```
+- 使用version scripts来精确的控制symbol的可见性
+- 动态加载一个共享库时，为`dlopen()`指定`RTLD_GLOBAL`标志位
 
 ## Linker Version Scripts
+- `version script` 是一个包含连接器执行指令的文本文件，使用`version script`必须指定`––version–script`链接选项
+```shell
+$ gcc -Wl,--version-script,myscriptfile.map ...
+```
 
 ### Controlling Symbol Visibility with Version Scripts
 
