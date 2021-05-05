@@ -45,8 +45,10 @@ if (ip != NULL)
 ```c
 int (*funcp)(int);
 
-*(void **) (&funcp) = dlsym(handle, symbol);
+/* C99标准禁止函数指针和void *之间的赋值操作，因此无法使用 funcp = dlsym(handle, symbol);*/
 
+*(void **) (&funcp) = dlsym(handle, symbol);
+// 或
 funcp = (int (*) (int)) dlsym(handle, symbol);
 ```
 
