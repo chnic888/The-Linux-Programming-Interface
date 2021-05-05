@@ -47,7 +47,7 @@ signal可以被同步方式产生或异步方式产生。同步方式产生的si
 ## Timing and Order of Signal Delivery
 
 ### When is a signal delivered?
-- 异步方式产生的signal，在产生和传递之间的延迟期间，signal处于pendi状态。因为kernel会在下运行process下次的从kernel mode到user mode的切换时，才会发送pending状态的signal
+- 异步方式产生的signal，在产生和传递之间的延迟期间，signal处于pending状态。因为kernel会在下运行process下次的从kernel mode到user mode的切换时，才会发送pending状态的signal
   - process在之前的超时之后被重新调度
   - system call完成时
 

@@ -11,7 +11,7 @@ signal handler应该设计的足够简单来避免race condition的风险
 
 ### Standard async-signal-safe functions
 
-#### Reentrant and nonreentrant functions
+#### Reentrant and non-reentrant functions
 `async-signal-safe` 一个`async-signal-safe`函数指的是其函数实现可以被signal handler安全的调用。如果一个函数是`async-signal-safe`的则代表函数要么是`reentrant`要么不会被signal handler打断
 - 确保signal handler的代码本身是`reentrant`而且只调用`async-signal-safe`的方法
 - 当主程序执行`async-signal-unsafe`的方法或者操作一个有可能被signal handler更新的数据结构时，要阻塞信号的传递。阻塞信号有些时候比较困难，所以规则可以简化为signal handler中绝不调用`async-signal-unsafe`的函数
