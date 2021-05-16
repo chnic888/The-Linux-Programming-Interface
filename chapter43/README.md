@@ -21,7 +21,7 @@
 
 ### Data transfer
 - `byte stream` 通过pipes、FIFOs和datagram sockets交换的数据是一个无界的字节流。每次的读取操作都会从facility中读取任意数量的字节，而不管写入方写入的block的大小是多少
-- `message` 通过System V消息队列、POSIX消息队列以及datagram sockets交换的数据是一种有界的消息。每次读取操作都会读取写入process写入的一整条消息，无法只读取部分消息，也无法读取多条消息
+- `message` 通过System V消息队列、POSIX消息队列以及stream sockets交换的数据是一种有界的消息。每次读取操作都会读取写入process写入的一整条消息，无法只读取部分消息，也无法读取多条消息
 - `pseudoterminals` 是一众特殊情况下使用的通讯facility
 
 - `data-transfer facilities`和`shared memory`之间的区别
@@ -34,8 +34,37 @@
 - 放入共享内存中的数据对所有共享这块内存的process可见
 
 ## Synchronization Facilities
-- `semaphores`
-- `file locks`
+- `semaphores` 一个`semaphore`是由一个内核维护的整数，且值永远不会小于0。一个process可以增加或减少一个`semaphore`的值，一个process试图将`semaphore`的值减小到小于0，那么kernel会阻塞该操作直至`semaphore`的值的增长允许执行该操作的程度
+- `file locks` 设计用来协调多个process对同一文件的动作的一种同步方法。文件锁分为读共享锁和写排他锁，任意process都可持有同一文件的读锁，但当一个process持有了一个文件的写锁之后，其他process将无法获取该文件的读锁和写锁
 - `mutexes and condition variables` 通常搭配POSIX threads一起使用
 
 ## Comparing IPC Facilities
+| Facility type | Name used to identify object | Handle used to refer to object in programs |
+| --- | --- | --- |
+| Pipe | no name | file descriptor |
+| FIFO | pathname | file descriptor |
+| UNIX domain socket | pathname | file descriptor |
+| Internet domain socket | IP address + port number | file descriptor |
+| System V message queue | System V IPC key | System V IPC identifier |
+| System V semaphore | System V IPC key | System V IPC identifier |
+| System V shared memory | System V IPC key | System V IPC identifier |
+| POSIX message queue | POSIX IPC pathname | mqd_t (message queue descriptor) |
+| POSIX named semaphore | POSIX IPC pathname | sem_t * (semaphore pointer) |
+| POSIX unnamed semaphore | no name | sem_t * (semaphore pointer) |
+| POSIX shared memory | POSIX IPC pathname | file descriptor |
+| Anonymous mapping | no name | none |
+| Memory-mapped file | pathname file descriptor |
+| flock() lock | pathname | file descriptor |
+| fcntl() lock | pathname | file descriptor |
+
+### Functionality
+- `data-transfer facilities`提供了读取和写入操作，传输的数据只提供一个reader process进行消费
+- `shared-memory` 其他application更适合采用的模式，一个process通过`shared-memory`能够使得数据对共享同一内存区域的所有process可见
+
+### Network communication
+- 只有`socket`允许process通过网络通信。`socket`一般用于两个domain
+	- `UNIX domain` 允许统一系统上的process进行通信
+	- `Internet domain` 允许通过TCP/IP网络进行连接的不同主机上的process进行通信
+
+### Portability
+- 从可移植性上来看，System V IPC要优于POSIX IPC
