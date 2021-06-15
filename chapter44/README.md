@@ -15,8 +15,12 @@
 
 ### Writes of up to PIPE_BUF bytes are guaranteed to be atomic
 - 如果多个process同时写入一个pipe，在同一时刻写入的数据量不超过`PIPE_BUF`字节，则可以确保写入的数据不会发生混合的情况
+- 当写入pipe的数据块大小超过了`PIPE_BUF`，那么kernel可能会将数据分割成几个较小的片段来传输，`write()`调用会阻塞直到所有数据被写入到pipe为止
+- 如果只有一个process对pipe进行写入，`PIPE_BUF`的取值在这种情况下则不会有任何的影响。如果有多个process进行写入，大数据块有可能会被kernel分解成为小的数据段，并且出现写入process数据交叉的现象
+- 当写入的数据大小到达`PIPE_BUF`字节时，`write()`会在有必要时阻塞，直到pipe中的可用空间足以原子性的完成操作
 
 ### Pipes have a limited capacity
+- pipe简单来说就是kernel内存中维护的一个buffer，且buffer拥有最大值，一旦pipe被填满之后，后续对于pipe的写入将会被block，直到读取方从pipe中消费了一些数据为止
 
 ## Creating and Using Pipes
 ```c
