@@ -28,6 +28,11 @@
 
 int pipe(int filedes[2]);
 ```
+- `pipe()`会在数组`filedes`中返回两个open file descriptors
+	- `filedes[0]`为pipe的读取端的fd
+	- `filedes[0]`为pipe的写入端的fd
+	  
+![44-2.png](./img/44-2.png)	
 
 ## Pipes as a Method of Process Synchronization
 
