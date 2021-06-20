@@ -34,6 +34,9 @@ int pipe(int filedes[2]);
 	  
 ![44-2.png](./img/44-2.png)	
 
+- parent process和child process通过pipe传输信息
+![44-3.png](./img/44-3.png)
+
 ## Pipes as a Method of Process Synchronization
 
 ## Using Pipes to Connect Filters
