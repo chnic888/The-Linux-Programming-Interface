@@ -8,7 +8,7 @@
 
 ### Reading from a pipe
 - 尝试从一个当前为空的pipe中读取数据将会被阻塞，直至至少有一个字节被写入到pipe中为止
-- 如果pipe的写入端被关闭了，消费端的process将会在读取完pipe剩余数据之后得到文件的结尾
+- 一旦pipe的的最后一个写入端被关闭，消费端的process将会在读取完pipe剩余数据之后得到文件的结尾，即`read()`返回0
 
 ### Pipes are unidirectional
 - pipe中的数据传输是单向的，一段用于写入，另外一段则用于读取

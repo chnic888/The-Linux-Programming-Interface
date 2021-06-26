@@ -30,14 +30,14 @@ int simplePipe(int argc, char *argv[]) {
 
         case 0:
             if (close(pfd[1]) == -1) {
-                fprintf(stderr, "[child]failed to clod the write fd, %d\n", errno);
+                fprintf(stderr, "[child]failed to close the write fd, %d\n", errno);
                 exit(EXIT_FAILURE);
             }
 
             for (;;) {
                 numRead = read(pfd[0], buf, BUf_SIZE);
                 if (numRead == -1) {
-                    fprintf(stderr, "[child]failed to clod the write fd, %d\n", errno);
+                    fprintf(stderr, "[child]failed to call read(), %d\n", errno);
                     exit(EXIT_FAILURE);
                 }
 
@@ -53,7 +53,7 @@ int simplePipe(int argc, char *argv[]) {
 
             write(STDOUT_FILENO, "\n", 1);
             if (close(pfd[0]) == -1) {
-                fprintf(stderr, "[child]failed to clod the read fd, %d\n", errno);
+                fprintf(stderr, "[child]failed to close the read fd, %d\n", errno);
                 exit(EXIT_FAILURE);
             }
 
@@ -61,7 +61,7 @@ int simplePipe(int argc, char *argv[]) {
 
         default:
             if (close(pfd[0]) == -1) {
-                fprintf(stderr, "[parent]failed to clod the read fd, %d\n", errno);
+                fprintf(stderr, "[parent]failed to close the read fd, %d\n", errno);
                 exit(EXIT_FAILURE);
             }
 
@@ -71,7 +71,7 @@ int simplePipe(int argc, char *argv[]) {
             }
 
             if (close(pfd[1]) == -1) {
-                fprintf(stderr, "[parent]failed to clod the write fd, %d\n", errno);
+                fprintf(stderr, "[parent]failed to close the write fd, %d\n", errno);
                 exit(EXIT_FAILURE);
             }
 
