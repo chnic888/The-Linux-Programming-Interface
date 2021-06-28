@@ -32,10 +32,11 @@ int pipe(int filedes[2]);
 	- `filedes[0]`为pipe的读取端的fd
 	- `filedes[0]`为pipe的写入端的fd
 	  
-![44-2.png](./img/44-2.png)	
+![44-2.png](./img/44-2.png)  
 
-- parent process和child process通过pipe传输信息
-![44-3.png](./img/44-3.png)
+- parent process和child process通过pipe传输信息  
+
+![44-3.png](./img/44-3.png)  
 
 ## Pipes as a Method of Process Synchronization
 

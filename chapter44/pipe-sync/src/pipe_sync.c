@@ -32,7 +32,7 @@ int pipeSync(int argc, char *argv[]) {
     for (j = 1; j < argc; j++) {
         switch (fork()) {
             case -1:
-                fprintf(stderr, "[child -%d]failed to call folk(), %d\n", j, errno);
+                fprintf(stderr, "failed to call folk(), %d\n", errno);
                 exit(EXIT_FAILURE);
 
             case 0:
