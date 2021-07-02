@@ -49,8 +49,16 @@ int pipe(int filedes[2]);
 FILE *popen(const char *command, const char *mode);
 int pclose(FILE *stream);
 ```
+- `popen()`函数会创建一个pipe，之后会`fork()`一个child process来执行shell，而shell又会创建一个child process来执行`command`字符串
+
+![44-4.png](./img/44-4.png)
 
 ## Pipes and stdio Buffering
+- 当`mode`为`w`时来调用`popen()`
+	- 默认情况下只有与stdio的buffer被填满或者调用了`pclose()`关闭pipe之后，输出才会被发送给pipe另外一端的child process，
+	- 如果需要child process可以立刻接收到数据，则需要周期性的调用`fflush()`或者通过`setbuf(fp, NULL)`来禁用stdio的缓冲
+- 当`mode`为`r`时来调用`popen()`
+	- 如果另一端的child process使用stdio库，除非显示的调用`fflush()`或者`setbuf(fp, NULL)`，否则只有在child process填满stdio buff或者调用了`pclose()`关闭pipe之后才会数据才会可用
 
 ## FIFOs
 ```c
