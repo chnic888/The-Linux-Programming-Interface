@@ -61,13 +61,22 @@ int pclose(FILE *stream);
 	- 如果另一端的child process使用stdio库，除非显示的调用`fflush()`或者`setbuf(fp, NULL)`，否则只有在child process填满stdio buff或者调用了`pclose()`关闭pipe之后才会数据才会可用
 
 ## FIFOs
+- 语义上来讲，`FIFO`和`pipe`类似，主要差别在于`FIFO`在文件系统中拥有一个名称且其打开方式和普通文件打开方式一致
+
 ```c
 #include <sys/stat.h>
 
 int mkfifo(const char *pathname, mode_t mode);
 ```
+- `mkfifo()`会创建一个名称为`pathname`的新的`FIFO`，且一旦`FIFO`被创建，任何process都可以打开他，只要能购过常规的文件权限检测
 
 ## A Client-Server Application Using FIFOs
+- `pipe`和`FIFO`中的数据都是字节流，也就是消息之间是没有边界的，因此多条消息被发送到一个process中时，必须约定某种规则来分割消息
+	- `delimiter character` 每条消息使用约定好的`delimiter character`（比如换行符）来分割消息
+	- `fixed-size header with a length field` 每条消息包含一个固定的头，头中包含了一个数字来表示剩余消息的长度
+	- `fixed-length messages` 使用固定长度的消息并让服务器总是读取这个大小的固定消息
+
+![44-7.png](./img/44-7.png)
 
 ## Nonblocking I/O
 
