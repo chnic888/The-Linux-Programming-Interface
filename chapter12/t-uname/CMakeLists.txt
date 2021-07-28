@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(12-t-uname C)
 
 include_directories(./include)

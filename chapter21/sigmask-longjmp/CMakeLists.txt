@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(21-sigmask-longjmp C)
 
 add_compile_definitions(USE_SIGSETJMP)

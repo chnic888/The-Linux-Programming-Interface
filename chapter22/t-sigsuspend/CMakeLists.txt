@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(22-t-sigsuspend C)
 
 include_directories(./include)

@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(8-check-password C)
 
 include_directories(./include)

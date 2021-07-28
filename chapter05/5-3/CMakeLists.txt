@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(5-3-atomic-append C)
 
 include_directories(./include)

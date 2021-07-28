@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(9-2-privilege-verify C)
 
 include_directories(./include)

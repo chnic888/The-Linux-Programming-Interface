@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(6-1-mem-segments C)
 
 include_directories(./include)

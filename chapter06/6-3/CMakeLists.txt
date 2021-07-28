@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(6-3-set-unset-env C)
 
 include_directories(./include)

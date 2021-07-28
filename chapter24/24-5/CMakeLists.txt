@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(24-5-fork-child-wait-parent C)
 
 include_directories(./include)

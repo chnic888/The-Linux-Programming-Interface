@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(5-5-dup-verify C)
 
 include_directories(./include)

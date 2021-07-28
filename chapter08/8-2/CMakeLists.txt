@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.17)
 project(8-2-getpwnam-went C)
 
 include_directories(./include)

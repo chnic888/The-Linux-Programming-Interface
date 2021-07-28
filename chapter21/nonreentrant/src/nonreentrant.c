@@ -1,12 +1,12 @@
-#define _XOPEN_SOURCE 600
+#define _GNU_SOURCE
 
 #include "nonreentrant.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <crypt.h>
 
 static char *str2;
 static int handled = 0;
