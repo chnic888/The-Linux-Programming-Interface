@@ -6,7 +6,8 @@
 #include <signal.h>
 #include <string.h>
 #include <errno.h>
-#include <crypt.h>
+//#include <crypt.h>
+#include <unistd.h>
 
 static char *str2;
 static int handled = 0;
