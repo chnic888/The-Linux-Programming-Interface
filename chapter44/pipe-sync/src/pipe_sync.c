@@ -10,8 +10,7 @@
 
 int pipeSync(int argc, char *argv[]) {
     int pfd[2];
-    int j;
-    char buf[BUF_SIZE];
+    int j, dummy;
 
     if (argc < 2 || strcmp(argv[1], "--help") == 0) {
         fprintf(stderr, "%s sleep-time...\n", argv[0]);
@@ -21,8 +20,7 @@ int pipeSync(int argc, char *argv[]) {
     setbuf(stdout, NULL);
     setbuf(stderr, NULL);
 
-    fprintf(stdout, "[parent - 1] %d\n", getpid());
-    fprintf(stdout, "[parent]%ld     Parent started\n", time(NULL));
+    fprintf(stdout, "[parent - %d]%ld     Parent started\n", getpid(), time(NULL));
 
     if (pipe(pfd) == -1) {
         fprintf(stderr, "failed to call pipe(), %d\n", errno);
@@ -32,7 +30,7 @@ int pipeSync(int argc, char *argv[]) {
     for (j = 1; j < argc; j++) {
         switch (fork()) {
             case -1:
-                fprintf(stderr, "failed to call folk(), %d\n", errno);
+                fprintf(stderr, "%d failed to call folk(), %d\n", j, errno);
                 exit(EXIT_FAILURE);
 
             case 0:
@@ -42,19 +40,19 @@ int pipeSync(int argc, char *argv[]) {
                 }
 
                 char *endPtr = NULL;
-                sleep(strtol(argv[j], &endPtr, 10));
-                write(pfd[1], "Hello", 5);
+                long second = strtol(argv[j], &endPtr, 10);
+                fprintf(stderr, "[child -%d]%ld ready to sleep %ld second\n", getpid(), time(NULL), second);
+                sleep(((int) second) * 10);
 
-                fprintf(stdout, "[child -%d]%ld  Child %d (PID=%d) closing pipe\n", j, time(NULL), j, getpid());
                 if (close(pfd[1]) == -1) {
                     fprintf(stderr, "[child -%d]failed to close the write fd, %d\n", j, errno);
                     exit(EXIT_FAILURE);
                 }
+                fprintf(stdout, "[child- %d]%ld  Child %d closing pipe\n", getpid(), time(NULL), j);
 
-                exit(EXIT_SUCCESS);
+                _exit(EXIT_SUCCESS);
 
             default:
-                fprintf(stdout, "[parent - 1-%d] %d\n", j, getpid());
                 break;
         }
     }
@@ -64,10 +62,18 @@ int pipeSync(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    fprintf(stdout, "[parent - 2] %d\n", getpid());
-    ssize_t num = read(pfd[0], buf, BUF_SIZE);
+    fprintf(stdout, "[parent - %d] do some work A\n", getpid());
+    sleep(3);
+    fprintf(stdout, "[parent - %d] do some work B\n", getpid());
+    sleep(3);
+    fprintf(stdout, "[parent - %d] do some work C\n", getpid());
+    sleep(3);
 
-    fprintf(stdout, "[parent]read %zd\n", num);
+    if (read(pfd[0], &dummy, 1) != 0) {
+        fprintf(stderr, "[parent] did not get EOF, %d\n", errno);
+        exit(EXIT_FAILURE);
+    }
+
     fprintf(stdout, "[parent]%ld     Parent ready to go\n", time(NULL));
     return (EXIT_SUCCESS);
 }

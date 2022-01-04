@@ -57,7 +57,7 @@ int simplePipe(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
 
-            _exit(EXIT_SUCCESS);
+            exit(EXIT_SUCCESS);
 
         default:
             if (close(pfd[0]) == -1) {
