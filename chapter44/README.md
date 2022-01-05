@@ -29,18 +29,37 @@
 int pipe(int filedes[2]);
 ```
 - `pipe()`会在数组`filedes`中返回两个open file descriptors
-	- `filedes[0]`为pipe的读取端的fd
-	- `filedes[0]`为pipe的写入端的fd
-	  
+    - `filedes[0]`为pipe的读取端的fd，`0`对应着stdin
+    - `filedes[1]`为pipe的写入端的fd， `1`对应着stdout
+
+- 调用了`pipe()`之后生成的`filedes[2]`对应了pipe的两端的fd
+
 ![44-2.png](./img/44-2.png)  
 
-- parent process和child process通过pipe传输信息  
+- parent process和child process通过pipe传输信息
+- parent关闭`filedes[0]`读取fd，child关闭`filedes[1]`写入fd
+- pipe方向 parent process -> child process
 
 ![44-3.png](./img/44-3.png)  
+
+### Pipes allow communication between related processes
+- 使用pipe通信通常的使用场景是，这个也是shell在构建pipe的实践
+    - parent process通过`pipe()`来创建一个pipe
+    - parent process创建两个child processes，两个child process来进行通信
+
+### Closing unused pipe file descriptors
+- 只有pipe上的全部writer的fd都被关闭之后，reader才能看见文件的结尾，否则`read()`方法就会一直阻塞
+- process如果往一个没有打开的read fd的pipe中写入数据时，kernel会发送一个`SIGPIPE`signal给write process，该signal默认会kill掉write process
+- 如果write process选择ignore掉`SIGPIPE`signal时，写入方调用`write()`方法就会失败并收到`EPIPE(broken pipe)`的errorno
 
 ## Pipes as a Method of Process Synchronization
 
 ## Using Pipes to Connect Filters
+- 可以使用`dup2()`的调用来取代对于`close()`和`dup()`的调用
+```c
+dup2(pfd[1], STDOUT_FILENO);
+colse(pfd[1]);
+```
 
 ## Talking to a Shell Command via a Pipe: popen()
 ```c
@@ -50,6 +69,7 @@ FILE *popen(const char *command, const char *mode);
 int pclose(FILE *stream);
 ```
 - `popen()`函数会创建一个pipe，之后会`fork()`一个child process来执行shell，而shell又会创建一个child process来执行`command`字符串
+- 因为pipe是单向的，因此无法在执行`command`中进行双向通信
 
 ![44-4.png](./img/44-4.png)
 
