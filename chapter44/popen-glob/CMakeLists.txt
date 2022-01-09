@@ -1,6 +1,6 @@
 project(44-popen-glob C)
 
 include_directories(./include)
-add_library(${PROJECT_NAME}_static STATIC src/popen_glob.c)
+add_library(${PROJECT_NAME}_static STATIC src/popen_glob.c src/print_wait_status.c)
 add_executable(${PROJECT_NAME} main.c)
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_static)
