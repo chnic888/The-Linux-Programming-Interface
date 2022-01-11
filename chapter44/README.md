@@ -82,6 +82,7 @@ int pclose(FILE *stream);
 
 ## FIFOs
 - 语义上来讲，`FIFO`和`pipe`类似，主要差别在于`FIFO`在文件系统中拥有一个名称且其打开方式和普通文件打开方式一致
+- 当所有的引用`FIFO`的fd都被关闭之后，所有未被读取的数据将会被丢弃
 
 ```c
 #include <sys/stat.h>

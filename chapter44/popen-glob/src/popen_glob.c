@@ -48,7 +48,6 @@ int popenGlob(int argc, char *argv[]) {
         }
 
         snprintf(popenCMD, PCMD_BUF_SIZE, POPEN_FMT, pat);
-        popenCMD[PCMD_BUF_SIZE - 1] = '\0';
 
         fp = popen(popenCMD, "r");
         if (fp == NULL) {
