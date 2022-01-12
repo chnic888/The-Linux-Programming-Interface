@@ -63,7 +63,7 @@ int popenGlob(int argc, char *argv[]) {
 
         status = pclose(fp);
         fprintf(stdout, "   %d matching file%s\n", fileCnt, (fileCnt != 1) ? "s" : "");
-        fprintf(stdout, "   pclose() status == %#x\n", (unsigned int) status);
+        fprintf(stdout, "   pclose() status = %#x\n", (unsigned int) status);
         if (status != -1) {
             printWaitStatus("\t", status);
         }
