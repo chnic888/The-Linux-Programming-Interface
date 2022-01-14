@@ -16,18 +16,21 @@ int fifoSeqnumServer(int argc, char *argv[]) {
         fprintf(stderr, "mkfifo %s\n", SERVER_FIFO);
         return EXIT_FAILURE;
     }
+    fprintf(stdout, "create server fifo successfully!\n");
 
     serverFd = open(SERVER_FIFO, O_RDONLY);
     if (serverFd == -1) {
         fprintf(stderr, "open %s\n", SERVER_FIFO);
         return EXIT_FAILURE;
     }
+    fprintf(stdout, "server fifo read process open\n");
 
     dummyFd = open(SERVER_FIFO, O_WRONLY);
     if (dummyFd == -1) {
         fprintf(stderr, "open %s\n", SERVER_FIFO);
         return EXIT_FAILURE;
     }
+    fprintf(stdout, "server fifo write process open\n");
 
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
         fprintf(stderr, "signal\n");

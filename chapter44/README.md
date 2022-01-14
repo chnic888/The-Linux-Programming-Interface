@@ -92,6 +92,8 @@ int mkfifo(const char *pathname, mode_t mode);
 
 - `mkfifo()`会创建一个名称为`pathname`的新的`FIFO`，且一旦`FIFO`被创建，任何process都可以打开他，只要能购过常规的文件权限检测
 - 使用FIFO的最明智做法是在使用FIFO时候分别在两端设置一个reading process和writing process
+    - 打开FIFO的读取`open(pathname, O_RDONLY)`的process会被阻塞，直到一个写入`open(pathname, O_WRONLY)`的process被打开为止
+    - 打开FIFO的写入`open(pathname, O_WRONLY)`的process会被阻塞，直到一个读取`open(pathname, O_RDONLY)`的process被打开为止
 
 ## A Client-Server Application Using FIFOs
 - `pipe`和`FIFO`中的数据都是字节流，也就是消息之间是没有边界的，因此多条消息被发送到一个process中时，必须约定某种规则来分割消息
@@ -102,5 +104,9 @@ int mkfifo(const char *pathname, mode_t mode);
 ![44-7.png](./img/44-7.png)
 
 ## Nonblocking I/O
+- 只有当FIFO另一端还没有被打开的时候`O_NONBLOCK`的标记才会起作用
+    - 如果打开FIFO的方式是读取，并且没有写入端process打开FIFO时，`open()`调用会立刻成功
+    - 如果打开FIFO的方式是写入，并却没有读取端process打开FIFO时，`open()`调用会失败，并且此时`errno`为`ENXIO`
+- 在`open()`时设置`O_NONBLOCK`还会影响后续`read()`和`write()`的语义
 
 ## Semantics of read() and write() on Pipes and FIFOs
