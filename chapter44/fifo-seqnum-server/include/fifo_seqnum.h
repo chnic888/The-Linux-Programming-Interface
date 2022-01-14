@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define SERVER_FIFO "/tmp/seqnum_sv"
 #define CLIENT_FIFO_TEMPLE "/tmp/seqnum_cl.%ld"
