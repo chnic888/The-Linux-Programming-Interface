@@ -10,17 +10,18 @@
 ```shell
 $ ar options archive object-file...
 ```
+
 - 程序和静态库链接起来的两种方式
-	- 把静态库的全名作为链接命令的一部分
+  - 把静态库的全名作为链接命令的一部分
     ```shell
     $ gcc -g -c prog.c
     $ gcc -g -o prog prog.o libdemo.a
     ```
-	- 将静态库放在链接程序可以搜索到的标准目录中，比如`/usr/lib`，然后使用`–l`选项来指定静态库名，也就是`libname.a`里**name**的部分
+  - 将静态库放在链接程序可以搜索到的标准目录中，比如`/usr/lib`，然后使用`–l`选项来指定静态库名，也就是`libname.a`里**name**的部分
     ```shell
     $ gcc -g -o prog prog.o -ldemo
     ```
-	- 如果静态库文件不在标准目录内，可以使用`-L`选项来指定静态库文件所处在的目录
+  - 如果静态库文件不在标准目录内，可以使用`-L`选项来指定静态库文件所处在的目录
     ```shell
     $ gcc -g -o prog prog.o -Lmylibdir -ldemo
     ```
@@ -90,8 +91,8 @@ $ ln -s libfoo.so libbar.so
 
 ## Shared Library Versions and Naming Conventions
 - 共享库的real name的格式规范为`libname.so.major-id.minor-id`
-	- `major version identifier`即为`major-id`，由一个数字构成，并且这个数字随着库的每个不兼容版本的发布而顺序递增
-	- `minor version identifier`即为`minor-id`，用来区分major版本中兼容的minor版本，`minor-id`可以为任意字符串，但是根据惯例`minor-id`应是一个数字或者两个由小数点分隔的数字，其中第一个数字指定了`minor version`，第二个数字表示`minor version`的`patch level`或`revision number`
+  - `major version identifier`即为`major-id`，由一个数字构成，并且这个数字随着库的每个不兼容版本的发布而顺序递增
+  - `minor version identifier`即为`minor-id`，用来区分major版本中兼容的minor版本，`minor-id`可以为任意字符串，但是根据惯例`minor-id`应是一个数字或者两个由小数点分隔的数字，其中第一个数字指定了`minor version`，第二个数字表示`minor version`的`patch level`或`revision number`
 - 共享库的soname应该只包含`major-id`并排除`minor-id`，因此soname的格式规范应该为`libname.so.major-id`
 
 | Name |  Format |  Description |

@@ -2,8 +2,8 @@
 
 ## Rationale for Capabilities
 - 传统的UNIX privilege scheme将process分为两类
-    - effective user ID为0的超级用户process，他会绕过所有特权检查
-    - 根据process user和group IDs进行特权检查的其他process
+  - effective user ID为0的超级用户process，他会绕过所有特权检查
+  - 根据process user和group IDs进行特权检查的其他process
 - Linux capability scheme不再使用单一权限来在kernel中进行安全检查，superuser privilege被换分成了不同的单元，也被成为`capabilities`，每个capability都可以被单独的启用和禁用
 - Linux capability是被划分到thread级别的属性
 
@@ -75,6 +75,7 @@ P'(effective) = P'(permitted)
 
 ## Changing Process Capabilities Programmatically
 - 在Debian或Ubuntu中，需要安装`libcap-dev`来获取所需的头文件`sys/capability.h`
+
 ```shell
 sudo apt install libcap-dev
 ```

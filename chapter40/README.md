@@ -3,13 +3,13 @@
 
 ## Overview of the utmp and wtmp Files
 - `utmp`文件维护着当前正在登录系统的用户记录，每一个用户登录系统时都会向`utmp`文件写入一条对应的记录，当用户登出时候该记录会被删除。
-    - `who(1)`命令会使用此文件来显示当前登录用户列表
-    - Linux中，`utmp`文件位置在`/var/run/utmp`
-    - 使用`_PATH_UTMP`来获取`utmp`文件路径，避免使用hard code
+  - `who(1)`命令会使用此文件来显示当前登录用户列表
+  - Linux中，`utmp`文件位置在`/var/run/utmp`
+  - 使用`_PATH_UTMP`来获取`utmp`文件路径，避免使用hard code
 - `wtmp`文件所有用户登录和登出的audit log，每一个用户登录系统时写入`utmp`的记录会同时写入`wtmp`，用户登出时候还会增加和登入同样的记录，但是`ut_user`会被清零
-    - `last(1)`命令会使用此文件来显示和过滤`wtmp`文件中的内容
-    - Linux中，`utmp`文件位置在`/var/log/wtmp`
-    - 使用`_PATH_WTMP`来获取`wtmp`文件路径，避免使用hard code
+  - `last(1)`命令会使用此文件来显示和过滤`wtmp`文件中的内容
+  - Linux中，`utmp`文件位置在`/var/log/wtmp`
+  - 使用`_PATH_WTMP`来获取`wtmp`文件路径，避免使用hard code
 
 ## The utmpx API
 
@@ -103,9 +103,9 @@ void updwtmpx(char *wtmpx_file, struct utmpx *ut);
 
 ## The lastlog
 - `lastlog`文件记录着每个用户最近一次登录到系统的时间
-    - `login`程序可以通过`lastlog`文件来通知用户上次登录的时间
-    - Linux中，`lastlog`文件位置在`/var/log/lastlog`
-    - 使用`__PATH_LASTLOG`来获取`lastlog`文件路径，避免使用hard code
+  - `login`程序可以通过`lastlog`文件来通知用户上次登录的时间
+  - Linux中，`lastlog`文件位置在`/var/log/lastlog`
+  - 使用`__PATH_LASTLOG`来获取`lastlog`文件路径，避免使用hard code
 
 ```c
 #define UT_NAMESIZE 32

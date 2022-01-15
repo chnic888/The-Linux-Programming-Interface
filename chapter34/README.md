@@ -125,8 +125,8 @@ int tcsetpgrp(int fd, pid_t pgid);
 
 ### Orphaned Process Groups (and SIGHUP Revisited)
 - `orphaned process group`的定义
-    - group内每个process和他的parent process都属于同一个process group
-    - group内每个process的parent属于另外的一个session，不是当前group所属的session
+  - group内每个process和他的parent process都属于同一个process group
+  - group内每个process的parent属于另外的一个session，不是当前group所属的session
 - `non-orphan process group` 一个process group组内至少一个process的parent在同一个session内，但是属于不同的process group   
 
 ![34-3.png](./img/34-3.png)

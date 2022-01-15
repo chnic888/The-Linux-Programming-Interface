@@ -2,8 +2,8 @@
 
 ## Process Priorities (Nice Values)
 - `round-robin time-sharing model` Linux和大多数Unix下，process scheduling使用CPU的默认模型。此模型下，每个process会轮流的使用CPU一段时间，这段时间被称为`time slice`或`quantum`
-    - `Fairness` 公平性，即每个process都有机会获取到`time slice`
-    - `Responsiveness` 响应度，一个process在接收CPU的使用权之前无需等待太长的时间
+  - `Fairness` 公平性，即每个process都有机会获取到`time slice`
+  - `Responsiveness` 响应度，一个process在接收CPU的使用权之前无需等待太长的时间
 - 在`round-robin time-sharing`算法中，process无法直接控制还何时使用CPU以及使用CPU的时间，默认情况下，每个process轮流使用CPU直到`time slice`被用光或者process自己自动放弃CPU的使用权
 - `nice value` process的属性，允许process间接影响kernel的调度算法，每个process都有一个nice value，取值范围为`-20 ～ +19`，其中`-20`为高优先级，`+19`为低优先级，默认值为`0`
 
@@ -39,23 +39,23 @@ int setpriority(int which, id_t who, int prio);
 ### The SCHED_RR Policy
 - `SCHED_RR(round-robin)`策略，优先级相同的process会以`round-robin time-sharing`的策略来执行
 - 一个process会收到一个固定长度的对CPU使用的time slice，一旦被调度执行之后，使用`SCHED_RR`策略的process会保持对CPU的控制直至以下任意一个条件得到满足
-    - time slice已经耗尽
-    - process自愿放弃CPU的使用，可以通过执行一个阻塞的system call或者调用`sched_yield()`system call来达到目的
-    - process被终止了
-    - 被一个优先级更高的process抢占了CPU的使用权
+  - time slice已经耗尽
+  - process自愿放弃CPU的使用，可以通过执行一个阻塞的system call或者调用`sched_yield()`system call来达到目的
+  - process被终止了
+  - 被一个优先级更高的process抢占了CPU的使用权
 - 条件1和条件2满足之后，丢掉CPU使用权的process会被放在process优先级对应的队列的队尾
 - 条件4满足之后，丢掉CPU使用权的process会被放在放在process优先级对应的队列的队头，并且当优先级更高的process停止执行之后，被抢占的process会继续执行直至其time slice的剩余部分被消耗完毕
 - 在`SCHED_RR`和`SCHED_FIFO`两种策略中，当前运行的process会因为下面的原因被抢占
-    - 之前被阻塞的高优先级的process被解除阻塞了，比如process所等待的I/O操作完成了
-    - 另一个process的优先级被提升， 且提升后的优先级比当前正在运行的process的优先级更高
-    - 当前运行的process的优先级被降低，且降低后的优先级低于其他可运行的process的优先级
+  - 之前被阻塞的高优先级的process被解除阻塞了，比如process所等待的I/O操作完成了
+  - 另一个process的优先级被提升， 且提升后的优先级比当前正在运行的process的优先级更高
+  - 当前运行的process的优先级被降低，且降低后的优先级低于其他可运行的process的优先级
 - `SCHED_RR`和`SCHED_OTHER`算法类似，允许相同优先级的process共享CPU的时间。主要差别是`SCHED_RR`存在严格的优先级级别，且高优先级process总是优于低优先级的process，进而也可以精确的控制process被调度的顺序。而`SCHED_RR`下的高优先级的process不会独占CPU，一个较低优先级的process也会被分配到一定的time slice
 
 ### The SCHED_FIFO Policy
 - `SCHED_FIFO`和`SCHED_RR`类似，主要差别是`SCHED_FIFO`下没有time slice的概念，一旦某个process在`SCHED_FIFO`策略下获取到CPU的使用权，他将一直执行直至以下任意一个条件得到满足
-    - process自愿放弃CPU的使用
-    - process被终止了
-    - 被一个优先级更高的process抢占了CPU的使用权
+  - process自愿放弃CPU的使用
+  - process被终止了
+  - 被一个优先级更高的process抢占了CPU的使用权
 - 条件1满足之后，丢掉CPU使用权的process会被放在process优先级对应的队列的队尾
 - 条件3满足之后，丢掉CPU使用权的process会被放在放在process优先级对应的队列的队头，并且当优先级更高的process停止执行（被阻塞或被终止）之后，被抢占的process会继续执行直至其time slice的剩余部分被消耗完毕
 
@@ -135,15 +135,15 @@ int sched_getparam(pid_t pid, struct sched_param *param);
 
 #### Preventing realtime processes from locking up the system
 - `SCHED_RR`和`SCHED_FIFO`策略下的process会抢占低优先级process，在使用这两种策略时需要小心realtime process一直占用CPU而锁住系统的情况
-    - 使用`setrlimit()`来是设置一个合理的CPU time的low soft resource limit(`RLIMIT_CPU`)，如果process消耗过多的CPU时间，process会收到一个`SIGXCPU`signal，且默认的disposition是杀死process
-    - 使用`alarm()`，如果process执行的时钟时间超过了`alarm()`的设置，process会收到一个`SIGALRM`signal，且默认的disposition是杀死process
-    - 创建一个高优先级的watchdog process来监控和度量其他process，在有必要的时候还可以降低优先级和发送signal杀死其他process
-    - 设置`RLIMIT_RTTIME`来控制一个process在一个realtime scheduling策略下在执行不阻塞的system call的情况下的单次消费CPU时间的数量，单位为毫秒
+  - 使用`setrlimit()`来是设置一个合理的CPU time的low soft resource limit(`RLIMIT_CPU`)，如果process消耗过多的CPU时间，process会收到一个`SIGXCPU`signal，且默认的disposition是杀死process
+  - 使用`alarm()`，如果process执行的时钟时间超过了`alarm()`的设置，process会收到一个`SIGALRM`signal，且默认的disposition是杀死process
+  - 创建一个高优先级的watchdog process来监控和度量其他process，在有必要的时候还可以降低优先级和发送signal杀死其他process
+  - 设置`RLIMIT_RTTIME`来控制一个process在一个realtime scheduling策略下在执行不阻塞的system call的情况下的单次消费CPU时间的数量，单位为毫秒
 
 #### Preventing child processes from inheriting privileged scheduling policies
 - `SCHED_RESET_ON_FORK` Linux 2.6.32之后新增加的一个策略，通过`sched_setscheduler()`的参数`policy`来指定，如果设置了此策略，那么process通过`fork()`创建的child process则不会继续parent的调度策略和优先级
-    - 如果calling process拥有一个realtime scheduling策略(`SCHED_RR`或`SCHED_FIFO`)，那么child process的策略将会被重置成标准的round-robin time-sharing策略(`SCHED_OTHER`)
-    - 如果process的nice value为负值，那么child process的nice value将会重置为0
+  - 如果calling process拥有一个realtime scheduling策略(`SCHED_RR`或`SCHED_FIFO`)，那么child process的策略将会被重置成标准的round-robin time-sharing策略(`SCHED_OTHER`)
+  - 如果process的nice value为负值，那么child process的nice value将会重置为0
 
 ### Relinquishing the CPU
 ```c

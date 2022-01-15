@@ -29,8 +29,8 @@
 int pipe(int filedes[2]);
 ```
 - `pipe()`会在数组`filedes`中返回两个open file descriptors
-    - `filedes[0]`为pipe的读取端的fd，`0`对应着stdin
-    - `filedes[1]`为pipe的写入端的fd， `1`对应着stdout
+  - `filedes[0]`为pipe的读取端的fd，`0`对应着stdin
+  - `filedes[1]`为pipe的写入端的fd， `1`对应着stdout
 
 - 调用了`pipe()`之后生成的`filedes[2]`对应了pipe的两端的fd
 
@@ -44,8 +44,8 @@ int pipe(int filedes[2]);
 
 ### Pipes allow communication between related processes
 - 使用pipe通信通常的使用场景是，这个也是shell在构建pipe的实践
-    - parent process通过`pipe()`来创建一个pipe
-    - parent process创建两个child processes，两个child process来进行通信
+  - parent process通过`pipe()`来创建一个pipe
+  - parent process创建两个child processes，两个child process来进行通信
 
 ### Closing unused pipe file descriptors
 - 只有pipe上的全部writer的fd都被关闭之后，reader才能看见文件的结尾，否则`read()`方法就会一直阻塞
@@ -75,10 +75,10 @@ int pclose(FILE *stream);
 
 ## Pipes and stdio Buffering
 - 当`mode`为`w`时来调用`popen()`
-	- 默认情况下只有与stdio的buffer被填满或者调用了`pclose()`关闭pipe之后，输出才会被发送给pipe另外一端的child process，
-	- 如果需要child process可以立刻接收到数据，则需要周期性的调用`fflush()`或者通过`setbuf(fp, NULL)`来禁用stdio的缓冲
+  - 默认情况下只有与stdio的buffer被填满或者调用了`pclose()`关闭pipe之后，输出才会被发送给pipe另外一端的child process，
+  - 如果需要child process可以立刻接收到数据，则需要周期性的调用`fflush()`或者通过`setbuf(fp, NULL)`来禁用stdio的缓冲
 - 当`mode`为`r`时来调用`popen()`
-	- 如果另一端的child process使用stdio库，除非显示的调用`fflush()`或者`setbuf(fp, NULL)`，否则只有在child process填满stdio buff或者调用了`pclose()`关闭pipe之后才会数据才会可用
+  - 如果另一端的child process使用stdio库，除非显示的调用`fflush()`或者`setbuf(fp, NULL)`，否则只有在child process填满stdio buff或者调用了`pclose()`关闭pipe之后才会数据才会可用
 
 ## FIFOs
 - 语义上来讲，`FIFO`和`pipe`类似，主要差别在于`FIFO`在文件系统中拥有一个名称且其打开方式和普通文件打开方式一致
@@ -92,21 +92,21 @@ int mkfifo(const char *pathname, mode_t mode);
 
 - `mkfifo()`会创建一个名称为`pathname`的新的`FIFO`，且一旦`FIFO`被创建，任何process都可以打开他，只要能购过常规的文件权限检测
 - 使用FIFO的最明智做法是在使用FIFO时候分别在两端设置一个reading process和writing process
-    - 打开FIFO的读取`open(pathname, O_RDONLY)`的process会被阻塞，直到一个写入`open(pathname, O_WRONLY)`的process被打开为止
-    - 打开FIFO的写入`open(pathname, O_WRONLY)`的process会被阻塞，直到一个读取`open(pathname, O_RDONLY)`的process被打开为止
+  - 打开FIFO的读取`open(pathname, O_RDONLY)`的process会被阻塞，直到一个写入`open(pathname, O_WRONLY)`的process被打开为止
+  - 打开FIFO的写入`open(pathname, O_WRONLY)`的process会被阻塞，直到一个读取`open(pathname, O_RDONLY)`的process被打开为止
 
 ## A Client-Server Application Using FIFOs
 - `pipe`和`FIFO`中的数据都是字节流，也就是消息之间是没有边界的，因此多条消息被发送到一个process中时，必须约定某种规则来分割消息
-    1. `delimiter character` 每条消息使用约定好的`delimiter character`来分割消息
-    2. `fixed-size header with a length field` 每条消息包含一个固定的头，头中包含了一个数字来表示剩余消息的长度
-    3. `fixed-length messages` 使用固定长度的消息并让服务器总是读取这个大小的固定消息
+  1. `delimiter character` 每条消息使用约定好的`delimiter character`来分割消息
+  2. `fixed-size header with a length field` 每条消息包含一个固定的头，头中包含了一个数字来表示剩余消息的长度
+  3. `fixed-length messages` 使用固定长度的消息并让服务器总是读取这个大小的固定消息
 
 ![44-7.png](./img/44-7.png)
 
 ## Nonblocking I/O
 - 只有当FIFO另一端还没有被打开的时候`O_NONBLOCK`的标记才会起作用
-    - 如果打开FIFO的方式是读取，并且没有写入端process打开FIFO时，`open()`调用会立刻成功
-    - 如果打开FIFO的方式是写入，并却没有读取端process打开FIFO时，`open()`调用会失败，并且此时`errno`为`ENXIO`
+  - 如果打开FIFO的方式是读取，并且没有写入端process打开FIFO时，`open()`调用会立刻成功
+  - 如果打开FIFO的方式是写入，并却没有读取端process打开FIFO时，`open()`调用会失败，并且此时`errno`为`ENXIO`
 - 在`open()`时设置`O_NONBLOCK`还会影响后续`read()`和`write()`的语义
 
 ## Semantics of read() and write() on Pipes and FIFOs

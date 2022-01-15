@@ -3,8 +3,8 @@
 ## Thread Safety (and Reentrancy Revisited)
 - `thread-safe` 一个函数同时可供多个thread安全调用
 - 实现`thread-safe`函数的方式
-    - 将函数和`mutex`关联使用，在调用时候锁定`mutex`，在返回时解锁`mutex`，同时只有一个thread可以访问此函数，因此这个函数的调用是`serialized`
-    - 将一个`shared variable`和`mutex`关联使用，首先需要识别出函数内访问`shared variable`的`critical sections`，并且只在执行`critical sections`代码时才获取和释放`mutex`
+  - 将函数和`mutex`关联使用，在调用时候锁定`mutex`，在返回时解锁`mutex`，同时只有一个thread可以访问此函数，因此这个函数的调用是`serialized`
+  - 将一个`shared variable`和`mutex`关联使用，首先需要识别出函数内访问`shared variable`的`critical sections`，并且只在执行`critical sections`代码时才获取和释放`mutex`
 
 ## One-Time Initialization
 ```c
@@ -19,6 +19,7 @@ pthread_once_t once_var = PTHREAD_ONCE_INIT;
 ```
 
 ## Thread-Specific Data
+
 ![31-1.png](./img/31-1.png)
 - `thread-specific`数据允许函数为不同的thread分别维护一个变量的副本
 

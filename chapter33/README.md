@@ -12,9 +12,9 @@
 - signal的action属于process维度，一个process内的任意thread收到了未经处理的`stop`和`terminate`类型的signal，那么将停止或者终止该process内的所有thread
 - signal的disposition也属于process维度，process内的所有thread也共享同一个disposition，如果一个thread使用`sigaction()`来为某一signal创建disposition，那么当process收到此类信号时，process内的任何thread都会调用disposition，同理，如果一个thread对signal的disposition设置为`ignore`，那么所有thread都将忽略此类signal
 - signal既可以指向process也可以指向特定的thread，
-    - signal在是thread context下通过执行特殊的硬件指令产生的
-    - thread试图对一个`broken pipe`进行写入操作时所产生的`SIGPIPE`类型的signal
-    - 通过`pthread_kill()`或`pthread_sigqueue()`发送的signal
+  - signal在是thread context下通过执行特殊的硬件指令产生的
+  - thread试图对一个`broken pipe`进行写入操作时所产生的`SIGPIPE`类型的signal
+  - 通过`pthread_kill()`或`pthread_sigqueue()`发送的signal
 - 如果signal被发送给一个multithreaded process，且process也为此类的signal创建了handler，那么kernel会随意选择其中一个thread，并在thread执行对handler的调用
 - signal mask属于单个thread维度，每个thread可以使用`pthread_sigmask()`来控制signal mask
 - kernel会对process和每条thread的pending signal维护记录，thread内调用`sigpending()`会返回calling thread和process的pending signal的并集，新创建的thread的pending signal set会初始化为空
