@@ -102,6 +102,7 @@ off_t lseek(int fd, off_t offset, int whence);
 - `SEEK_END` 将文件偏移量设置为从文件尾部的offset字节，offset可以为负数
 
 ![4-1.png](./img/4-1.png)
+
 - `lseek()`调用成功之后会返回新的文件offset，可以使用`curr = lseek(fd, 0, SEEK_CUR);`在不修改当前offset的情况下获取当前的offset
   
 ### File holes

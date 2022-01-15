@@ -19,14 +19,14 @@ int fcntl(int fd, int cmd, ...);
 ## Open File Status Flags
 - `fcntl()`获取一个打开的文件的`status flags`或修改打开文件的`access mode`
 - `fcntl()`适用场景
-    - 文件不是由调用程序打开的，因此程序无法使用`open()`来控制状态标志
-    - fd的获取是通过`open()`之外的函数，比如pipe()或socket()
+  - 文件不是由调用程序打开的，因此程序无法使用`open()`来控制状态标志
+  - fd的获取是通过`open()`之外的函数，比如pipe()或socket()
 
 ## Relationship Between File Descriptors and Open Files
 - kernel维护的三个数据结构 
-    - 进程级别的打开文件描述表(open file descriptors table)
-    - 系统级别的打开文件表(open file descriptions table)，有时也叫做打开文件表(open file table)，表中的条目叫做打开文件句柄(open file handle)
-    - 文件系统的i-node表(i-nodes table)
+  - 进程级别的打开文件描述表(open file descriptors table)
+  - 系统级别的打开文件表(open file descriptions table)，有时也叫做打开文件表(open file table)，表中的条目叫做打开文件句柄(open file handle)
+  - 文件系统的i-node表(i-nodes table)
 
 **_open file descriptors table_**
 - 控制file descriptor的一组flags，目前只有一个`close-on-exec`

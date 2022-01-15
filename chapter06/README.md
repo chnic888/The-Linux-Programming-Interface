@@ -3,18 +3,18 @@
 ## Processes and Programs
 - process是一个可执行的program的一个实例
 - program是一个包含了如何在运行时创建process的信息的文件
-    - `Binary format identification` 每个程序都包含的用于描述可执行文件格式的`metainformation`，kernel用此信息来解释文件中的其他信息
-    - `Machine-language instructions` 对程序算法进行编码
-    - `Program entry-point address` 标识程序开始执行时的起始指令位置
-    - `Data` 程序文件包含的变量初始值和程序使用的字面常量值
-    - `Symbol and relocation tables` 描述程序中函数和变量的位置以及名称
-    - `Shared-library and dynamic-linking information` 程序运行时需要使用的`shared libraries`以及加载`shared libraries`的动态链接器的路径名
-    - `Other information` 用于如何创建process的其他信息
+  - `Binary format identification` 每个程序都包含的用于描述可执行文件格式的`metainformation`，kernel用此信息来解释文件中的其他信息
+  - `Machine-language instructions` 对程序算法进行编码
+  - `Program entry-point address` 标识程序开始执行时的起始指令位置
+  - `Data` 程序文件包含的变量初始值和程序使用的字面常量值
+  - `Symbol and relocation tables` 描述程序中函数和变量的位置以及名称
+  - `Shared-library and dynamic-linking information` 程序运行时需要使用的`shared libraries`以及加载`shared libraries`的动态链接器的路径名
+  - `Other information` 用于如何创建process的其他信息
 
 - process是由kernel定义的抽象的实体，该实体负责分配程序运行的各项系统资源
 - 从kernel角度看，process是由两部分组成 
-    - `user-space memory` 包含了程序代码和代码所使用的变量
-    - `kernel data structures` 用于维护process的状态信息 
+  - `user-space memory` 包含了程序代码和代码所使用的变量
+  - `kernel data structures` 用于维护process的状态信息 
 
 ## Process ID and Parent Process ID
 ```c
@@ -58,8 +58,8 @@ extern char etext, edata, end;
 
 - process与process、process与kernel相互隔离，所以一个process不能读取或修改另一个process或kernel的内存
 - 适当情况下，两个或者多个process可以共享内存
-    - 多个process执行同一个program，可以共享同一份只读的程序代码副本
-    - program可以使用`shmget()`和`mmap()`system calls显示的请求与其他process共享内存区
+  - 多个process执行同一个program，可以共享同一份只读的程序代码副本
+  - program可以使用`shmget()`和`mmap()`system calls显示的请求与其他process共享内存区
 - 便于实现内存保护机制
 - 程序员和编译器、连接器之类的工具无需关注程序在RAM中的物理布局
 - 因为需要驻留在内存中的仅是程序的一部分，所以程序的加载和运行都很快
@@ -67,8 +67,8 @@ extern char etext, edata, end;
 ## The Stack and Stack Frames
 - `kernel stack` 每个process保留在kernel内存中的区域，在执行system call过程中供kernel内部调用函数来使用
 - `user stack` 驻留在不受保护的user memory中
-    - `Function arguments`和`local variables` 这些变量是在调用函数时候自动创建的，所以在C语言当中被叫做`automatic`变量
-    - `Call linkage information` 每个函数都会用到的一些CPU寄存器。一个函数调用另一个函数时，会在被调用的函数`stack frame`中保存这些寄存器的副本，以便函数返回时候能为调用者函数将寄存器恢复原状
+  - `Function arguments`和`local variables` 这些变量是在调用函数时候自动创建的，所以在C语言当中被叫做`automatic`变量
+  - `Call linkage information` 每个函数都会用到的一些CPU寄存器。一个函数调用另一个函数时，会在被调用的函数`stack frame`中保存这些寄存器的副本，以便函数返回时候能为调用者函数将寄存器恢复原状
 
 ![6-3.png](./img/6-3.png)
 
