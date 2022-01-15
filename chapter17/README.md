@@ -33,6 +33,7 @@
 ## The ACL API
 
 ### Overview
+
 ![17-2.png](img/17-2.png)
 
 ### Fetching a file’s ACL into memory

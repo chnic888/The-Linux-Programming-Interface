@@ -26,32 +26,32 @@ pid_t childPid; /* Used in parent after successful fork() to record PID of child
 
 switch (childPid = fork()) {
     case -1: /* fork() failed */
-        /* Handle error */
+            /* Handle error */
     case 0: /* Child of successful fork() comes here */
-        /* Perform actions specific to child */
+            /* Perform actions specific to child */
     default: /* Parent comes here after successful fork() */
-        /* Perform actions specific to parent */
+            /* Perform actions specific to parent */
 }
 ```
 - 可以通过`fork()`的返回值来区别parent process和child process
-    - parent process中将返回创建的child process的`pid`
-    - 对于child process，`fork()`方法将返回`0`
-    - 如果无法创建child process，`fork()`则会返回`-1`
+  - parent process中将返回创建的child process的`pid`
+  - 对于child process，`fork()`方法将返回`0`
+  - 如果无法创建child process，`fork()`则会返回`-1`
 - 调用`fork()`之后，无法确定系统会优先调度哪个process来使用CPU
 
 ### File Sharing Between Parent and Child
 - `fork()`执行后，child process会获得parent process内所有的fd的副本，副本的创建类似于`dup()`，也就是parent/child均指向相同的`open file description`
 - 如果不需要parent和child process共享fd，在调用`fork()`后的程序需要设计
-    - parent和child process使用不同的fd
-    - 各自立刻关闭不在使用的fd，如果某一个process执行了`exec()`可以添加`close-on-exec`flag
+  - parent和child process使用不同的fd
+  - 各自立刻关闭不在使用的fd，如果某一个process执行了`exec()`可以添加`close-on-exec`flag
 
 ![24-2.png](./img/24-2.png)
 
 ### Memory Semantics of fork()
 - 从概念上来说，可以将`fork()`认定为是对parent process的`text` `data` `heap`和`stack segments`的拷贝。
 - `fork()`之后通常会调用`exec()`来替换program text并且重新初始化child process的`data` `heap`和`stack segments`，因此现代的Unix/Linux通常会使用两种技术来避免内存的浪费  
-    - kernel将每一个process的`text segment`设置为只读，从而使得process无法修改自身的代码，意味着`fork()`之后的child process的`text segment`的`page-table entries`自动指向的是parent process的虚拟内存page frames
-    - 对于parent process的`data` `heap`和`stack segments`内的内存页，kernel采用的是`copy-on-write`技术来处理
+  - kernel将每一个process的`text segment`设置为只读，从而使得process无法修改自身的代码，意味着`fork()`之后的child process的`text segment`的`page-table entries`自动指向的是parent process的虚拟内存page frames
+  - 对于parent process的`data` `heap`和`stack segments`内的内存页，kernel采用的是`copy-on-write`技术来处理
     
 ![24-3.png](./img/24-3.png)
 

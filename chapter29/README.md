@@ -7,11 +7,11 @@
 ![29-1.png](./img/29-1.png)
 
 - multiple process的一些限制
-    - process之间的信息难以共享，parent和child process只会共享只读的`text segment`，必须采用IPC的方式来在process间交换信息
-    - 调用`fork()`创建process代价相对比较昂贵
+  - process之间的信息难以共享，parent和child process只会共享只读的`text segment`，必须采用IPC的方式来在process间交换信息
+  - 调用`fork()`创建process代价相对比较昂贵
 - multiple thread的优点
-    - thread之间可以方便、快速的共享信息，只需要将数据复制到共享的全局或者heap变量中即可
-    - 创建thread比创建process通常要快10倍，Linux上通过`clone()`system call来实现thread
+  - thread之间可以方便、快速的共享信息，只需要将数据复制到共享的全局或者heap变量中即可
+  - 创建thread比创建process通常要快10倍，Linux上通过`clone()`system call来实现thread
 
 ## Background Details of the Pthreads API
 
@@ -43,10 +43,10 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start)
 
 ## Thread Termination
 - thread终止的方法
-    - thread的`start`函数执行了`return`语句并返回指定值
-    - thread调用了`pthread_exit()`
-    - 使用`pthread_cancel()`取消了thread    
-    - 任意thread调用了`exit()`或者main thread执行了`return`语句，所有process中的threads都会立刻终止
+  - thread的`start`函数执行了`return`语句并返回指定值
+  - thread调用了`pthread_exit()`
+  - 使用`pthread_cancel()`取消了thread    
+  - 任意thread调用了`exit()`或者main thread执行了`return`语句，所有process中的threads都会立刻终止
 ```c
 include <pthread.h>
 
@@ -99,12 +99,12 @@ int pthread_detach(pthread_t thread);
 
 ## Threads Versus Processes
 - multithread的优点
-    - thread共享数据很简单，process则需要更多的开销，比如共享内存段或者使用pipe
-    - thread的创建要快于process的创建，thread级context-switch时间要比process要短
+  - thread共享数据很简单，process则需要更多的开销，比如共享内存段或者使用pipe
+  - thread的创建要快于process的创建，thread级context-switch时间要比process要短
 - multithread的缺点
-    - 需要考虑函数的thread-safe或者以thread-safe方式来调用函数
-    - thread之间共享相同的地址空间和其他属性，一个thread的问题会影响到其他thread
-    - 每个thread都在争夺宿主process中有限的virtual address space
+  - 需要考虑函数的thread-safe或者以thread-safe方式来调用函数
+  - thread之间共享相同的地址空间和其他属性，一个thread的问题会影响到其他thread
+  - 每个thread都在争夺宿主process中有限的virtual address space
 - 在multithread程序中需要小心处理signal，建议在multithread程序中避免使用signal 
 - multithread程序中的所有thread必须执行相同的program text
 - 要多thread间共享的信息视应用来判断优劣

@@ -33,13 +33,13 @@ struct passwd *getpwnam(const char *name);
 struct passwd *getpwuid(uid_t uid);
 
 struct passwd {
- char *pw_name; /* Login name (username) */
- char *pw_passwd; /* Encrypted password */
- uid_t pw_uid; /* User ID */
- gid_t pw_gid; /* Group ID */
- char *pw_gecos; /* Comment (user information) */
- char *pw_dir; /* Initial working (home) directory */
- char *pw_shell; /* Login shell */
+	char *pw_name; /* Login name (username) */
+	char *pw_passwd; /* Encrypted password */
+ 	uid_t pw_uid; /* User ID */
+ 	gid_t pw_gid; /* Group ID */
+ 	char *pw_gecos; /* Comment (user information) */
+ 	char *pw_dir; /* Initial working (home) directory */
+ 	char *pw_shell; /* Login shell */
 };
 ```
 
@@ -51,10 +51,10 @@ struct group *getgrnam(const char *name);
 struct group *getgrgid(gid_t gid);
 
 struct group {
- char *gr_name; /* Group name */
- char *gr_passwd; /* Encrypted password (if not password shadowing) */
- gid_t gr_gid; /* Group ID */
- char **gr_mem; /* NULL-terminated array of pointers to names of members listed in /etc/group */
+    char *gr_name; /* Group name */
+    char *gr_passwd; /* Encrypted password (if not password shadowing) */
+    gid_t gr_gid; /* Group ID */
+    char **gr_mem; /* NULL-terminated array of pointers to names of members listed in /etc/group */
 };
 ```
 
@@ -79,19 +79,19 @@ void setspent(void);
 void endspent(void);
 
 struct spwd {
- char *sp_namp; /* Login name (username) */
- char *sp_pwdp; /* Encrypted password */
+	char *sp_namp; /* Login name (username) */
+	char *sp_pwdp; /* Encrypted password */
 
  /* Remaining fields support "password aging", an optional feature that forces users to regularly change their passwords, 
     so that even if an attacker manages to obtain a password, it will eventually cease to be usable. */
  
- long sp_lstchg; /* Time of last password change (days since 1 Jan 1970) */
- long sp_min; /* Min. number of days between password changes */
- long sp_max; /* Max. number of days before change required */
- long sp_warn; /* Number of days beforehand that user is warned of upcoming password expiration */
- long sp_inact; /* Number of days after expiration that account is considered inactive and locked */
- long sp_expire; /* Date when account expires (days since 1 Jan 1970) */
- unsigned long sp_flag; /* Reserved for future use */
+	long sp_lstchg; /* Time of last password change (days since 1 Jan 1970) */
+	long sp_min; /* Min. number of days between password changes */
+	long sp_max; /* Max. number of days before change required */
+	long sp_warn; /* Number of days beforehand that user is warned of upcoming password expiration */
+	long sp_inact; /* Number of days after expiration that account is considered inactive and locked */
+	long sp_expire; /* Date when account expires (days since 1 Jan 1970) */
+	unsigned long sp_flag; /* Reserved for future use */
 };
 ```
 

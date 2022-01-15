@@ -7,7 +7,8 @@
   - 硬件发生异常
   - 用户键入了能够产生信号的终端特殊字符(Control-C or Control-D)
   - 发生了软件事件
----
+
+
 - 信号通过某些事件来产生。一旦信号被产生，会稍后被传递给进程，而进程也会做出一些动作来相应信号。在产生和到达期间，信号处于pending状态
 - 信号到达之后，进程根据信号执行如下默认操作之一
   - `ignored` 忽略信号
@@ -19,7 +20,8 @@
   - `default action` 继续采取默认行为
   - `ignored` 忽略信号
   - `signal handler` 执行信号处理器signal handler
----  
+
+ 
 - 通知kernel去调用一个`signal handler`的行为可以被称之为`installing`或者`establishing`一个signal handler
 - `signal handler`被调用之后，我们可以成为知信号已经被`handled`或`caught`
 

@@ -76,8 +76,8 @@ int clone(int (*func) (void *), void *child_stack, int flags, void *func_arg, ..
 ```
 - `clone()`是Linux的特有system call，可以用来创建process也可以用来创建thread，因此主要被来作为threading libraries的实现
 - `clone()`创建的new process和`fork()`创建的process几乎一样，都是对parent process的复制
-    - `fork()`创建的child process会从`fork()`的调用点继续执行
-    - `fork()`创建的child process会去执行`func`指定的`child function`，调用参数由`func_arg`指定
+  - `fork()`创建的child process会从`fork()`的调用点继续执行
+  - `fork()`创建的child process会去执行`func`指定的`child function`，调用参数由`func_arg`指定
 - `func`返回(`func`的返回值为process的退出状态)或者调用`exit()`或`_exit()`之后，child process就会终止.parent process可以使用`wait()`系列函数来等待child process
 - 因为`clone()`产生的child可能会共享parent的内存，因此不能使用parent的stack，`child_stack`指向child需要使用的stack，因为大多数硬件架构中，stack是向下增长的，所以`child_stack`指针应该指向内存块的高位
 - `clone()`如果成功创建child，返回值为child的id，如果创建失败则返回-1
@@ -161,12 +161,12 @@ tid = clone(...);
 - 如果设置`CLONE_CHILD_CLEARTID`，那么`clone()`会在child thread终止时将`ctid`所指向的内存清零。借助`CLONE_CHILD_CLEARTID`，`NPTL threading implementation`可获取thread终止时的通知
 
 - 通过`pthread_create()`创建一个thread时，`NPTL`会使用`clone()`，并且使得`ptid`和`ctid`都指向同一个位置的内存
-    - 由于`NPTL`使用了`CLONE_PARENT_SETTID`，因此`ptid`指向的内存位置会被写入新的thread的`tid`，并且由于`ctid`也是指向同一位置，因此通过`ctid`也可以获取到该`tid`
-    - 由于`NPTL`使用了`CLONE_CHILD_CLEARTID`，当child thread终止时，`ctid`指向的内存会被清零，因此便可由此获取到thread终止时的通知，并且对`ctid`的改变对process内的所有thread可见
+  - 由于`NPTL`使用了`CLONE_PARENT_SETTID`，因此`ptid`指向的内存位置会被写入新的thread的`tid`，并且由于`ctid`也是指向同一位置，因此通过`ctid`也可以获取到该`tid`
+  - 由于`NPTL`使用了`CLONE_CHILD_CLEARTID`，当child thread终止时，`ctid`指向的内存会被清零，因此便可由此获取到thread终止时的通知，并且对`ctid`的改变对process内的所有thread可见
   
 - kernel将`ctid`指向的位置当做`futex`，`futex`为一种有效的同步机制`futex(2)`
-    - 执行`futex()`system call会block所有正在等待`ctid`所指向位置发生变化的thread，由此便可获得thread终止时的通知，也是`pthread_join()`的实现原理
-    - kernel清除`cit`的同时，也会唤醒任意的因为执行了`futex()`而被blocked的KSE
+  - 执行`futex()`system call会block所有正在等待`ctid`所指向位置发生变化的thread，由此便可获得thread终止时的通知，也是`pthread_join()`的实现原理
+  - kernel清除`cit`的同时，也会唤醒任意的因为执行了`futex()`而被blocked的KSE
 
 #### Thread-local storage: CLONE_SETTLS
 - 如果设置`CLONE_SETTLS`，参数`tls`则会指向一个`user_desc`结构的`thread-local`存储buffer，NPTL使用此flag来支持thread-local storage的实现
@@ -203,9 +203,9 @@ tid = clone(...);
 
 ### Extensions to waitpid() for Cloned Children
 - 通过`clone()`产生的child process，可以通过`waitpid()` `wait3()` `wait4()`的掩码参数`options`附加如下值
-    - `__WCLONE` 如果设置只会等待`clone()`产生的child process，不设置则张炯会等待**非**`clone()`产生的child process
-    - `__WALL` 等待所有的child process，不区分是否通过`clone()`产生
-    - `__WNOTHREAD` 只等待calling process自己的child process，`waitpid()`不能使用此标志
+  - `__WCLONE` 如果设置只会等待`clone()`产生的child process，不设置则张炯会等待**非**`clone()`产生的child process
+  - `__WALL` 等待所有的child process，不区分是否通过`clone()`产生
+  - `__WNOTHREAD` 只等待calling process自己的child process，`waitpid()`不能使用此标志
 
 ## Speed of Process Creation
 - `fork()` process所占的内存越大，`fork()`所需的时间也就越长，因为要复制页表，以及将`data` `heap` `stack segment page entries`标记为只读

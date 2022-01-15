@@ -78,7 +78,7 @@ int fchown(int fd, uid_t owner, gid_t group);
 ## File Permissions
 
 ### Permissions on Regular Files
-`mode_t`
+- `mode_t`
 
 | Constant | Octal value | Permission bit |
 | --- | --- | --- |

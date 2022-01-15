@@ -82,7 +82,7 @@ DIR *fdopendir(int fd);
 struct dirent *readdir(DIR *dirp);
 
 struct dirent {
-    ino_t d_ino; /* File i-node number */
+	ino_t d_ino; /* File i-node number */
     char d_name[]; /* Null-terminated name of file */
 };
 ```
@@ -121,6 +121,7 @@ int nftw(const char *dirpath,
 ```
 
 ## The Current Working Directory of a Process
+
 ### Retrieving the current working directory
 ```c
 #include <unistd.h>

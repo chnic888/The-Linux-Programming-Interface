@@ -19,10 +19,10 @@ signal handler应该设计的足够简单来避免race condition的风险
 #### Use of errno inside signal handlers
 ```c
 void handler(int sig) {
- int savedErrno;
- savedErrno = errno;
- /* Now we can execute a function that might modify errno */
- errno = savedErrno;
+	int savedErrno;
+ 	savedErrno = errno;
+ 	/* Now we can execute a function that might modify errno */
+ 	errno = savedErrno;
 }
 ```
 
@@ -61,9 +61,10 @@ void abort(void);
 - SUSv3规定，无论是阻塞或是忽略SIGABRT的类型，`abort()`均不受影响
 
 ## Handling a Signal on an Alternate Stack: sigaltstack()
-在kernel调用signal handler的时候，kernel会分配一个stack frame供signal handler来执行  
-如果此时没有足够的空间来创建frame，会产生SIGSEGV信号，但是这个时候stack空间已经不足以为SIGSEGV分配一个signal handler的frame，此时SIGSEGV会执行SIG_DFL来terminated process  
-为了确保对`SIGSEGV`的signal handler的调用，这个时候需要申请一块`alternate signal stack`的内存来保证对handler的调用  
+- 在kernel调用signal handler的时候，kernel会分配一个stack frame供signal handler来执行
+- 如果此时没有足够的空间来创建frame，会产生SIGSEGV信号，但是这个时候stack空间已经不足以为SIGSEGV分配一个signal handler的frame，此时SIGSEGV会执行SIG_DFL来terminated process
+- 为了确保对`SIGSEGV`的signal handler的调用，这个时候需要申请一块`alternate signal stack`的内存来保证对handler的调用  
+
 ```c
 #include <signal.h>
 

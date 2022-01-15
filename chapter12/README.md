@@ -1,6 +1,7 @@
 # SYSTEM AND PROCESS INFORMATION
 
 ## The /proc File System
+
 ### Obtaining Information About a Process: /proc/PID
 | File | Description (process attribute) |
 | --- | --- |
@@ -28,6 +29,7 @@
 | /proc/sysvipc | Information about System V IPC objects |
 
 ### Accessing /proc Files
+
 ![12-1.png](img/12-1.png)
 
 ## System Identification: uname()

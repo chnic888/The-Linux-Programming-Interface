@@ -95,6 +95,7 @@ fd = open(pathname, O_WRONLY | O_SYNC);
 - 采用O_SYNC对性能的影响极大
 
 ## Summary of I/O Buffering
+
 ![13-1.png](img/13-1.png)
 
 ## Advising the Kernel About I/O Patterns

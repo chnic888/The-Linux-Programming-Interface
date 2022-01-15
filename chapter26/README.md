@@ -21,29 +21,29 @@ pid_t wait(int *status)
 pid_t waitpid(pid_t pid, int *status, int options);
 ```
 - `waitpid()`和`wait()`的返回值以及参数`status`含义相同，`pid`来表示需要等待的具体子进程
-    - `pid > 0` 等待的child process的`process id`等于`pid`
-    - `pid = 0` 等待的child process的`process group id`等于同parent process的`process group id`
-    - `pid < -1` 等待的child process的`process group id`等于同`abs(pid)`
-    - `pid = -1` 等待任意的child process。`wait(&status)`等同于`waitpid(–1, &status, 0)`
+  - `pid > 0` 等待的child process的`process id`等于`pid`
+  - `pid = 0` 等待的child process的`process group id`等于同parent process的`process group id`
+  - `pid < -1` 等待的child process的`process group id`等于同`abs(pid)`
+  - `pid = -1` 等待任意的child process。`wait(&status)`等同于`waitpid(–1, &status, 0)`
 - `options`是一个`bit mask`，可以包含0或者多个flags
-    - `WUNTRACED` 除了返回`terminated`的child processes信息之外，也返回因为signal而`stop`的child process的信息
-    - `WCONTINUED` 返回因为之前已经停止但是又收到`SIGCONT`而恢复执行的child process信息
-    - `WNOHANG` 如果参数pid所指定的child process并未发生状态改变，类似于`poll`会立刻返回，而且不会阻塞
+  - `WUNTRACED` 除了返回`terminated`的child processes信息之外，也返回因为signal而`stop`的child process的信息
+  - `WCONTINUED` 返回因为之前已经停止但是又收到`SIGCONT`而恢复执行的child process信息
+  - `WNOHANG` 如果参数pid所指定的child process并未发生状态改变，类似于`poll`会立刻返回，而且不会阻塞
 
 ### The Wait Status Value
 - `wait()`和`waitpid()`的返回值可以区别child process不同的event
-    - child process通过`_exit()`或`exit())`被终止并且指定了一个整数型的`exit status`
-    - child process收到了一个未处理的信号之后被终止
-    - child process被一个signal而变成停止状态，并且`waitpid()`被调用时的`options`设置为`WUNTRACED`
-    - child process收到`SIGCONT`的signal而恢复运行，并且`waitpid()`被调用时的`options`设置为`WCONTINUED`
+  - child process通过`_exit()`或`exit())`被终止并且指定了一个整数型的`exit status`
+  - child process收到了一个未处理的信号之后被终止
+  - child process被一个signal而变成停止状态，并且`waitpid()`被调用时的`options`设置为`WUNTRACED`
+  - child process收到`SIGCONT`的signal而恢复运行，并且`waitpid()`被调用时的`options`设置为`WCONTINUED`
 
 ![26-1.png](./img/26-1.png)
 
 - `<sys/wait.h>`头文件中对定了一些标准macros来对等待状态的值来进行解析，只有一个会返回`true`
-    - `WIFEXITED(status)` 如果child process正常结束时返回`true`，`WEXITSTATUS(status)`会返回child process的`exit status`
-    - `WIFSIGNALED(status)` 如果child process被一个signal杀掉时返回`true`，`WTERMSIG(status)`返回导致child process终止的signal的编号，如果产生core dump，`WCOREDUMP(status)`则返回`true`
-    - `WIFSTOPPED(status)` 如果child process被一个signal停止时返回`true`，`WSTOPSIG(status)`返回停止child process的signal的编号
-    - `WIFCONTINUED(status)` 如果child process收到`SIGCONT`signal恢复运行时返回`true`
+  - `WIFEXITED(status)` 如果child process正常结束时返回`true`，`WEXITSTATUS(status)`会返回child process的`exit status`
+  - `WIFSIGNALED(status)` 如果child process被一个signal杀掉时返回`true`，`WTERMSIG(status)`返回导致child process终止的signal的编号，如果产生core dump，`WCOREDUMP(status)`则返回`true`
+  - `WIFSTOPPED(status)` 如果child process被一个signal停止时返回`true`，`WSTOPSIG(status)`返回停止child process的signal的编号
+  - `WIFCONTINUED(status)` 如果child process收到`SIGCONT`signal恢复运行时返回`true`
 
 ### Process Termination from a Signal Handler
 - 一些signals的默认disposition会终止process，如果想在process被结束之前做一些比如cleanup的工作，则可以注册对应的signal handler在handler中处理完成之后再结束process
@@ -65,15 +65,15 @@ void handler(int sig) {
 int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options);
 ```
 - `idtype`和`id`指定了那些child process需要等待
-    - `idtype=P_ALL` 等待任何的child process，忽略`id`
-    - `idtype=P_PID` 等待pid为`id`的child process
-    - `idtype=P_PGID` 等待process group id为`id`的child process
+  - `idtype=P_ALL` 等待任何的child process，忽略`id`
+  - `idtype=P_PID` 等待pid为`id`的child process
+  - `idtype=P_PGID` 等待process group id为`id`的child process
 - `options`可以指定的的字段
-    - `WEXITED` 等待无论正常还是不正常终止的child process
-    - `WSTOPPED` 等待通过signal而停止的child process
-    - `WCONTINUED` 等待通过`SIGCONT`signal恢复运行的child process
-    - `WNOHANG` 如果pid为`id`的child process无返回信息，`waitid()`返回`0`即poll方式。如果没有pid为`id`的child process相匹配，则errno为`ECHILD`
-    - `WNOWAIT` child process会返回status但是仍然会继续处于一个可被等待的状态，也就意味着稍后可以继续使用`waitid()`来获取相同的信息
+  - `WEXITED` 等待无论正常还是不正常终止的child process
+  - `WSTOPPED` 等待通过signal而停止的child process
+  - `WCONTINUED` 等待通过`SIGCONT`signal恢复运行的child process
+  - `WNOHANG` 如果pid为`id`的child process无返回信息，`waitid()`返回`0`即poll方式。如果没有pid为`id`的child process相匹配，则errno为`ECHILD`
+  - `WNOWAIT` child process会返回status但是仍然会继续处于一个可被等待的状态，也就意味着稍后可以继续使用`waitid()`来获取相同的信息
 
 ### The wait3() and wait4() System Calls
 ```c
@@ -91,11 +91,11 @@ pid_t wait4(pid_t pid, int *status, int options, struct rusage *rusage);
 ## Orphans and Zombies
 - `orphan process` pid为`1`的`init`process会接管`orphan process`，如果一个child process的parent process被终止，可以通过`getppid()`是否为`1`来判断
 - `zombie process` parent process在执行`wait()`之前child process已经被终止，child process会被kernel转化成`zombie process`(在kernel的`process table`记录一条数据)，并会释放其大部分资源
-    - parent process仍然可以对`zombie process`调用`wait()`以确定`zombie process`是被如何终止
-    - `zombie process`并不是一个真正的`process`，因此无法通过signal杀死甚至是`SIGKILL`
-    - 如果parent process调用了`wait()`，kernel会移除`zombie process`，如果parent process在终止之前都没有调用`wait()`，`init`会接管`zombie process`并调用`wait()`来通知kernel移除`zombie process`
-    - 如果parent process无法执行`wait()`，则`zombie process`会一直驻留在kernel的`process table`当中（如果`process table`被写满则kernel无法创建新的process），直到parent process被杀死或者退出才会释放`zombie process`，因为此时`zombie proces`被`init`接管
-    - 如果parent process是一个长期存活并且创建了很多child process，parent process的需要同/异步调用`wait()`或者通过`SIGCHLD`signal来确保`dead process`被转化成为长时间存活的`zombie process`
+  - parent process仍然可以对`zombie process`调用`wait()`以确定`zombie process`是被如何终止
+  - `zombie process`并不是一个真正的`process`，因此无法通过signal杀死甚至是`SIGKILL`
+  - 如果parent process调用了`wait()`，kernel会移除`zombie process`，如果parent process在终止之前都没有调用`wait()`，`init`会接管`zombie process`并调用`wait()`来通知kernel移除`zombie process`
+  - 如果parent process无法执行`wait()`，则`zombie process`会一直驻留在kernel的`process table`当中（如果`process table`被写满则kernel无法创建新的process），直到parent process被杀死或者退出才会释放`zombie process`，因为此时`zombie proces`被`init`接管
+  - 如果parent process是一个长期存活并且创建了很多child process，parent process的需要同/异步调用`wait()`或者通过`SIGCHLD`signal来确保`dead process`被转化成为长时间存活的`zombie process`
   
 ## The SIGCHLD Signal
 

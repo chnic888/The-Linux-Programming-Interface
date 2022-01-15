@@ -1,7 +1,7 @@
 # TIME
 - `Real time`
-    - 某个标准时间点，比如calendar时间
-    - process生命周期内的某一个固定的时间点，通常为程序启动，也可以被叫做`elapsed`或`wall clock`
+  - 某个标准时间点，比如calendar时间
+  - process生命周期内的某一个固定的时间点，通常为程序启动，也可以被叫做`elapsed`或`wall clock`
   
 - `Process time` 一个process所使用的CPU时间总量
 
@@ -70,6 +70,7 @@ time_t mktime(struct tm *timeptr);
 ```
 
 ### Converting Between Broken-Down Time and Printable Form
+
 #### Converting from broken-down time to printable form
 ```c
 #include <time.h>

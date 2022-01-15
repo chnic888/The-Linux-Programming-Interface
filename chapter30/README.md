@@ -24,9 +24,9 @@ int pthread_mutex_lock(pthread_mutex_t *mutex);
 int pthread_mutex_unlock(pthread_mutex_t *mutex);
 ```
 - `pthread_mutex_lock()`参数`mutex`指定了需要锁定的mutex
-    - 如果此时的mutex处于`unlocked`状态，则会锁定mutex并且立刻返回
-    - 如果此时的mutex处于`locked`状态，也就是被另一thread锁定，则`pthread_mutex_lock()`会一直阻塞直至mutex被解锁为止
-    - 如果一个thread已经持有一个mutex的锁，并且再次调用`pthread_mutex_lock()`，则根据mutex的默认类型会有两种结果：deadlock或者调用失败并把errno设置为`EDEADLK`，Linux默认使用deadlock策略
+  - 如果此时的mutex处于`unlocked`状态，则会锁定mutex并且立刻返回
+  - 如果此时的mutex处于`locked`状态，也就是被另一thread锁定，则`pthread_mutex_lock()`会一直阻塞直至mutex被解锁为止
+  - 如果一个thread已经持有一个mutex的锁，并且再次调用`pthread_mutex_lock()`，则根据mutex的默认类型会有两种结果：deadlock或者调用失败并把errno设置为`EDEADLK`，Linux默认使用deadlock策略
 - 如果有多个thread试图锁定一个刚刚通过`pthread_mutex_unlock()`解锁的mutex，无法预测哪个thread可以获取锁
 
 #### pthread_mutex_trylock() and pthread_mutex_timedlock()
@@ -50,8 +50,8 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex);
 ![30-3.png](./img/30-3.png)
 
 - 解决deadlock可能的方案
-    - `mutex hierarchy` 定义一套`mutex`的层级关系，当多个thread对一组`mutex`操作时，应该总是以相同的顺序对这个`mutex`组进行锁定
-    - `try, and then back off` thread先使用`pthread_mutex_lock()`锁定第一个mutex，然后使用`pthread_mutex_trylock()`锁定剩余的`mutexes`，如果任意的`pthread_mutex_trylock()`调用失败，则该thread释放所有属于自己的`mutex`
+  - `mutex hierarchy` 定义一套`mutex`的层级关系，当多个thread对一组`mutex`操作时，应该总是以相同的顺序对这个`mutex`组进行锁定
+  - `try, and then back off` thread先使用`pthread_mutex_lock()`锁定第一个mutex，然后使用`pthread_mutex_trylock()`锁定剩余的`mutexes`，如果任意的`pthread_mutex_trylock()`调用失败，则该thread释放所有属于自己的`mutex`
 
 ### Dynamically Initializing a Mutex
 ```c
@@ -63,9 +63,9 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr);
 - 参数`mutex`指定了将要初始化的mutex
 - `attr`是指向`pthread_mutexattr_t`类型对象的指针，该对象在函数调用之前已经经过了初始化，用于定义`mutex`的属性
 - 如下情况下应当使用`pthread_mutex_init()`而不是使用静态分配的`mutex`
-    - 动态分配于heap中的`mutex`
-    - `mutex`是在stack中分配的自动变量
-    - 静态分配且不使用默认属性的`mutex`
+  - 动态分配于heap中的`mutex`
+  - `mutex`是在stack中分配的自动变量
+  - 静态分配且不使用默认属性的`mutex`
 
 ```c
 #include <pthread.h>
@@ -94,8 +94,8 @@ pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 ### Signaling and Waiting on Condition Variables
 - `condition variable`的主要操作是`signal`和`wait`
-    - `signal operation`发送一个signal给一个或者多个thread，通知threads某个共享变量的状态已经改变
-    - `wait operation`是指处于阻塞状态直至收到一个通知
+  - `signal operation`发送一个signal给一个或者多个thread，通知threads某个共享变量的状态已经改变
+  - `wait operation`是指处于阻塞状态直至收到一个通知
 
 ```c
 #include <pthread.h>
@@ -105,15 +105,15 @@ int pthread_cond_broadcast(pthread_cond_t *cond);
 int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 ```
 - `pthread_cond_signal()`和`pthread_cond_broadcast()`都可以根据`cond`指定的条件变量来发送signal
-    - `pthread_cond_signal()` 只保证至少一个处于blocked状态的thread会被唤醒
-    - `pthread_cond_broadcast()` 所有被blocked状态的thread会被唤醒
+  - `pthread_cond_signal()` 只保证至少一个处于blocked状态的thread会被唤醒
+  - `pthread_cond_broadcast()` 所有被blocked状态的thread会被唤醒
 - `pthread_cond_wait()`将阻塞一个thread直到收到了条件变量`cond`的通知
 - `pthread_cond_signal()`的使用场景
-    - 不需要同时唤醒所有的thread，因此`pthread_cond_signal()`更为高效
-    - 某一个thread被优先调度，此thread检查shared variable(s)状态并发现仍然有任务需完成，该thread完成了所需工作，并改变shared variable(s)表明任务完成并解锁相关的mutex
-    - 每个剩余的thread轮流锁定`mutex`并且测试`shared variable`的状态
+  - 不需要同时唤醒所有的thread，因此`pthread_cond_signal()`更为高效
+  - 某一个thread被优先调度，此thread检查shared variable(s)状态并发现仍然有任务需完成，该thread完成了所需工作，并改变shared variable(s)表明任务完成并解锁相关的mutex
+  - 每个剩余的thread轮流锁定`mutex`并且测试`shared variable`的状态
 - `pthread_cond_broadcast()`使用场景
-    - 处于等待状态的所有thread被设计成为执行不同的任务
+  - 处于等待状态的所有thread被设计成为执行不同的任务
 
 ```c
 #include <pthread.h>
@@ -123,14 +123,14 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
 
 #### Using a condition variable in the producer-consumer example
 - `pthread_cond_wait()`总是需要结合着`condition variable`和`mutex`一起使用，之后`pthread_cond_wait()`会执行如下的操作
-    - 解锁`mutex`指定的mutex，并**同时**阻塞calling thread，以等待另一thread给`cond`指向的`condition variable`发送signal
-    - 收到另一thread向`condition variable`发送的signal之后，`pthread_cond_wait()`返回并重新锁定`mutex`
+  - 解锁`mutex`指定的mutex，并**同时**阻塞calling thread，以等待另一thread给`cond`指向的`condition variable`发送signal
+  - 收到另一thread向`condition variable`发送的signal之后，`pthread_cond_wait()`返回并重新锁定`mutex`
 - `condition variable`和`mutex`之间的关系
-    - thread锁定`mutex`并准备检查`predicate`，也就是`shared variable`是否满足某种状态
-    - 检查`predicate`是否满足要求
-    - 如果`predicate`不满足要求，calling thread会先解锁`mutex`然后在`condition variable`处休眠以等待signal，这里解锁`mutex`+休眠是一个原子性的操作，也就是在calling thread在进入休眠之前，不可能有其他的thread获取`mutex`，因此也可不可能有thread发送`condition variable`的signal，calling thread休眠之后其他的thread便可以访问`shared variable`，因为`mutext`此时已经处于`unlocked`的状态
-    - 当thread因为`condition variable`被通知而被重新唤醒时，thread需要对`mutex`再次锁定，`pthread_cond_wait()`方法返回时`mutex`已经被再次锁定，通常情况下被重新唤醒的thread会立刻访问`predicate`
-    - `pthread_cond_wait()`中的`mutex`的作用并不是为了保护`condition variable`，而是为了保护被`condition variable`用来实现signal机制的`predicate`
+  - thread锁定`mutex`并准备检查`predicate`，也就是`shared variable`是否满足某种状态
+  - 检查`predicate`是否满足要求
+  - 如果`predicate`不满足要求，calling thread会先解锁`mutex`然后在`condition variable`处休眠以等待signal，这里解锁`mutex`+休眠是一个原子性的操作，也就是在calling thread在进入休眠之前，不可能有其他的thread获取`mutex`，因此也可不可能有thread发送`condition variable`的signal，calling thread休眠之后其他的thread便可以访问`shared variable`，因为`mutext`此时已经处于`unlocked`的状态
+  - 当thread因为`condition variable`被通知而被重新唤醒时，thread需要对`mutex`再次锁定，`pthread_cond_wait()`方法返回时`mutex`已经被再次锁定，通常情况下被重新唤醒的thread会立刻访问`predicate`
+  - `pthread_cond_wait()`中的`mutex`的作用并不是为了保护`condition variable`，而是为了保护被`condition variable`用来实现signal机制的`predicate`
 
 ### Testing a Condition Variable’s Predicate
 - 必须使用while循环而不是if语句来控制对`pthread_cond_wait()`的调用，因为从`pthread_cond_wait()`返回时，并不能判断`predicate`的状态，因此应该立刻检查`predicate`，并且在条件不满足时重新使得thread进入休眠，这么做的几种原因

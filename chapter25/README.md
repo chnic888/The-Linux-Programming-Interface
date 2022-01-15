@@ -17,9 +17,9 @@ void _exit(int status);
 void exit(int status);
 ```
 - 程序一般不会直接调用`_exit()`而是调用`exit()`
-    - 调用通过`atexit()`和`on_exit()`注册的`exit handlers`，执行顺序与注册顺序相反
-    - 刷新stdio流缓冲区，因为stdio的缓冲区是在process的`user-space memory`中维护的
-    - 使用由status提供的值执行`_exit()`system call
+  - 调用通过`atexit()`和`on_exit()`注册的`exit handlers`，执行顺序与注册顺序相反
+  - 刷新stdio流缓冲区，因为stdio的缓冲区是在process的`user-space memory`中维护的
+  - 使用由status提供的值执行`_exit()`system call
 
 ## Details of Process Termination
 
@@ -51,7 +51,7 @@ int on_exit(void (*func)(int, void *), void *arg);
 - 当标准输出定向到`terminal`时为默认为行缓冲`line-buffered`，当标准输出定向到`file`时默认为块缓冲`block-buffered`
 - `write()`函数会直接把数据传递给`kernel buffer`，`fork()`不会复制这个`buffer`
 - `write()` vs `printf()`
-    - `write()`会将数据立刻传给`kernel buffer`
-    - `printf()`的输出会写入stdio的buffer，这个buffer储存在`user-space memory`中，调用`exit()`会刷新stdio的buffer
+  - `write()`会将数据立刻传给`kernel buffer`
+  - `printf()`的输出会写入stdio的buffer，这个buffer储存在`user-space memory`中，调用`exit()`会刷新stdio的buffer
 - 针对stdio的buffer问题，可以在调用`fork()`之前使用`fflush()`来刷新stdio的buffer。也可以使用`setvbuf()`或`setbuf()`来关闭stdio的streaming buffer
 - child process可以调用`_exit()`而非`exit()`，以便不再刷新stdio的buffer。典型情况下仅有一个process(一般为parent process)应通过调用`exit()`来终止，其他process应该调用`_exit()`来终止，这样保证只有一个process会刷新stdio的buffer

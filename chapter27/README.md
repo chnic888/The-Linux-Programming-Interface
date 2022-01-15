@@ -34,9 +34,9 @@ int execl(const char *pathname, const char *arg, ... /* , (char *) NULL */);
 | `execl()` | pathname | list | caller’s environ |
 
 - `exec`后的单个字母代表着function提供的不同的功能
-    - `p`代表是`filename + PATH`模式，否则则为`pathname`模式
-    - `v`代表的是参数是以`array`的方式，`l`代表参数是以`list`的方式，两种方式都需要以`NULL`指针来结尾
-    - `e`代表的是环境列表以`array`的方式显式的传递，否则则会复用calling process的环境列表
+  - `p`代表是`filename + PATH`模式，否则则为`pathname`模式
+  - `v`代表的是参数是以`array`的方式，`l`代表参数是以`list`的方式，两种方式都需要以`NULL`指针来结尾
+  - `e`代表的是环境列表以`array`的方式显式的传递，否则则会复用calling process的环境列表
 
 ### The PATH Environment Variable
 - child process会在被创建时从parent process处继承一份环境变量的副本
@@ -60,8 +60,9 @@ int fexecve(int fd, char *const argv[], char *const envp[]);
 ## Interpreter Scripts
 - `interpreter` 可以阅读文本命令并且执行这些命令的程序
 - UNIX kernels运行interpreter scripts有两点要求
-    - script文件必须具有可执行权限
-    - script文件的起始行必须制定interpreter的路径名，并且有固定的格式
+  - script文件必须具有可执行权限
+  - script文件的起始行必须制定interpreter的路径名，并且有固定的格式
+
 ```shell
 #! interpreter-path [ optional-arg ]
 ```
@@ -105,16 +106,18 @@ int system(const char *command);
 - `system()`允许calling program执行任意的shell命令，`system()`会创建一个新的child process来运行shell，并且用shell来执行shell命令
 - `system()`的运行效率低下，使用`system()`运行shell命令至少要创建两个processes， 一个用于运行shell，剩余的一个或多个用来执行shell所执行的命令
 - `system()`的返回值
-    - 假如`command`为NULL，`system()`在shell可用返回非0，若不可用则返回0
-    - 如果无法创建child process或者获取其终止状态，则`system()`返回-1
-    - 如果child process无法执行shell，`system()`的返回值和shell调用`_exit(127)`终止时一样
-    - 如果所有system calls都成功，`system()`会返回shell command的终止状态，也就是最后一条命令时退出的状态，如果command被signal所杀，大多数shell返回`128+n`，n为signal number
+  - 假如`command`为NULL，`system()`在shell可用返回非0，若不可用则返回0
+  - 如果无法创建child process或者获取其终止状态，则`system()`返回-1
+  - 如果child process无法执行shell，`system()`的返回值和shell调用`_exit(127)`终止时一样
+  - 如果所有system calls都成功，`system()`会返回shell command的终止状态，也就是最后一条命令时退出的状态，如果command被signal所杀，大多数shell返回`128+n`，n为signal number
 
 ### Avoid using system() in set-user-ID and set-group-ID programs
 - `Set-user-ID`和`set-group-ID`的程序在特权模式下运行，不能使用`system()`，以免造成安全隐患
 
 ## Implementing system()
+
 ![27-2.png](./img/27-2.png)
+
 - 执行`system("sleep 20")`时会有三个processes，`calling process` `shell process`和`shell command process`
 - `SIGINT`和`SIGQUIT`在`shell command process`执行期间被`calling process`忽略
 - `SIGINT`和`SIGQUIT`在child process中，应当是已处理的signal的disposition设置成默认值，其他signal的disposition保持不变

@@ -54,6 +54,7 @@ signal可以被同步方式产生或异步方式产生。同步方式产生的si
 ### Order of delivery of multiple unblocked signals  
 - 使用`sigprocmask()`来解除对多个pending signals的block之后，这些信号会被立刻传递给process
 - 当多个unblocked signals在等待被传递时，如果在signal handler的执行过程中发kernel mode和user mode的转换，那么这个发生转换的signal handler被会接下来第二个signal的signal handler所中断
+
 ![22-1.png](img/22-1.png)
 
 ## Implementation and Portability of signal()
@@ -171,6 +172,7 @@ struct signalfd_siginfo {
     uint64_t ssi_addr; /* Address that generated signal (hardware-generated signals only) */
 };
 ```
+
 ## Interprocess Communication with Signals
 - signal异步就意味着要面对比如可重入需求、竞态竞争以及在signal handler中争取处理全局变量等问复杂问题
 - 标准的signal不是队列化的，即便是realtime signal，队列也存在数量上的限制，也就意味着会丢失信息

@@ -39,7 +39,7 @@
 
 ## The Virtual File System (VFS)
 ![14-3.png](img/14-3.png)
-- VFS提供的接口包括了对于文件目录常用的system calls。包括
+- VFS提供的接口包括了对于文件目录常用的system calls
 ```c
 open()
 read()

@@ -3,8 +3,8 @@
 ## Overview
 - application使用`inotify_init()`创建`inotify`实例，system call返回一个file descriptor来引用`inotify`的实例
 - application使用`inotify_add_watch()`来向`inotify`实例的watch list里添加item
-    - watch item = pathname + bit mask，`bit mask`是对pathname的指定的监控集合
-    - `inotify_add_watch()`会返回一个watch descriptor，供后续操作使用
+  - watch item = pathname + bit mask，`bit mask`是对pathname的指定的监控集合
+  - `inotify_add_watch()`会返回一个watch descriptor，供后续操作使用
 - application调用`inotify`实例的`read()`方法来获取通知，每次`read()`会返回一个或多个`inotify_event`结构，结构中记录了被监控的pathname上发生的一个event
 - application结束监控时会关闭`inotify`的file descriptor，并会自动移除`inotify`实例所有的watch items
 - inotify机制可用于监控文件或目录。当监控目录时，目录自身以及目录下文件的event会被通知给application
@@ -61,6 +61,7 @@ int inotify_rm_watch(int fd, uint32_t wd);
 - application调用`read()`方法从`inotify`file descriptor中获取events
 - 同步调用情况下，当没有event发生时，`read()`会被阻塞
 - 异步调用情况下(对`inotify`file descriptor设置了O_NONBLOCK状态标志)，如果没有任何event可被读取，`read()`会立即失败，并且返回EAGAIN错误码
+
 ```c
 int flags = fcntl(fd, F_GETFL, 0);
 fcntl(fd, F_SETFL, flags | O_NONBLOCK);
@@ -75,6 +76,7 @@ struct inotify_event {
     char name[]; /* Optional null-terminated filename */
 };
 ```
+
 ![19-2.png](img/19-2.png)
 
 ## Queue Limits and /proc Files
