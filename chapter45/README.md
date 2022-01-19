@@ -54,7 +54,16 @@ key_t ftok(char *pathname, int proj);
 ## Algorithm Employed by System V IPC get Calls
 
 ## The ipcs and ipcrm Commands
+- 在默认情况下`ipcs`会显示出每个对象的key，标识符，所有者以及权限
+- `ipcrm`命令删除一个IPC对象，常见的使用形式有如下的两种
+```shell
+ipcrm -X key
+ipcrm -x id
+```
 
 ## Obtaining a List of All IPC Objects
+- `/proc/sysvipc/msg` 列出所有消息队列及其属性
+- `/proc/sysvipc/sem` 列出所有信号两集及其属性
+- `/proc/sysvipc/shm` 列出所有共享内存段及其属性
 
 ## IPC Limits
