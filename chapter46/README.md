@@ -63,6 +63,10 @@ ssize_t msgrcv(int msqid, void *msgp, size_t maxmsgsz, long msgtyp, int msgflg);
 int msgctl(int msqid, int cmd, struct msqid_ds *buf);
 ```
 - `msgctl()`系统调用在标识符为`msqid`的消息队列上执行控制操作
+- `cmd`指定了在队列上的操作
+  - `IPC_RMID` 立即删除消息队列和关联的`msqid_ds`数据结构，队列中所有剩余消息都会丢失，任何被阻塞的reader和writer都会被立刻唤醒，`msgsnd()`和`msgrcv()`会失败并返回`EIDRM`错误
+  - `IPC_STAT` 将与此消息队列关联的`msqid_ds`数据结构的副本放在 buf 指向的缓冲区中。
+  - `IPC_SET` 使用`buf`指向的缓冲区中提供的值来更新与此消息队列关联的`msqid_ds`数据结构所选定的字段。
 
 ## Message Queue Associated Data Structure
 ```c
@@ -78,6 +82,7 @@ struct msqid_ds {
  	pid_t msg_lrpid; /* PID of last msgrcv() */
 };
 ```
+- 每个消息队列都有一个关联的`msqid_ds`数据结构
 
 ## Message Queue Limits
 
