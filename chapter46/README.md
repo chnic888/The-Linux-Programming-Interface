@@ -85,8 +85,27 @@ struct msqid_ds {
 - 每个消息队列都有一个关联的`msqid_ds`数据结构
 
 ## Message Queue Limits
+- `MSGMNI` 系统级别的限制，规定了系统中能创建的消息队列标识符的数量
+- `MSGMAX` 系统级别的限制，规定了单条消息中最大可写入的字节数`mtext`
+- `MSGMNB` 系统级别的限制，规定了一个消息队列中一次最多可保存的字节数`mtext`
+- `MSGTQL` 系统级别的限制，规定了系统中所有消息队列能存放消息的总数
+- `MSGPOOL` 系统级别的限制，规定了用于容纳系统上所有消息队列中数据的缓冲池的大小 
+
+| Limit  | Ceiling value (x86-32) | Corresponding file in /proc/sys/kernel |
+|--------|------------------------|----------------------------------------|
+| MSGMNI | 32768 (IPCMNI) | msgmni |
+| MSGMAX | Depends on available memory | msgmax |
+| MSGMNB | 2147483647 (INT_MAX) | msgmnb |
+
+- Linux特有的`msgctl()`IPC_INFO操作能获取一个类型为`msginfo`的结构
+```c
+struct msginfo buf;
+
+msgctl(0, IPC_INFO, (struct msqid_ds *) &buf);
+```
 
 ## Displaying All Message Queues on the System
+- Linux可以通过特有的IPC ctl操作`msgctl()` `semctl()` `shmctl()`获取系统中所有IPC对象列表
 
 ## Client-Server Programming with Message Queues
 

@@ -1,4 +1,4 @@
-#define GNU_SOURCE
+#define _GNU_SOURCE
 
 #include <errno.h>
 #include "svmsg_receive.h"
