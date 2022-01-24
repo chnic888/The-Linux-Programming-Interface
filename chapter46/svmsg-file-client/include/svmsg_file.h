@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h>
+#include <unistd.h>
 
 #define SERVER_KEY 0x1aaaaaa1
 
@@ -21,7 +23,7 @@ struct requestMsg {
     char pathname[PATH_MAX];
 };
 
-#define QEQ_MSG_SIZE (offsetof(struct requestMsg, pathname) - offsetof(struct requestMsg, clintId) + PATH_MAX)
+#define REQ_MSG_SIZE (offsetof(struct requestMsg, pathname) - offsetof(struct requestMsg, clintId) + PATH_MAX)
 
 #define RESP_MSG_SIZE 8192
 
