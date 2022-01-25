@@ -112,3 +112,6 @@ msgctl(0, IPC_INFO, (struct msqid_ds *) &buf);
 ## A File-Server Application Using Message Queues
 
 ## Disadvantages of System V Message Queues
+- Unix系统为统一系统上的不同进程提供了多种机制
+  - `undelimited byte stream` 无分隔符的字节流形式`pipes` `FIFOs` `UNIX domain stream sockets`
+  - `delimited messages` 可分割的消息形式`System V message queues` `POSIX message queues` 和 `UNIX domain datagram sockets`
