@@ -14,7 +14,7 @@ int msgget(key_t key, int msgflg);
 - `msgget()`system call创建一个新的消息队列或者取得一个已存在的队列的标识符
 - `msgflg`参数是一个bit mask，用来指定放置在新的消息队列或者检查既有消息队列的权限
   - `IPC_CREAT` 如果没有与指定`key`相对应的消息队列，则会创建一个新的消息队列
-  - `IPC_EXCL` 如果人同时指定了`IPC_CREAT`和`IPC_EXCL`，如果于指定`key`相应的队列已经存在，那么会调用失败并返回`EEXIST`错误
+  - `IPC_EXCL` 如果同时指定了`IPC_CREAT`和`IPC_EXCL`，如果对于指定`key`相应的队列已经存在，那么会调用失败并返回`EEXIST`错误
 
 ## Exchanging Messages
 - `msgsnd()`和`msgrcv()`系统调用执行消息队列上的I/O，两个系统调用的第一参数`msqid`是消息队列的标识符，第二个参数`msgp`为程序自定义的结构，用来存放发送和接收的消息，通常为

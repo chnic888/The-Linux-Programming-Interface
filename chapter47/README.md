@@ -25,6 +25,11 @@
 
 int semget(key_t key, int nsems, int semflg);
 ```
+- `semget()` 系统调用创建一个新的信号量或者获取一个已存在信号量集合的标识符
+- `nsems`参数在创建信号量场景下，会指定集合中信号量的个数，其值必须大于0; 在获取信号量场景下，其值必须小于等于集合数量的大小，无法修改一个已存在信号量的数量
+- `semflg`是一个bit mask，用来指定新创建的信号量或者检查既有信号量的权限
+  - `IPC_CREAT` 如果没有与指定`key`相对应的信号量集合，则会创建一个新的信号量集合
+  - `IPC_EXCL` 如果同时指定了`IPC_CREAT`和`IPC_EXCL`，如果对于指定`key`相应的信号量集合已经存在，那么会调用失败并返回`EEXIST`错误
 
 ## Semaphore Control Operations
 ```c
@@ -33,6 +38,7 @@ int semget(key_t key, int nsems, int semflg);
 
 int semctl(int semid, int semnum, int cmd, ... /* union semun arg */);
 ```
+- `semctl()`系统调用在一个信号量集合或者集合中单个信号量上执行操作
 
 ## Semaphore Associated Data Structure
 ```c
