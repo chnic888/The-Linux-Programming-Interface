@@ -17,7 +17,7 @@
 - 使用System V的信号量的通常步骤如下
 	- 使用`semget()`创建或者打开一个信号量集
 	- 使用`semctl()`的`SETVAL`或`SETALL`操作初始化集合中的信号量，这个操作应该只有一个process来操作
-	- 使用`semop()`操作信号量的值，process通常会使用信号量来获取或者脂肪一种共享资源
+	- 使用`semop()`操作信号量的值，process通常会使用信号量来获取或者释放一种共享资源
 	- 当所有process都不需要信号量集之后，使用`semctl()`的`IPC_RMID`操作来删除这个集合
 
 ## Creating or Opening a Semaphore Set
@@ -81,22 +81,54 @@ struct semid_ds {
 
 ## Semaphore Initialization
 
+- SUSv3要求，无需为由`semget()`创建出的信号量集合的值提供初始化的实现，必须使用`semctl()`系统调用来显示的初始化信号量
+
 ## Semaphore Operations
 
 ```c
 #include <sys/types.h> /* For portability */
 #include <sys/sem.h>
 
-int semop(int semid, struct sembuf *sops, unsigned int nsops);
+int semop(int semid, struct sembuf *sops, size_t nsops);
 ```
+
+- `semop()`系统调用在`semid`标识的信号量集合中的信号量上执行一个或者多个操作
+- `sops`参数是一个指向数组的指针，数组中包含了需要执行的操作
+- `nsops`参数给出了数组的大小，数组至少要包含一个元素
+
+```c
+struct sembuf {
+	unsigned short sem_num; 	/* Semaphore number */	
+    short sem_op; 				/* Operation to be performed */
+    short sem_flg; 				/* Operation flags (IPC_NOWAIT and SEM_UNDO) */
+};
+```
+
+- `sem_num`字段标识出了在信号量集合中需要在哪个信号量上执行操作
+- `sem_op`字段指定了需要执行的操作
+	- 如果`sem_op`大于0，那么就将`sem_op`的值加到信号量的值上，其他等待减少信号量值的process可能会被唤醒并执行他们的操作
+	- 如果`sem_op`等于0，那么就会对信号量的值检查以确定当前是否等于0，如果等于0,`semop()`会立即结束，否则`semop()`会一直阻塞直到他检查的信号量变为0为止
+	- 如果`sem_op`小于0，那么就将信号量的值减去`sem_op`的绝对值，如果信号量的值大于等于`sem_op`的绝对值，`semop()`会立刻结束，否则`semop()`会一直阻塞直到执行直到操作不会导致出现负值的情况为止
+
+- `semop()`调用阻塞时，process会保持阻塞直到发生了下面的情况为止
+	- 另一个process修改了信号量的值，使得之前被阻塞待执行的操作能够继续
+	- 一个signal中断了`semop()`调用，此时会返回`EINTR`错误
+	- 另一个process删除了`semid`引用的信号量，此时会返回`EIDRM`错误
+
+- 为`sem_flg`字段指定`IPC_NOWAIT`标识符，可以防止`semop()`调用阻塞
+- `semop()`也可以在集合中的多个信号量上执行操作，且这组操作是原子性的，即`semop()`要么执行所有操作，要么阻塞直到能够同时执行所有操作为止
 
 ```c
 #define _GNU_SOURCE
 #include <sys/types.h> /* For portability */
 #include <sys/sem.h>
 
-int semtimedop(int semid, struct sembuf *sops, unsigned int nsops, struct timespec *timeout);
+int semtimedop(int semid, struct sembuf *sops, size_t nsops, struct timespec *timeout);
 ```
+
+- `semtimedop()`系统调用和`semop()`一样，但多了一个`timeout`参数来制定调用所阻塞时间的上限
+- `timeout`参数是一个指向`timespec`结构的指针，可以将时间表示为秒数和纳秒数，如果阻塞超时，`semtimedop()`会返回`EAGAIN`错误
+- 如果指定`timeout`为NULL，那么`semtimedop()`和`semop()`则完全一致
 
 ## Handling of Multiple Blocked Semaphore Operations
 
