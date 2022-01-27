@@ -1,9 +1,11 @@
 # USERS AND GROUPS
 
 ## The Password File: /etc/passwd
+
 ```shell script
 mtk:x:1000:100:Michael Kerrisk:/home/mtk:/bin/bash
 ```
+
 - Login name
 - Encrypted password
 - User ID (UID)
@@ -15,17 +17,21 @@ mtk:x:1000:100:Michael Kerrisk:/home/mtk:/bin/bash
 ## The Shadow Password File: /etc/shadow
 
 ## The Group File: /etc/group
+
 ```shell script
 users:x:100:
 jambit:x:106:claus,felli,frank,harti,markus,martin,mtk,paul
 ```
+
 - Group name
 - Encrypted password
 - Group ID (GID)
 - User list
 
 ## Retrieving User and Group Information
+
 /etc/passwd
+
 ```c
 #include <pwd.h>
 
@@ -44,6 +50,7 @@ struct passwd {
 ```
 
 /etc/group
+
 ```c
 #include <grp.h>
 
@@ -59,6 +66,7 @@ struct group {
 ```
 
 顺序扫描/etc/passwd
+
  ```c
 #include <pwd.h>
 
@@ -69,6 +77,7 @@ void endpwent(void);
 ```
 
 顺序扫描/etc/shadow
+
 ```c
 #include <shadow.h>
 struct spwd *getspnam(const char *name);
@@ -96,12 +105,14 @@ struct spwd {
 ```
 
 ## Password Encryption and User Authentication
+
 ```c
 #define _XOPEN_SOURCE
 #include <unistd.h>
 
 char *crypt(const char *key, const char *salt);
 ```
+
 - `crypt()` key最多支持8个字符的秘钥，salt为两个为两个字符的盐值，返回值为一个13字符串指针，字符串为静态分配而成，内容是经过处理的密码
 - `crypt()` 返回的字符串，头两个字符串是salt值的一个拷贝，也就是说可以从已经加密过后的密码获取salt(/etc/shadow)
 
