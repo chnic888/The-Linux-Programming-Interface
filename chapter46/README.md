@@ -97,6 +97,7 @@ struct msqid_ds {
 ```
 
 - 每个消息队列都有一个关联的`msqid_ds`数据结构
+- `msqid_ds`结构的字段由各种消息队列系统调用隐式更新，特定字段可以使用`msgctl()`的`IPC_SET`操作显式更新
 
 ## Message Queue Limits
 

@@ -69,12 +69,15 @@ int semctl(int semid, int semnum, int cmd, ... /* union semun arg */);
 
 ```c
 struct semid_ds {   
-    struct ipc_perm sem_perm; /* Ownership and permissions */   
-    time_t sem_otime; /* Time of last semop() */
-    time_t sem_ctime; /* Time of last change */
-    unsigned long sem_nsems; /* Number of semaphores in set */
+    struct ipc_perm sem_perm; 	/* Ownership and permissions */   
+    time_t sem_otime; 			/* Time of last semop() */
+    time_t sem_ctime;			/* Time of last change */
+    unsigned long sem_nsems; 	/* Number of semaphores in set */
 };
 ```
+
+- 每一个信号量都有一个关联`semid_ds`数据结构
+- `semid_ds`结构的字段由各种信号量系统调用隐式更新，使用`semctl()`的`IPC_SET`操作显式更新`sem_perm`中的特定字段
 
 ## Semaphore Initialization
 
