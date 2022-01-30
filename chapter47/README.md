@@ -45,6 +45,9 @@ int semctl(int semid, int semnum, int cmd, ... /* union semun arg */);
 ```
 
 - `semctl()`系统调用在一个信号量集合或者集合中单个信号量上执行操作
+- `semid` 参数是需要操作的信号量集的标识符
+- `semnum` 参数标识出了信号量集中的具体的信号量，对于其他操作，可以忽略这个参数并且将其设置为0
+- `cmd` 参数指定了可以执行的操作
 
 ### Generic control operations
 
