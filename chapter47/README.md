@@ -146,10 +146,38 @@ int semtimedop(int semid, struct sembuf *sops, size_t nsops, struct timespec *ti
 ## Implementing a Binary Semaphores Protocol
 
 - 一个二元信号量有两个值`available(free)`和`reserved(in use)`，且有两个操作
-  - `Reserve` 尝试将保留这个信号量来独占使用，如果该信号量已经被另一个process保留，则会阻塞直到该信号量被释放
-  - `Release` 释放一个当前保留的信号量，这样另外一个process就可以预留这个信号量
-  - `Reserve conditionally` 尝试用非阻塞的方式保留这个信号量来独占使用，如果该信号量已经被另一个process保留，则会阻塞直到该信号量被释放
+	- `Reserve` 尝试将保留这个信号量来独占使用，如果该信号量已经被另一个process保留，则会阻塞直到该信号量被释放
+	- `Release` 释放一个当前保留的信号量，这样另外一个process就可以预留这个信号量
+	- `Reserve conditionally` 尝试用非阻塞的方式保留这个信号量来独占使用，如果该信号量已经被另一个process保留，则会阻塞直到该信号量被释放
 
 ## Semaphore Limits
 
+- `SEMAEM` `semadj`总和中能够记录的最大值
+- `SEMMNI` 系统级别限制，限制了所能创建信号量标识符的数量，也就是信号量集合的数量
+- `SEMMSL` 限制信号量集合中能分配信号量的最大数量
+- `SEMMNS` 系统级别限制，限制了所有信号量集合中信号量的数量
+- `SEMOPM` 限制每个`semop()`调用能够执行最大操作数量
+- `SEMVMX` 限制了一个信号量的最大值
+- `SEMMNU` 系统级别限制，限制了信号量撤销结构的总数量
+- `SEMUME` 每个信号量撤消结构的最大撤消条目数
+
+```shell
+cd /proc/sys/kernel
+cat sem
+```
+
+- `sem`文件包含了四个用空格分割的数字，按照顺序定义了`SEMMSL` `SEMMNS` `SEMOPM` `SEMMNI`
+
+- Linux特有的`semctl()` `IPC_INFO`操作返回一个`seminfo`类型的结构，包含了各种信号量的限制的值
+
+```c
+union semun arg;
+struct seminfo buf;
+
+arg.__buf = &buf;
+semctl(0, 0, IPC_INFO, arg);
+```
+
 ## Disadvantages of System V Semaphores
+
+- 信号量的一个替代方案是记录锁
