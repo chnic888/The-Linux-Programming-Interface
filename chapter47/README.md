@@ -135,9 +135,20 @@ int semtimedop(int semid, struct sembuf *sops, size_t nsops, struct timespec *ti
 
 ## Handling of Multiple Blocked Semaphore Operations
 
+- 如果多个process因为对一个信号量减去相同的值时而被阻塞，那么当条件允许时到底哪个process会被首先执行是不确定的
+- 如果多个process因为对一个信号量减去不同的值时而被阻塞，那么会按照先满足条件的process顺序来执行
+
 ## Semaphore Undo Values
 
+- 假设一个process调整完一个信号量值之后有意还是被意外终止，默认情况下，信号量的值将不会发生变化
+- 通过`semop()`修改一个信号量值时，可以使用`SEM_UNDO`标记，kernel会记录信号量操作的结果，然后在process终止时候撤销这个操作，不管process是正常还是非正常终止，撤销操作都会发生
+
 ## Implementing a Binary Semaphores Protocol
+
+- 一个二元信号量有两个值`available(free)`和`reserved(in use)`，且有两个操作
+  - `Reserve` 尝试将保留这个信号量来独占使用，如果该信号量已经被另一个process保留，则会阻塞直到该信号量被释放
+  - `Release` 释放一个当前保留的信号量，这样另外一个process就可以预留这个信号量
+  - `Reserve conditionally` 尝试用非阻塞的方式保留这个信号量来独占使用，如果该信号量已经被另一个process保留，则会阻塞直到该信号量被释放
 
 ## Semaphore Limits
 

@@ -1,6 +1,4 @@
 #include "svsem_op.h"
-#include <sys/types.h>
-#include <sys/sem.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +13,7 @@ static void usageError(const char *progName) {
     fprintf(stderr, "Usage: %s semid op[,op...]...\n\n", progName);
     fprintf(stderr, "'op' is either: <sem#>{+|-}<value>[n][u]\n");
     fprintf(stderr, "            or: <sem#>=0[n]\n");
-    fprintf(stderr, "       \"u\" means include IPC_NOWAIT in 'op'\n");
+    fprintf(stderr, "       \"n\" means include IPC_NOWAIT in 'op'\n");
     fprintf(stderr, "       \"u\" means include SEM_UNDO in 'op'\n");
     fprintf(stderr, "The operations in each argument are performed in a single semop() call\n\n");
     fprintf(stderr, "e.g.: %s 12345 0+1,1-2un\n", progName);
@@ -108,7 +106,7 @@ int svsemOp(int argc, char *argv[]) {
 
         semid = (int) strtol(argv[1], &endPtr, 10);
         if (semop(semid, sops, nsops) == -1) {
-            fprintf(stderr, "semop (PID=%ld)", (long) getpid());
+            fprintf(stderr, "semop (PID=%ld)，%d\n", (long) getpid(), errno);
             return (EXIT_FAILURE);
         }
 
