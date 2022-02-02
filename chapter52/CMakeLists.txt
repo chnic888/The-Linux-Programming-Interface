@@ -1,0 +1,1 @@
+project(POSIX-MESSAGE-QUEUES C)

@@ -1,0 +1,1 @@
+project(POSIX-SHARED-MEMORY C)

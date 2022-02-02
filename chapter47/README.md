@@ -163,6 +163,7 @@ int semtimedop(int semid, struct sembuf *sops, size_t nsops, struct timespec *ti
 
 ```shell
 cd /proc/sys/kernel
+
 cat sem
 ```
 

@@ -107,13 +107,15 @@ struct msqid_ds {
 - `MSGTQL` 系统级别的限制，规定了系统中所有消息队列能存放消息的总数
 - `MSGPOOL` 系统级别的限制，规定了用于容纳系统上所有消息队列中数据的缓冲池的大小
 
-| Limit  | Ceiling value (x86-32)      | Corresponding file in /proc/sys/kernel |
-|--------|-----------------------------|----------------------------------------|
-| MSGMNI | 32768 (IPCMNI)              | msgmni                                 |
-| MSGMAX | Depends on available memory | msgmax                                 |
-| MSGMNB | 2147483647 (INT_MAX)        | msgmnb                                 |
+```shell
+cd /proc/sys/kernel
 
-- Linux特有的`msgctl()`IPC_INFO操作能获取一个类型为`msginfo`的结构
+cat msgmni
+cat msgmax
+cat msgmnb
+```
+
+- Linux特有的`msgctl()` `IPC_INFO`操作能获取一个类型为`msginfo`的结构，包含了各种消息队列的限制的值
 
 ```c
 struct msginfo buf;

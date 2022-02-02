@@ -1,5 +1,5 @@
 # SYSTEM V SHARED MEMORY
-- System V IPC
+
 ## Overview
 
 ## Creating or Opening a Shared Memory Segment
