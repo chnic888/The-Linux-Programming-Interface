@@ -1,4 +1,4 @@
-#include "binary-sems.h"
+#include "binary_sems.h"
 #include "semun.h"
 
 bool bsUseSemUndo = false;
