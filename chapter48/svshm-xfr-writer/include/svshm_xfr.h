@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #define SHM_KEY 0X1234
 #define SEM_KEY 0X5678

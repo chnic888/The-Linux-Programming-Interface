@@ -73,6 +73,8 @@ int shmdt(const void *shmaddr);
 
 ## Example: Transferring Data via Shared Memory
 
+![48-1.png](./img/48-1.png)
+
 ## Location of Shared Memory in Virtual Memory
 
 ## Storing Pointers in Shared Memory
