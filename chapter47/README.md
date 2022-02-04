@@ -83,7 +83,7 @@ struct semid_ds {
 ```
 
 - 每一个信号量都有一个关联`semid_ds`数据结构
-- `semid_ds`结构的字段由各种信号量系统调用隐式更新，使用`semctl()`的`IPC_SET`操作显式更新`sem_perm`中的特定字段
+- `semid_ds`结构的字段由各种信号量系统调用隐式更新，使用`semctl()`的`IPC_SET`操作显式更新`sem_perm`字段中的特定字段
 
 ## Semaphore Initialization
 

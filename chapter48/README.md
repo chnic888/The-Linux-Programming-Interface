@@ -77,7 +77,22 @@ int shmdt(const void *shmaddr);
 
 ## Location of Shared Memory in Virtual Memory
 
+![48-2.png](./img/48-2.png)
+
+- 如果使用推荐方法`shmat(shmid, NULL, 0)`，允许kernel在任意处附加共享内存segment，segment就会被分配到向上增长的堆和向下增长的栈之间未被分配的空间中
+- 为了给堆和栈的增长预留空间，附加共享内存segment的虚拟地址从`0x40000000`开始，同时内存映射和共享库也是被分配在这个区域中的
+- 通过Linux特有的`/proc/PID/maps`文件可以看到一个process映射的共享内存segment和共享库的位置
+
 ## Storing Pointers in Shared Memory
+
+- 如果我们使用推荐做法附加segment，则该segment可能会附加到每个进程中的不同地址中。因此segment中存储指向segment内其他地址的引用时，应该使用（相对）偏移量，而不是（绝对）指针。
+
+![48-3.png](./img/48-3.png)
+
+```c
+*p = (target - baseaddr); 	/* Place offset in *p */
+target = baseaddr + *p; 	/* Interpret offset */
+```
 
 ## Shared Memory Control Operations
 
@@ -87,6 +102,21 @@ int shmdt(const void *shmaddr);
 
 int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 ```
+
+- `shmctl()`系统调用在`shmid`标识的共享内存segment上执行一系列控制操作
+- `cmd` 参数指定了会被执行的操作
+- `buf` 参数在执行`IPC_STAT`和`IPC_SET`操作时是被需要的，且对于其他操作应该被指定为`NULL`
+
+### Generic control operations
+
+- `IPC_RMID` 
+- `IPC_STAT`
+- `IPC_SET`
+
+### Locking and unlocking shared memory
+
+- `SHM_LOCK`
+- `SHM_UNLOCK`
 
 ## Shared Memory Associated Data Structure
 
@@ -102,6 +132,9 @@ struct shmid_ds {
     shmatt_t shm_nattch; 		/* Number of currently attached processes */
 };
 ```
+
+- 每一个共享内存segment都有一个关联`shmid_ds`数据结构
+- `shmid_ds`结构的字段由各种共享内存segment系统调用隐式更新，使用`shmctl()`的`IPC_SET`操作显式更新`shm_perm`字段中的特定字段
 
 ## Shared Memory Limits
 
