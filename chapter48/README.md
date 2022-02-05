@@ -109,14 +109,16 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
 ### Generic control operations
 
-- `IPC_RMID` 
-- `IPC_STAT`
-- `IPC_SET`
+- `IPC_RMID` 标记共享内存段及其关联的`shmid_ds`数据结构用于删除
+	- 如果当前没有process附加该segment，则立刻删除该segment
+	- 如果当前有process附加该segment，则在所有process分离该segment之后将其删除，也就是`shm_nattch.shmid_ds`等于`0`时
+- `IPC_STAT` 将这个共享内存segment关联的`shmid_ds`数据结构的拷贝到`buf`指向的缓冲区中
+- `IPC_SET` 使用`buf`指向的缓冲区中的值更新与此共享内存segment关联的`shmid_ds`数据结构的选定的字段
 
 ### Locking and unlocking shared memory
 
-- `SHM_LOCK`
-- `SHM_UNLOCK`
+- `SHM_LOCK` 将一个共享内存segment锁进内存
+- `SHM_UNLOCK` 解锁一个共享内存segment，以便允许他可以被交换出去
 
 ## Shared Memory Associated Data Structure
 
@@ -138,11 +140,11 @@ struct shmid_ds {
 
 ## Shared Memory Limits
 
-- `SHMMNI`
-- `SHMMIN`
-- `SHMMAX`
-- `SHMALL`
-- `SHMSEG`
+- `SHMMNI` 系统级别限制，限制了所能创建共享内存标识符识符的数量，也就是共享内存segment的数量
+- `SHMMIN` 限制了共享内存segment的最小字节数大小，这个限制被定义为了`1`且无法修改，但实际的限制是系统页的大小
+- `SHMMAX` 限制了共享内存segment的最大字节数大小，实际上线以来与可用的RAM和SWAP空间
+- `SHMALL` 系统级别限制，限制了共享内存中的页的总数量，实际值也依赖于可用的RAM和SWAP空间
+- `SHMSEG` process级别限制，限制了可以附加的共享内存segment的数量
 
 ```shell
 cd /proc/sys/kernel
@@ -150,8 +152,11 @@ cd /proc/sys/kernel
 cat shmmni
 ```
 
+
 ```c
 struct shminfo buf;
 
 shmctl(0, IPC_INFO, (struct shmid_ds *) &buf);
 ```
+
+- Linux特有的`shmctl()` `IPC_INFO`操作返回一个`shminfo`类型的结构，包含了各种共享内存限制的值

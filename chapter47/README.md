@@ -172,8 +172,6 @@ cat sem
 
 - `sem`文件包含了四个用空格分割的数字，按照顺序定义了`SEMMSL` `SEMMNS` `SEMOPM` `SEMMNI`
 
-- Linux特有的`semctl()` `IPC_INFO`操作返回一个`seminfo`类型的结构，包含了各种信号量的限制的值
-
 ```c
 union semun arg;
 struct seminfo buf;
@@ -181,6 +179,8 @@ struct seminfo buf;
 arg.__buf = &buf;
 semctl(0, 0, IPC_INFO, arg);
 ```
+
+- Linux特有的`semctl()` `IPC_INFO`操作返回一个`seminfo`类型的结构，包含了各种信号量的限制的值
 
 ## Disadvantages of System V Semaphores
 
