@@ -80,8 +80,14 @@ int munmap(void *addr, size_t length);
 ## File Mappings
 
 - 创建一个`file mapping`需要执行下面的步骤
-	- 获取一个文件描述符，通常通过`open()`syscall来完成
-	- 将文件描符作为fd参数传入`mmap()`syscall
+    - 获取一个文件描述符，通常通过`open()`syscall来完成
+    - 将文件描符作为fd参数传入`mmap()`syscall
+- `mmap()`会将打开的文件的内容mapping到calling process的地址空间中，一旦`mmap()`被调用，就可以关闭fd且不会影响mapping
+
+![49-1.png](./img/49-1.png)
+
+- `offset`参数指定了从文件区域的mapping的起始字节，并且必须是系统页大小的倍数，指定为`0`将会从文件起始位置开始mapping
+- `length`参数指定了需要mapping的字节数，他和`offsite`一起确定了文件的哪个区域会被mapping进内存
 
 ### Private File Mappings
 
