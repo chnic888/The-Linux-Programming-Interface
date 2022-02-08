@@ -60,7 +60,7 @@ void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 
 ### Alignment restrictions specified in standards for offset and addr
 
-- SUSv3规定`mmap()`的`offset`参数必须是页面对齐的，如果指定了`MAP_FIXED`，则`addr`参数也必须是页面对齐的。
+- SUSv3规定`mmap()`的`offset`参数必须是页面对齐的，如果指定了`MAP_FIXED`，则`addr`参数也必须是页面对齐的
 
 ## Unmapping a Mapped Region: munmap()
 
@@ -80,8 +80,8 @@ int munmap(void *addr, size_t length);
 ## File Mappings
 
 - 创建一个`file mapping`需要执行下面的步骤
-    - 获取一个文件描述符，通常通过`open()`syscall来完成
-    - 将文件描符作为fd参数传入`mmap()`syscall
+	- 获取一个文件描述符，通常通过`open()`syscall来完成
+	- 将文件描符作为fd参数传入`mmap()`syscall
 - `mmap()`会将打开的文件的内容mapping到calling process的地址空间中，一旦`mmap()`被调用，就可以关闭fd且不会影响mapping
 
 ![49-1.png](./img/49-1.png)
@@ -91,7 +91,34 @@ int munmap(void *addr, size_t length);
 
 ### Private File Mappings
 
+- `private file mapping`有如下最常用的两个用途
+	- 允许多个process执行同一个程序或使用同一个共享库来共享相同的只读text segment，该text segment是从底层可执行文件或库文件的相应部分映射的
+	- mapping一个可执行文件或共享库的初始化数据segment，使得mapping对segment内容的变更不会发生在底层文件上
+
 ### Shared File Mappings
+
+- 多个process创建了同一个文件区域的`shared file mappings`时，他们会共享相同的内存物理页，对mapping的内容的变更将会反映到文件上
+
+![49-2.png](./img/49-2.png)
+
+#### Memory-mapped I/O
+
+- 由于`share file mapping`的内容是从文件中初始化的，并且对mapping内容的任何修改都会自动传递到文件中，可以通过访问内存字节来执行文件I/O，依靠kernel来确保对内存的更改传播到文件
+	- 通过将`read()`和`write()`syscall替换为内存访问，可以简化一些应用程序的逻辑
+	- 在某些情况下，它比传统I/O syscall操作的文件提供更好的性能
+
+- `memory-mapped I/O`带来的性能优势
+	- 正常的`read()`或`write()`涉及两次传输，一次在`file`和`kernel buffer cache`之间传输，另一次在`buffer cache`和`user-space buffer`
+	  之间传输，使用`mmap()`就无需第二次传输。
+		- 对于输入来说，一旦kernel将相应的文件块mapping到内存中，user process就可以使用这些数据
+		- 对于输出来说，user process只需要修改内存中的内容，然后可以依靠kernel内存管理器自动更新底层文件
+	- `mmap()`还可以通过降低内存要求来提高性能，当使用`read()`或`write()`时，数据保存在两个buffer中：一个在user space，另一个在kernel space。当使用`mmap()`时，kernel
+	  space和user space之间共享一个buffer。此外，如果多个process对同一个文件执行I/O，那么使用`mmap()`，它们都可以共享同一个`kernel buffer`，从而节省额外的内存
+
+#### IPC using a shared file mapping
+
+- 由于具有相同文件区域的`shared mapping`的所有process共享相同的内存物理页，因此`share file mapping`也可以作为一种快速IPC的方法
+- `share file mapping`和System V的共享内存对象之间的区别在于区域中内容上的变更会反映到底层的mapping文件上
 
 ### Boundary Cases
 
