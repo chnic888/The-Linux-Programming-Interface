@@ -122,9 +122,23 @@ int munmap(void *addr, size_t length);
 
 ### Boundary Cases
 
+![49-3.png](./img/49-3.png)
+
+- 如果mapping完全落在文件的范围内，但区域的大小不是系统页面大小的倍数，由于mapping的大小不是系统页面大小的倍数，因此必须向上舍入到系统页面大小的下一个倍数
+
+![49-4.png](./img/49-4.png)
+
+- 如果mapping超过文件的末尾时，由于mapping的大小不是系统页面大小的倍数，因此会被向上舍入到系统页面大小的下一个倍数，虽然向上舍入的区域是可访问的，但是他们不会被mapping到底层文件上，并且会被初始化为0
+
 ### Memory Protection and File Access Mode Interactions
 
+- `mmap()`的`prot`参数用来指定内存保护与mapping文件被打开的模式之间的交互
+	- `PROT_READ`和`PROT_EXEC`保护要求mapping的文件使用`O_RDONLY`或`O_RDWR`打开
+	- `PROT_WRITE`保护要求mapping的文件使用`O_WRONLY`或`O_RDWR`打开
+
 ## Synchronizing a Mapped Region: msync()
+
+- kernel自动将`MAP_SHARED` mapping内容的修改传递到底层文件，但在默认情况下，kernel不会保证何时会发生这种同步
 
 ```c
 #include <sys/mman.h>
@@ -132,9 +146,56 @@ int munmap(void *addr, size_t length);
 int msync(void *addr, size_t length, int flags);
 ```
 
+- `msync()`syscall可以显示的控制合适完成一个share mapping与映射文件之间的同步，调用`msync()`还允许应用程序确保在可写mapping的更新对在该文件上执行`read()`的其他process可见。
+- `addr`参数指定了需要同步的内存区域的起始地址，`addr`指定的地址必须是页对其的
+- `length`参数指定了需要同步的内存区域的大小，`addr`会被向上舍入到系统页大小的下一个整数倍
+- `flags`参数包括了下面值中的一个
+	- `MS_SYNC` 执行一个同步的文件写入，内存区域会与磁盘同步，且这个调用会阻塞到内存区域中所有被修改过的page被写入到从磁盘为止
+	- `MS_ASYNC` 执行一个异步文件写入，内存区域中被修改过的page会与`kernel buffer cache`同步，并在后面的某个时刻被写入到磁盘，其他process在相应文件区域执行`read()`操作对改变立即可见
+	- `MS_INVALIDATE` 这是一个可以附加的参数，使映射数据的缓存副本无效，无效的的page会在下一次引用时从文件的相应位置重新复制内容，使得其他process对于文件作出的所有修改会在内存区域里可见
+
 ## Additional mmap() Flags
 
+- 除了`MAP_PRIVATE`和`MAP_SHARED`之外，Linux还允许`mmap()`的`flags`参数通过取OR的方式包含其他值
+
+| Value             | Description                                                                                                             | SUSv3 |
+|-------------------|-------------------------------------------------------------------------------------------------------------------------|-------|
+| MAP_ANONYMOUS     | Create an anonymous mapping                                                                                             |   •   |
+| MAP_FIXED         | Interpret addr argument exactly (Section 49.10)                                                                         |       |
+| MAP_LOCKED        | Lock mapped pages into memory (since Linux 2.6)                                                                         |       |
+| MAP_HUGETLB       | Create a mapping that uses huge pages (since Linux 2.6.32)                                                              |       |
+| MAP_NORESERVE     | Control reservation of swap space (Section 49.9)                                                                        |       |
+| MAP_PRIVATE       | Modifications to mapped data are private                                                                                |   •   |
+| MAP_POPULATE      | Populate the pages of a mapping (since Linux 2.6)                                                                       |       |
+| MAP_SHARED        | Modifications to mapped data are visible to other processes and propagated to underlying file (converse of MAP_PRIVATE) |   •   |
+| MAP_UNINITIALIZED | Don’t clear an anonymous mapping (since Linux 2.6.33)                                                                   |       |
+
 ## Anonymous Mappings
+
+### MAP_ANONYMOUS and /dev/zero
+
+- 在`Linux`上，有两种不同的等效方法可以使用`mmap()`创建`anonymous mapping`
+	- 把`flags`设置为`MAP_ANONYMOUS`并且把`fd`设置为`-1`
+	- 打开`/dev/zero`设备文件并将返回的file descriptor传递给`mmap()`
+
+### MAP_PRIVATE anonymous mappings
+
+```c
+fd = open("/dev/zero", O_RDWR);
+if (fd == -1)
+    errExit("open");
+addr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+if (addr == MAP_FAILED)
+    errExit("mmap");
+```
+
+### MAP_SHARED anonymous mappings
+
+```c
+addr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+if (addr == MAP_FAILED)
+    errExit("mmap");
+```
 
 ## Remapping a Mapped Region: mremap()
 
