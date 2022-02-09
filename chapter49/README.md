@@ -206,9 +206,40 @@ if (addr == MAP_FAILED)
 void *mremap(void *old_address, size_t old_size, size_t new_size, int flags, ...);
 ```
 
+- `mremap()` Linux下提供的特有的syscall来修改mapping的位置和大小，调用成功时候会返回mapping的起始地址
+- `old_address` 参数指定了需要扩展或缩小的现有mapping的位置，指定的地址必须是页对齐的，并且通常是之前`mmap()`调用的返回值
+- `old_size` 参数指定了需要扩展或缩小的现有mapping的大小，会向上舍入到系统页大小的下一个整数倍数
+- `new_size` 参数指定所需要的新mapping的大小，会向上舍入到系统页大小的下一个整数倍数
+- `flags`是一个bit mask，来控制重新mapping时kernel是否会为process的虚拟地址空间中重新指定一个位置
+	- `MREMAP_MAYMOVE` kernel可能会在process的虚拟地址空间内为mapping重新指定一个位置，如果没有指定这个标记并且当前位置没有足够的空间来扩展mapping，则会返回ENOMEM错误
+	- `MREMAP_FIXED` 这个标记只能和`MREMAP_MAYMOVE`一起使用，指定了这个标记之后，`mremap()`会接收一个额外的参数`void *new_address`
+	  用来指定一个新的页对齐地址，并且将mapping迁移到新地址处，所有之前由`new_address`和`new_size`指定的地址范围内的mapping都会被解除
+
 ## MAP_NORESERVE and Swap Space Overcommitting
 
+- `kernel`如何处理交换空间的预留是由调用`mmap()`时`MAP_NORESERVE`标志控制，并通过影响系统范围内swap空间过度使用操作的`/proc`接口控制
+
+| overcommit_memory value | No MAP_NORESERVE specified in mmap() | AP_NORESERVE specified in mmap() |
+|-------------------------|--------------------------------------|----------------------------------|
+| 0                       | Deny obvious overcommits             | Allow overcommits                |
+| 1                       | Allow overcommits                    | Allow overcommits                |
+| 2 (since Linux 2.6)     | Deny obvious overcommits             | Strict overcommitting            |
+
+- Linux特有的`/proc/sys/vm/overcommit_memory`文件包含了一个整数值，控制着kernel对swap空间的过度使用的处理
+- 当一个child process在fork()调用中继承了一个mapping时，他也会继承该mapping的`MAP_NORESERVE`设置
+
+### The OOM killer
+
+- 当使用`lazy swap reservation`时，如果应用程序尝试使用它们的整个映射范围，内存可能会耗尽。在这种情况下，内核通过终止process来缓解内存耗尽
+- `out-of-memory (OOM) killer` kernel用来在内存被耗尽时选择杀死那个process的代码叫做OOM killer
+- Linux特定的`/proc/PID/oom_score`文件，显示了kernel在需要调用OOM killer时赋予process的权重，此文件中的值越大，在必要时被OOM killer选择中的可能性就越大
+- Linux特定的`/proc/PID/oom_adj`文件，可用于影响process的`oom_score`，该文件可以设置为–16到+15范围内的任何值，负值会降低`oom_score`
+  ，正值会增加它,特殊值–17将process从OOM killer候选者目标完全删除
+
 ## The MAP_FIXED Flag
+
+- 在`mmap()`的flag参数中指定`MAP_FIXED`会强制kernel准确解释`addr`中的地址，而不是将其作为提示，如果我们指定`MAP_FIXED`，则`addr`必须是页面对齐的
+- 一般来说，一个可移植的应用程序应当避免使用`MAP_FIXED`，并且需要将`addr`指定为NULL，这样就能允许系统选择将mapping放置在何处了
 
 ## Nonlinear Mappings: remap_file_pages()
 
@@ -218,3 +249,5 @@ void *mremap(void *old_address, size_t old_size, size_t new_size, int flags, ...
 
 int remap_file_pages(void *addr, size_t size, int prot, size_t pgoff, int flags);
 ```
+
+- `remap_file_pages()`syscall已经被弃用

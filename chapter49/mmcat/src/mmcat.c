@@ -29,6 +29,10 @@ int mmcat(int argc, char *argv[]) {
         return (EXIT_FAILURE);
     }
 
+    if (sb.st_size == 0) {
+        exit(EXIT_SUCCESS);
+    }
+
     addr = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (addr == MAP_FAILED) {
         fprintf(stderr, "failed to call mmap(), %d\n", errno);
