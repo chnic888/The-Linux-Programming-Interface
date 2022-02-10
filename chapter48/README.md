@@ -25,7 +25,7 @@ int shmget(key_t key, size_t size, int shmflg);
 - `shmget()`系统调用创建一个新的共享内存segment或者获取一个已存在的segment标识符，新创建的segment中的内容会被初始化为0
 - `key`参数通常是值`IPC_PRIVATE`或者`ftok()`的返回的key
 - `size`参数在`shmget()`创建和获取场景下有不同的含义
-	- 创建场景下，`size`是一个正整数，用来表示segment需要被分配的字节数量，且kernel以系统页面大小的倍数分配共享内存，因此`size`会向上舍入为系统页面大小的下一个倍数
+	- 创建场景下，`size`是一个正整数，用来表示segment需要被分配的字节数量，且kernel以系统分页面大小的倍数分配共享内存，因此`size`会向上舍入为系统分页面大小的下一个倍数
 	- 在获取场景下，`size`不会产生任何效果，但是必须要小于或者等于segment的大小
 - `shmflg` 是一个bit mask，用来指定新创建的信号量或者检查既有信号量的权限，还可以通过下述一个或多个标记取OR来控制操作
 	- `IPC_CREAT` 如果没有与指定`key`相对应的segment，则会创建一个新的segment
@@ -141,7 +141,7 @@ struct shmid_ds {
 ## Shared Memory Limits
 
 - `SHMMNI` 系统级别限制，限制了所能创建共享内存标识符识符的数量，也就是共享内存segment的数量
-- `SHMMIN` 限制了共享内存segment的最小字节数大小，这个限制被定义为了`1`且无法修改，但实际的限制是系统页的大小
+- `SHMMIN` 限制了共享内存segment的最小字节数大小，这个限制被定义为了`1`且无法修改，但实际的限制是系统分页的大小
 - `SHMMAX` 限制了共享内存segment的最大字节数大小，实际上线以来与可用的RAM和SWAP空间
 - `SHMALL` 系统级别限制，限制了共享内存中的页的总数量，实际值也依赖于可用的RAM和SWAP空间
 - `SHMSEG` process级别限制，限制了可以附加的共享内存segment的数量

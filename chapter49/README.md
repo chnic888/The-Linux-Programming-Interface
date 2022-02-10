@@ -4,12 +4,12 @@
 
 - `mmap()`syscall在calling process的虚拟地址空间中创建一个新的内存mapping
 	- `file mapping` 将文件的一个区域直接mapping到calling
-	  process的虚拟内存中。一旦一个文件被mapping，其内容就可以通过对相应内存区域中的字节的操作来访问，mapping页会按需的从文件中自动加载
+	  process的虚拟内存中。一旦一个文件被mapping，其内容就可以通过对相应内存区域中的字节的操作来访问，mapping分页会按需的从文件中自动加载
 	- `anonymous mapping` 不会有具体相对应的文件，则会mapping一个内容被初始化为0的虚拟文件
-- 一个process mapping的内存可以与其他process的mapping共享，即每个process的页表项指向相同的RAM页
-	- 如果两个process mapping文件的同一区域，则它们会共享相同的物理内存页
-	- 由`fork()`创建的child process会继承parent process mapping的副本，child中的mapping与parent中的相应mapping会引用相同的物理内存页
-- 当两个或多个process共享相同的页时，每个process都可能看到其他process对页内容所做的更改，具体取决于mapping是私有的还是共享
+- 一个process mapping的内存可以与其他process的mapping共享，即每个process的分页表项指向相同的RAM分页
+	- 如果两个process mapping文件的同一区域，则它们会共享相同的物理内存分页
+	- 由`fork()`创建的child process会继承parent process mapping的副本，child中的mapping与parent中的相应mapping会引用相同的物理内存分页
+- 当两个或多个process共享相同的分页时，每个process都可能看到其他process对分页内容所做的更改，具体取决于mapping是私有的还是共享
 	- `private mapping (MAP_PRIVATE)` mapping的内容中发生的修改对其他process不可见，对于文件mapping来说，变更不会发生在底层文件上
 	- `shared mapping (MAP_SHARED)` mapping的内容中发生的修改对所有共享同一个mapping的process都可见，对于文件mapping来说，变更会发生在底层的文件上
 
@@ -18,11 +18,11 @@
 | Private                     | Initializing memory from contents of file                  | Memory allocation                      |
 | Shared                      | Memory-mapped I/O; sharing memory between processes (IPC)  | Sharing memory between processes (IPC) |
 
-- `private file mapping` mapping的内容会用文件区域中的内容来初始化，映射同一个文件的多个process最初共享相同的内存物理页，但采用了`copy-on-write`
+- `private file mapping` mapping的内容会用文件区域中的内容来初始化，映射同一个文件的多个process最初共享相同的内存物理分页，但采用了`copy-on-write`
   技术，因此一个process对映射的更改对其他process是不可见的
-- `private anonymous mapping` 每次调用`mmap()`都会产生一个新mapping，且该mapping与同一或不同process创建的匿名mapping不同，即不会共享物理页
-- `shared file mapping` mapping文件同一区域的所有process会共享相同的内存物理页，且物理页是用文件区域的内容来初始化的
-- `shared anonymous mapping` 每次调用`mmap()`都会产生一个新的和不同的mapping，且该mapping不与任何其他mapping共享页面
+- `private anonymous mapping` 每次调用`mmap()`都会产生一个新mapping，且该mapping与同一或不同process创建的匿名mapping不同，即不会共享物理分页
+- `shared file mapping` mapping文件同一区域的所有process会共享相同的内存物理分页，且物理分页是用文件区域的内容来初始化的
+- `shared anonymous mapping` 每次调用`mmap()`都会产生一个新的和不同的mapping，且该mapping不与任何其他mapping共享分页面
 
 - 当process执行`exec()`时，mapping会丢失，但通过`fork()`创建的child process则会继承mapping，同时mapping的类型`MAP_PRIVATE`或`MAP_SHARED`也会被继承
 
@@ -36,7 +36,7 @@ void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 
 - `mmap()`syscall会在calling process的虚拟地址空间中创建一个新的mapping，并返回新的mapping的起始地址
 - `addr`参数指定了mapping所在的虚拟地址，如果指定为`NULL`，那么kernel会为mapping选择一个合适的地址，这个是创建mapping的首选方式
-- `length`参数指定了mapping的以字节为单位的大小，且无需是系统页`sysconf(_SC_PAGESIZE)`的倍数，kernel会根据`length`的值自动向上舍入为系统页面大小的下一个倍数
+- `length`参数指定了mapping的以字节为单位的大小，且无需是系统分页`sysconf(_SC_PAGESIZE)`的倍数，kernel会根据`length`的值自动向上舍入为系统分页面大小的下一个倍数
 - `prot`参数是一个bit mask，用来指定作用于mapping上的保护标记，取值要么为` PROT_NONE`，要么为其他三个标记取OR的组合
 
 | Value      | Description                                |
@@ -50,17 +50,17 @@ void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 	- `MAP_PRIVATE` 创建私有mapping，区域内容的修改对使用相同mapping的其他process不可见，对于`file mapping`，发生的变更不会发应到底层文件
 	- `MAP_SHARED` 创建一个共享mapping，区域内容的变更对使用`MAP_SHARED`属性来mapping同一片区域的其他process是可见的，对于`file mapping`，发生的变更将直接发应到底层文件
 - `fd`参数只应用于`file mapping`，标识被mapping的文件的file descriptor
-- `offset`参数只应用于`file mapping`，指定了mapping在文件中的起点，且必须是一个系统页的倍数，要指定整个文件就需要将`offset`指定为0且`length`指定为文件大小
+- `offset`参数只应用于`file mapping`，指定了mapping在文件中的起点，且必须是一个系统分页的倍数，要指定整个文件就需要将`offset`指定为0且`length`指定为文件大小
 
 ### Memory protection in more detail
 
-- 标记为`PROT_NONE`的内存页的一种用途是在process已分配的内存区域的开始或结束处作为保护页。如果process意外的访问了标记为`PROT_NONE`的页面，kernel会通过生成`SIGSEGV`signal来通知
+- 标记为`PROT_NONE`的内存分页的一种用途是在process已分配的内存区域的开始或结束处作为保护分页。如果process意外的访问了标记为`PROT_NONE`的分页面，kernel会通过生成`SIGSEGV`signal来通知
 - 内存保护驻留在process专用的虚拟内存表中。因此不同的process可能会使用不同保护标记来mapping相同内存区域
 - 使用`mprotect()`syscall可以修改内存的保护标记
 
 ### Alignment restrictions specified in standards for offset and addr
 
-- SUSv3规定`mmap()`的`offset`参数必须是页面对齐的，如果指定了`MAP_FIXED`，则`addr`参数也必须是页面对齐的
+- SUSv3规定`mmap()`的`offset`参数必须是分页面对齐的，如果指定了`MAP_FIXED`，则`addr`参数也必须是分页面对齐的
 
 ## Unmapping a Mapped Region: munmap()
 
@@ -71,7 +71,7 @@ int munmap(void *addr, size_t length);
 ```
 
 - `munmap()`syscall从calling process的虚拟地址空间中删除一个mapping
-- `addr`参数是要取消mapping的地址范围的起始地址，它必须与页面边界对齐
+- `addr`参数是要取消mapping的地址范围的起始地址，它必须与分页面边界对齐
 - `length`参数是一个非负的整数，指定了需要解除mapping区域的字节数大小
 - 在unmapping期间，kernel会删除process持有的在指定地址范围内的所有内存锁
 - 当一个process终止或者执行了`exec()`之后process中所有的mapping会被自动解除
@@ -86,7 +86,7 @@ int munmap(void *addr, size_t length);
 
 ![49-1.png](./img/49-1.png)
 
-- `offset`参数指定了从文件区域的mapping的起始字节，并且必须是系统页大小的倍数，指定为`0`将会从文件起始位置开始mapping
+- `offset`参数指定了从文件区域的mapping的起始字节，并且必须是系统分页大小的倍数，指定为`0`将会从文件起始位置开始mapping
 - `length`参数指定了需要mapping的字节数，他和`offsite`一起确定了文件的哪个区域会被mapping进内存
 
 ### Private File Mappings
@@ -97,7 +97,7 @@ int munmap(void *addr, size_t length);
 
 ### Shared File Mappings
 
-- 多个process创建了同一个文件区域的`shared file mappings`时，他们会共享相同的内存物理页，对mapping的内容的变更将会反映到文件上
+- 多个process创建了同一个文件区域的`shared file mappings`时，他们会共享相同的内存物理分页，对mapping的内容的变更将会反映到文件上
 
 ![49-2.png](./img/49-2.png)
 
@@ -117,18 +117,18 @@ int munmap(void *addr, size_t length);
 
 #### IPC using a shared file mapping
 
-- 由于具有相同文件区域的`shared mapping`的所有process共享相同的内存物理页，因此`share file mapping`也可以作为一种快速IPC的方法
+- 由于具有相同文件区域的`shared mapping`的所有process共享相同的内存物理分页，因此`share file mapping`也可以作为一种快速IPC的方法
 - `share file mapping`和System V的共享内存对象之间的区别在于区域中内容上的变更会反映到底层的mapping文件上
 
 ### Boundary Cases
 
 ![49-3.png](./img/49-3.png)
 
-- 如果mapping完全落在文件的范围内，但区域的大小不是系统页面大小的倍数，由于mapping的大小不是系统页面大小的倍数，因此必须向上舍入到系统页面大小的下一个倍数
+- 如果mapping完全落在文件的范围内，但区域的大小不是系统分页面大小的倍数，由于mapping的大小不是系统分页面大小的倍数，因此必须向上舍入到系统分页面大小的下一个倍数
 
 ![49-4.png](./img/49-4.png)
 
-- 如果mapping超过文件的末尾时，由于mapping的大小不是系统页面大小的倍数，因此会被向上舍入到系统页面大小的下一个倍数，虽然向上舍入的区域是可访问的，但是他们不会被mapping到底层文件上，并且会被初始化为0
+- 如果mapping超过文件的末尾时，由于mapping的大小不是系统分页面大小的倍数，因此会被向上舍入到系统分页面大小的下一个倍数，虽然向上舍入的区域是可访问的，但是他们不会被mapping到底层文件上，并且会被初始化为0
 
 ### Memory Protection and File Access Mode Interactions
 
@@ -147,8 +147,8 @@ int msync(void *addr, size_t length, int flags);
 ```
 
 - `msync()`syscall可以显示的控制合适完成一个share mapping与映射文件之间的同步，调用`msync()`还允许应用程序确保在可写mapping的更新对在该文件上执行`read()`的其他process可见。
-- `addr`参数指定了需要同步的内存区域的起始地址，`addr`指定的地址必须是页对其的
-- `length`参数指定了需要同步的内存区域的大小，`addr`会被向上舍入到系统页大小的下一个整数倍
+- `addr`参数指定了需要同步的内存区域的起始地址，`addr`指定的地址必须是分页对其的
+- `length`参数指定了需要同步的内存区域的大小，`addr`会被向上舍入到系统分页大小的下一个整数倍
 - `flags`参数包括了下面值中的一个
 	- `MS_SYNC` 执行一个同步的文件写入，内存区域会与磁盘同步，且这个调用会阻塞到内存区域中所有被修改过的page被写入到从磁盘为止
 	- `MS_ASYNC` 执行一个异步文件写入，内存区域中被修改过的page会与`kernel buffer cache`同步，并在后面的某个时刻被写入到磁盘，其他process在相应文件区域执行`read()`操作对改变立即可见
@@ -207,13 +207,13 @@ void *mremap(void *old_address, size_t old_size, size_t new_size, int flags, ...
 ```
 
 - `mremap()` Linux下提供的特有的syscall来修改mapping的位置和大小，调用成功时候会返回mapping的起始地址
-- `old_address` 参数指定了需要扩展或缩小的现有mapping的位置，指定的地址必须是页对齐的，并且通常是之前`mmap()`调用的返回值
-- `old_size` 参数指定了需要扩展或缩小的现有mapping的大小，会向上舍入到系统页大小的下一个整数倍数
-- `new_size` 参数指定所需要的新mapping的大小，会向上舍入到系统页大小的下一个整数倍数
+- `old_address` 参数指定了需要扩展或缩小的现有mapping的位置，指定的地址必须是分页对齐的，并且通常是之前`mmap()`调用的返回值
+- `old_size` 参数指定了需要扩展或缩小的现有mapping的大小，会向上舍入到系统分页大小的下一个整数倍数
+- `new_size` 参数指定所需要的新mapping的大小，会向上舍入到系统分页大小的下一个整数倍数
 - `flags`是一个bit mask，来控制重新mapping时kernel是否会为process的虚拟地址空间中重新指定一个位置
 	- `MREMAP_MAYMOVE` kernel可能会在process的虚拟地址空间内为mapping重新指定一个位置，如果没有指定这个标记并且当前位置没有足够的空间来扩展mapping，则会返回ENOMEM错误
 	- `MREMAP_FIXED` 这个标记只能和`MREMAP_MAYMOVE`一起使用，指定了这个标记之后，`mremap()`会接收一个额外的参数`void *new_address`
-	  用来指定一个新的页对齐地址，并且将mapping迁移到新地址处，所有之前由`new_address`和`new_size`指定的地址范围内的mapping都会被解除
+	  用来指定一个新的分页对齐地址，并且将mapping迁移到新地址处，所有之前由`new_address`和`new_size`指定的地址范围内的mapping都会被解除
 
 ## MAP_NORESERVE and Swap Space Overcommitting
 
@@ -238,7 +238,7 @@ void *mremap(void *old_address, size_t old_size, size_t new_size, int flags, ...
 
 ## The MAP_FIXED Flag
 
-- 在`mmap()`的flag参数中指定`MAP_FIXED`会强制kernel准确解释`addr`中的地址，而不是将其作为提示，如果我们指定`MAP_FIXED`，则`addr`必须是页面对齐的
+- 在`mmap()`的flag参数中指定`MAP_FIXED`会强制kernel准确解释`addr`中的地址，而不是将其作为提示，如果我们指定`MAP_FIXED`，则`addr`必须是分页面对齐的
 - 一般来说，一个可移植的应用程序应当避免使用`MAP_FIXED`，并且需要将`addr`指定为NULL，这样就能允许系统选择将mapping放置在何处了
 
 ## Nonlinear Mappings: remap_file_pages()
