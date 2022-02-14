@@ -9,14 +9,14 @@
 
 ## API Overview
 
-| Interface                 | Message queues                               | Semaphores                    | Shared memory                  |
-|---------------------------|----------------------------------------------|-------------------------------|--------------------------------|
-| Header file               | <sys/msg.h>                                  | <sys/sem.h>                   | <sys/shm.h>                    |
-| Associated data structure | msqid_ds                                     | semid_ds                      | shmid_ds                       |
-| Create/open object        | msgget()                                     | semget()                      | shmget() + shmat()             |
-| Close object              | (none)                                       | (none)                        | shmdt()                        |
-| Control operations        | msgctl()                                     | semctl()                      | shmctl()                       |
-| Performing IPC            | msgsnd()—write message msgrcv()—read message | semop()—test/adjust semaphore | access memory in shared region |
+| Interface                 | Message queues                                   | Semaphores                    | Shared memory                  |
+|---------------------------|--------------------------------------------------|-------------------------------|--------------------------------|
+| Header file               | <sys/msg.h>                                      | <sys/sem.h>                   | <sys/shm.h>                    |
+| Associated data structure | msqid_ds                                         | semid_ds                      | shmid_ds                       |
+| Create/open object        | msgget()                                         | semget()                      | shmget() + shmat()             |
+| Close object              | (none)                                           | (none)                        | shmdt()                        |
+| Control operations        | msgctl()                                         | semctl()                      | shmctl()                       |
+| Performing IPC            | msgsnd()—write message<br/>msgrcv()—read message | semop()—test/adjust semaphore | access memory in shared region |
 
 ### Creating and opening a System V IPC object
 
@@ -29,7 +29,7 @@
 
 - 对于消息队列和信号量来说，IPC对象的删除会立刻生效，对象中包含的所有信息都会被销毁，不管其他的process是否任然在使用这个IPC对象
 - 对于删除共享内存对象来说，在`shmctl(id, IPC_RMID, NULL)`调用之后，只有当所有使用该内存segment的`process`和该内存segment分离`shmdt()`之后，共享内存对象才会被删除
-- System V IPC对象具有kernel持久性，一旦被创建之后会一直存在直到它被显示地删除或者系统被关闭
+- **System V IPC对象具有kernel持久性，一旦被创建之后会一直存在直到它被显示地删除或者系统被关闭**
 
 ## IPC Keys
 
