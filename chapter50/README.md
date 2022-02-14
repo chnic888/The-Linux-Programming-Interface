@@ -84,8 +84,8 @@ int mincore(void *addr, size_t length, unsigned char *vec);
 
 - `mincore()`syscall是`mlock`的补充，它报告一个虚拟地址范围内的哪些页面当前驻留在`RAM`中，因此在访问这些分页时候也不会导致页面错误
 - `mincore()`syscall返回起始地址为`addr`长度为`length`字节的虚拟地址范围内分页的内存驻留信息
-    - `addr`指定的地址必须是内存对齐的
-    - `length`实际会被向上舍入到系统分页大小的下一个整数倍，因为`mincore()`返回的信息是有关整个分页的
+	- `addr`指定的地址必须是内存对齐的
+	- `length`实际会被向上舍入到系统分页大小的下一个整数倍，因为`mincore()`返回的信息是有关整个分页的
 - `vec` 内存驻留的信息会通过`vec`来返回，`vec`为一个数组，大小为`(length + PAGE_SIZE – 1) / PAGE_SIZE`字节
 
 ## Advising Future Memory Usage Patterns: madvise()
@@ -96,3 +96,13 @@ int mincore(void *addr, size_t length, unsigned char *vec);
 
 int madvise(void *addr, size_t length, int advice);
 ```
+
+- `madvise()`syscall通过通知kernel calling process的从`addr`开始并持续到`length`个字节的范围内的分页的使用情况，来提升程序的性能，kernel可以使用此信息来提高分页下的file
+  mapping上执行I/O的效率
+- `addr`的值必须是分页对齐的，`length`实际上会被向上舍入到系统分页大小的下一个整数倍
+- `advice`为程序对分页的使用的参考说明
+	- `MADV_NORMAL` 默认行为，这个值会导致与预读和后读
+	- `MADV_RANDOM` 区域内的分页会被随机访问，预读不会产生收益，因此kernel应该在每次读取时取出最少的数据量
+	- `MADV_SEQUENTIAL` 范围内的分页只会被访问一次，并且是顺序访问，并且分页被访问后就可以将其释放
+	- `MADV_WILLNEED` 预读这个范围内的分页备用
+	- `MADV_DONTNEED` calling process不再要求区域内的分页驻留在内存中
