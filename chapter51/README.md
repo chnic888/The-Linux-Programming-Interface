@@ -19,7 +19,7 @@
 
 ### IPC object names
 
-- SUSv3规定唯一一种用来标识POSIX IPC对象的可以之的方式是使用协线打头后面跟着一个或者多个非斜线
+- SUSv3指定标识POSIX IPC对象的唯一可移植方式，即字符串使用协线打头，后跟一个或者多个非斜线字符
 
 ### Creating or opening an IPC object
 
