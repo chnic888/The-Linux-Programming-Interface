@@ -7,7 +7,7 @@ sudo apt install cmake
 
 sudo apt install libacl1-dev
 
-sudo apt-get install libcap-dev
+sudo apt install libcap-dev
 
 sh ./build.sh
 ```
